@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { Project, Prompt } from "@/types";
-import { Plus, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft, Trash2 } from "lucide-react";
 
 export default function ProjectDetailsPage() {
     const params = useParams();
@@ -64,6 +64,16 @@ export default function ProjectDetailsPage() {
         }
     };
 
+    const handleDeletePrompt = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this prompt? This will delete all its versions and history.")) return;
+        try {
+            await api.deletePrompt(id);
+            setPrompts(prompts.filter(p => p.id !== id));
+        } catch (error) {
+            console.error("Failed to delete prompt", error);
+        }
+    };
+
     if (!projectId) return <div>Invalid Project ID</div>;
     if (!project) return <div className="p-8">Loading project...</div>;
 
@@ -107,9 +117,19 @@ export default function ProjectDetailsPage() {
                                         <h4 className="font-semibold">{prompt.name}</h4>
                                         <p className="text-xs text-zinc-500">Updated {new Date(prompt.updated_at).toLocaleDateString()}</p>
                                     </div>
-                                    <Link href={`/prompts/${prompt.id}`}>
-                                        <Button variant="secondary" size="sm">Open Workspace</Button>
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <Link href={`/prompts/${prompt.id}`}>
+                                            <Button variant="secondary" size="sm">Open Workspace</Button>
+                                        </Link>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-9 w-9 text-zinc-400 hover:text-red-500"
+                                            onClick={() => handleDeletePrompt(prompt.id)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                             {prompts.length === 0 && (

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { Project, User } from "@/types";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
 export default function ProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -65,6 +65,18 @@ export default function ProjectsPage() {
         }
     };
 
+    const handleDeleteProject = async (id: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!confirm("Are you sure you want to delete this project? This will delete everything inside it (prompts, versions, runs).")) return;
+        try {
+            await api.deleteProject(id);
+            setProjects(projects.filter(p => p.id !== id));
+        } catch (error) {
+            console.error("Failed to delete project", error);
+        }
+    };
+
     return (
         <div className="space-y-8">
             <div className="flex items-center justify-between">
@@ -97,10 +109,22 @@ export default function ProjectsPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {projects.map((project) => (
                     <Link key={project.id} href={`/projects/${project.id}`}>
-                        <Card className="h-full transition-all hover:border-blue-500/50 hover:shadow-md cursor-pointer">
+                        <Card className="h-full transition-all hover:border-blue-500/50 hover:shadow-md cursor-pointer group relative">
                             <CardHeader>
-                                <CardTitle>{project.name}</CardTitle>
-                                <CardDescription>Created {new Date(project.created_at).toLocaleDateString()}</CardDescription>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <CardTitle>{project.name}</CardTitle>
+                                        <CardDescription>Created {new Date(project.created_at).toLocaleDateString()}</CardDescription>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 hover:text-red-500"
+                                        onClick={(e) => handleDeleteProject(project.id, e)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-zinc-500 line-clamp-3">
