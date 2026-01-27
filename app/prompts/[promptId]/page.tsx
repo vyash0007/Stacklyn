@@ -19,7 +19,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2, Clock } from "lucide-react";
+import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2, Clock, GitCompare } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +54,17 @@ export default function PromptWorkspacePage() {
     const [tagDialogOpen, setTagDialogOpen] = useState(false);
     const [tagName, setTagName] = useState("");
     const [commitToTag, setCommitToTag] = useState<Commit | null>(null);
+
+    // Compare State
+    const [compareDialogOpen, setCompareDialogOpen] = useState(false);
+    const [commitToCompare, setCommitToCompare] = useState<Commit | null>(null);
+    const [compareTargetId, setCompareTargetId] = useState<string>("");
+    const [comparisonResult, setComparisonResult] = useState<{
+        oldCommit: { id: string; system_prompt: string; commit_message: string; created_at: string };
+        newCommit: { id: string; system_prompt: string; commit_message: string; created_at: string };
+        diff: Array<{ value: string; type: "added" | "removed" | "unchanged" }>;
+    } | null>(null);
+    const [isComparing, setIsComparing] = useState(false);
 
     useEffect(() => {
         if (promptId) loadData();
@@ -272,6 +283,27 @@ export default function PromptWorkspacePage() {
         }
     };
 
+    const openCompareDialog = () => {
+        if (!selectedCommit) return;
+        setCommitToCompare(selectedCommit);
+        setCompareTargetId("");
+        setComparisonResult(null);
+        setCompareDialogOpen(true);
+    };
+
+    const handleCompare = async () => {
+        if (!commitToCompare || !compareTargetId) return;
+        setIsComparing(true);
+        try {
+            const result = await api.compareCommits(commitToCompare.id, compareTargetId);
+            setComparisonResult(result);
+        } catch (error) {
+            console.error("Failed to compare commits", error);
+        } finally {
+            setIsComparing(false);
+        }
+    };
+
     if (!promptId) return <div>Invalid ID</div>;
     if (!prompt) return <div className="p-8">Loading workspace...</div>;
 
@@ -293,6 +325,16 @@ export default function PromptWorkspacePage() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={openCompareDialog}
+                            disabled={!selectedCommit || commits.length < 2}
+                            className="h-8 text-[11px] font-bold text-slate-600 border-slate-200 hover:bg-slate-50"
+                        >
+                            <GitCompare className="mr-2 h-3.5 w-3.5" />
+                            Compare
+                        </Button>
                         <Button
                             variant="outline"
                             size="sm"
@@ -539,6 +581,102 @@ export default function PromptWorkspacePage() {
                     <DialogFooter>
                         <Button onClick={handleCreateTag} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all">Add Tag</Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
+                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-bold">Compare Versions</DialogTitle>
+                        <DialogDescription className="text-[13px] text-slate-500">
+                            Compare version {commitToCompare?.id.substring(0, 6)} with another version
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {!comparisonResult ? (
+                        <div className="grid gap-4 py-4">
+                            <div className="space-y-2">
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Compare With</Label>
+                                <select
+                                    value={compareTargetId}
+                                    onChange={(e) => setCompareTargetId(e.target.value)}
+                                    className="w-full h-10 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
+                                >
+                                    <option value="">Select a version...</option>
+                                    {commits
+                                        .filter(c => c.id !== commitToCompare?.id)
+                                        .map(c => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.id.substring(0, 6)} - {c.commit_message}
+                                            </option>
+                                        ))
+                                    }
+                                </select>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    onClick={handleCompare}
+                                    disabled={!compareTargetId || isComparing}
+                                    className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all"
+                                >
+                                    {isComparing ? "Comparing..." : "Compare"}
+                                </Button>
+                            </DialogFooter>
+                        </div>
+                    ) : (
+                        <div className="flex-1 overflow-hidden flex flex-col">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-4 text-[11px]">
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="w-3 h-3 rounded bg-red-100 border border-red-200"></span>
+                                        <span className="text-slate-500">Removed</span>
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <span className="w-3 h-3 rounded bg-green-100 border border-green-200"></span>
+                                        <span className="text-slate-500">Added</span>
+                                    </span>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setComparisonResult(null)}
+                                    className="h-7 text-[10px]"
+                                >
+                                    Compare Another
+                                </Button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto border border-slate-200 rounded-lg bg-white">
+                                <div className="text-[14px] leading-relaxed">
+                                    {comparisonResult.diff.map((part, index) => {
+                                        if (part.type === "unchanged") {
+                                            return (
+                                                <span key={index} className="text-slate-700">
+                                                    {part.value}
+                                                </span>
+                                            );
+                                        }
+                                        if (part.type === "removed") {
+                                            return (
+                                                <div key={index} className="bg-red-100 border-l-4 border-red-400 px-3 py-2 my-1">
+                                                    <span className="text-red-500 font-bold mr-2 select-none">−</span>
+                                                    <span className="text-red-800">{part.value}</span>
+                                                </div>
+                                            );
+                                        }
+                                        if (part.type === "added") {
+                                            return (
+                                                <div key={index} className="bg-green-100 border-l-4 border-green-400 px-3 py-2 my-1">
+                                                    <span className="text-green-600 font-bold mr-2 select-none">+</span>
+                                                    <span className="text-green-800">{part.value}</span>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </div>

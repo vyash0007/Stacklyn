@@ -84,4 +84,11 @@ export const api = {
     deleteTag: (commitId: string, tagName: string) => fetchAPI(`/commits/${commitId}/tags/${tagName}`, { method: "DELETE" }),
     getTags: () => fetchAPI<Tag[]>("/tags/mappings"),
     getTagsByCommitId: (commitId: string) => fetchAPI<Tag[]>(`/commits/${commitId}/tags`),
+
+    // Compare
+    compareCommits: (commitId1: string, commitId2: string) => fetchAPI<{
+        oldCommit: { id: string; system_prompt: string; commit_message: string; created_at: string };
+        newCommit: { id: string; system_prompt: string; commit_message: string; created_at: string };
+        diff: Array<{ value: string; type: "added" | "removed" | "unchanged" }>;
+    }>(`/commits/compare/${commitId1}/${commitId2}`),
 };
