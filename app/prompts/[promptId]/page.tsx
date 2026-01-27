@@ -19,7 +19,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2, Clock } from "lucide-react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { cn } from "@/lib/utils";
 
 export default function PromptWorkspacePage() {
     const params = useParams();
@@ -274,214 +276,221 @@ export default function PromptWorkspacePage() {
     if (!prompt) return <div className="p-8">Loading workspace...</div>;
 
     return (
-        <div className="h-[calc(100vh-6rem)] flex flex-col space-y-4">
-            <div className="flex items-center justify-between border-b pb-4">
-                <div className="flex items-center gap-4">
-                    <Link href={`/projects/${prompt.project_id}`}>
-                        <Button variant="ghost" size="icon"><ArrowLeft className="h-4 w-4" /></Button>
-                    </Link>
-                    <div>
-                        <h2 className="text-xl font-bold">{prompt.name}</h2>
-                        <p className="text-xs text-zinc-500">Workspace</p>
+        <div className="min-h-screen bg-white flex flex-col">
+            <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/30">
+                {/* Header */}
+                <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-40">
+                    <div className="flex items-center gap-3">
+                        <Link href={`/workspace/projects/${prompt.project_id}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                                <ArrowLeft className="h-4 w-4" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-[13px] font-bold text-slate-900 leading-none">{prompt.name}</h1>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 block">Workspace</span>
+                        </div>
                     </div>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleCommit} disabled={isSaving}>
-                        <GitCommit className="mr-2 h-4 w-4" />
-                        Commit Version
-                    </Button>
 
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-3">
                         <Button
-                            className="rounded-r-none border-r-0"
-                            onClick={() => handleRun()} // Default run
-                            disabled={isRunning || !selectedCommit}
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCommit}
+                            disabled={isSaving}
+                            className="h-8 text-[11px] font-bold text-slate-600 border-slate-200 hover:bg-slate-50"
                         >
-                            <Play className="mr-2 h-4 w-4" />
-                            {isRunning ? "Running..." : "Run"}
+                            <GitCommit className="mr-2 h-3.5 w-3.5" />
+                            Commit Version
                         </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button className="rounded-l-none px-2" disabled={isRunning || !selectedCommit}>
-                                    <ChevronDown className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={handleRunAll}>
-                                    <Layers className="mr-2 h-4 w-4" />
-                                    Run All Models
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuLabel>Run with...</DropdownMenuLabel>
-                                {availableModels.map(model => (
-                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)}>
-                                        <Zap className="mr-2 h-4 w-4" />
-                                        {model}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </div>
-            </div>
 
-            <div className="grid grid-cols-12 gap-6 h-full min-h-0">
-                <div className="col-span-2 overflow-y-auto border-r pr-4 space-y-4">
-                    <h3 className="font-semibold text-sm text-zinc-500">Versions</h3>
-                    {commits.map(commit => {
-                        const commitTags = tags.filter(t => t.commit_id === commit.id);
-                        return (
-                            <div
-                                key={commit.id}
-                                onClick={() => setSelectedCommit(commit)}
-                                className={`p-3 rounded-lg cursor-pointer border transition-colors group relative ${selectedCommit?.id === commit.id ? 'bg-zinc-100 border-zinc-300 dark:bg-zinc-800 dark:border-zinc-700' : 'hover:bg-zinc-50 dark:hover:bg-zinc-900 border-transparent'}`}
+                        <div className="flex items-center">
+                            <Button
+                                size="sm"
+                                className="h-8 text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-r-none border-r border-slate-700 px-4 transition-all"
+                                onClick={() => handleRun()}
+                                disabled={isRunning || !selectedCommit}
                             >
-                                <div className="flex items-center justify-between mb-1">
-                                    <div className="flex items-center gap-2">
-                                        <GitCommit className="h-3 w-3" />
-                                        <span className="text-xs font-mono">{commit.id.substring(0, 6)}</span>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-5 w-5 opacity-50 hover:opacity-100 transition-opacity"
-                                        onClick={(e) => openTagDialog(commit, e)}
-                                    >
-                                        <TagIcon className="h-3 w-3" />
+                                <Play className="mr-2 h-3.5 w-3.5 fill-current" />
+                                {isRunning ? "Running..." : "Run"}
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button size="sm" className="h-8 px-1.5 rounded-l-none bg-slate-900 hover:bg-slate-800 border-l-0" disabled={isRunning || !selectedCommit}>
+                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                                     </Button>
-                                </div>
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{commit.commit_message}</p>
-                                        <div className="flex flex-wrap gap-1 mt-1">
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <DropdownMenuItem onClick={handleRunAll} className="text-xs font-medium">
+                                        <Layers className="mr-2 h-3.5 w-3.5" />
+                                        Run All Models
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuLabel className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 py-1.5">Run with...</DropdownMenuLabel>
+                                    {availableModels.map(model => (
+                                        <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs">
+                                            <Zap className="mr-2 h-3.5 w-3.5 text-indigo-500" />
+                                            {model}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Main Content */}
+                <div className="flex-1 grid grid-cols-12 gap-0 overflow-hidden">
+                    {/* Left Column: Versions */}
+                    <div className="col-span-2 border-r border-slate-100 flex flex-col bg-white">
+                        <div className="p-4 border-b border-slate-100">
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Versions</h3>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                            {commits.map(commit => {
+                                const commitTags = tags.filter(t => t.commit_id === commit.id);
+                                const isActive = selectedCommit?.id === commit.id;
+                                return (
+                                    <div
+                                        key={commit.id}
+                                        onClick={() => setSelectedCommit(commit)}
+                                        className={cn(
+                                            "p-3 rounded-lg cursor-pointer transition-all border border-transparent group relative",
+                                            isActive
+                                                ? "bg-slate-50 border-slate-100"
+                                                : "hover:bg-slate-50/50"
+                                        )}
+                                    >
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <div className="flex items-center gap-1.5">
+                                                <GitCommit className={cn("h-3 w-3", isActive ? "text-indigo-600" : "text-slate-400")} />
+                                                <span className="text-[10px] font-mono text-slate-400">{commit.id.substring(0, 6)}</span>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400"
+                                                onClick={(e) => openTagDialog(commit, e)}
+                                            >
+                                                <TagIcon className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                        <h4 className={cn("text-[12px] font-semibold truncate mb-1", isActive ? "text-slate-900" : "text-slate-600")}>
+                                            {commit.commit_message}
+                                        </h4>
+                                        <div className="flex flex-wrap gap-1">
                                             {commitTags.map((tag, i) => (
-                                                <Badge key={`${tag.commit_id}-${tag.tag_name}-${i}`} variant="secondary" className="text-[10px] px-1 py-0 h-4 flex items-center gap-1 group/tag">
+                                                <Badge key={`${tag.commit_id}-${tag.tag_name}-${i}`} variant="secondary" className="text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none">
                                                     {tag.tag_name}
-                                                    <button
-                                                        onClick={(e) => handleDeleteTag(tag.commit_id, tag.tag_name, e)}
-                                                        className="hover:text-red-500 opacity-0 group-hover/tag:opacity-100 transition-opacity"
-                                                    >
-                                                        <X className="h-2 w-2" />
-                                                    </button>
                                                 </Badge>
                                             ))}
                                         </div>
+                                        <p className="text-[9px] text-slate-400 font-medium mt-2">
+                                            {new Date(commit.created_at).toLocaleDateString()} • {new Date(commit.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-6 w-6 opacity-0 group-hover/commit:opacity-100 transition-opacity hover:text-red-500 -mt-1"
-                                        onClick={(e) => handleDeleteCommit(commit.id, e)}
-                                    >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                    </Button>
-                                </div>
-                                <p className="text-[10px] text-zinc-400 mt-2">{new Date(commit.created_at).toLocaleString()}</p>
-                            </div>
-                        )
-                    })}
-                </div>
-
-                <div className="col-span-6 flex flex-col gap-4 overflow-y-auto">
-                    <Card className="flex-1 flex flex-col">
-                        <CardHeader className="py-3 px-4 border-b">
-                            <CardTitle className="text-sm">System Prompt</CardTitle>
-                        </CardHeader>
-                        <div className="flex-1 p-2">
-                            <textarea
-                                className="w-full h-full resize-none bg-transparent outline-none p-2 font-mono text-sm"
-                                value={systemPrompt}
-                                onChange={(e) => setSystemPrompt(e.target.value)}
-                                placeholder="You are a helpful assistant..."
-                            />
+                                )
+                            })}
                         </div>
-                    </Card>
-                    <Card className="flex-1 flex flex-col">
-                        <CardHeader className="py-3 px-4 border-b">
-                            <CardTitle className="text-sm">User Query</CardTitle>
-                        </CardHeader>
-                        <div className="flex-1 p-2">
-                            <textarea
-                                className="w-full h-full resize-none bg-transparent outline-none p-2 font-mono text-sm"
-                                value={userQuery}
-                                onChange={(e) => setUserQuery(e.target.value)}
-                                placeholder="Input text..."
-                            />
-                        </div>
-                    </Card>
-                    <div className="flex gap-2">
-                        <Input
-                            placeholder="Commit Message (required to save)"
-                            value={commitMessage}
-                            onChange={(e) => setCommitMessage(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <div className="col-span-4 overflow-y-auto border-l pl-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-sm text-zinc-500">Run History</h3>
-                        {scores.length > 0 && (
-                            <Badge variant="outline" className="gap-1">
-                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                {(scores.reduce((a, b) => a + b.score, 0) / scores.length).toFixed(2)} Avg
-                            </Badge>
-                        )}
                     </div>
 
-                    {runs.map(run => (
-                        <Card key={run.id} className="bg-zinc-50 dark:bg-zinc-900 group relative">
-                            <CardHeader className="py-2 px-3">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant={run.status === 'success' ? 'success' : 'destructive'}>{run.status}</Badge>
-                                        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 border px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
-                                            {run.model_name}
-                                        </span>
-                                    </div>
-                                    <div className="flex gap-2 text-xs text-zinc-400 items-center">
-                                        <span>{run.latency_ms}ms</span>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            onClick={() => openScoreDialog(run)}
-                                        >
-                                            <Star className="h-3 w-3" />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
-                                            onClick={() => handleDeleteRun(run.id)}
-                                        >
-                                            <Trash2 className="h-3 w-3" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="py-2 px-3">
-                                <div className="text-xs font-mono bg-zinc-900 text-zinc-50 p-2 rounded max-h-[300px] overflow-y-auto whitespace-pre-wrap">
-                                    {run.response}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                    {runs.length === 0 && <p className="text-sm text-zinc-500">No runs yet.</p>}
-                </div>
-            </div>
+                    {/* Middle Column: Editor */}
+                    <div className="col-span-7 border-r border-slate-100 flex flex-col bg-slate-50/30 overflow-y-auto">
+                        <div className="p-6 space-y-6 max-w-4xl mx-auto w-full">
+                            <Card className="shadow-sm border-slate-200/60 overflow-hidden">
+                                <CardHeader className="py-2.5 px-4 border-b border-slate-100 bg-slate-50/50">
+                                    <CardTitle className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">System Prompt</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <textarea
+                                        className="w-full min-h-[280px] p-5 text-[13px] bg-white outline-none border-none resize-none font-sans leading-relaxed text-slate-700 placeholder:text-slate-300"
+                                        value={systemPrompt}
+                                        onChange={(e) => setSystemPrompt(e.target.value)}
+                                        placeholder="You are a helpful assistant..."
+                                    />
+                                </CardContent>
+                            </Card>
 
+                            <Card className="shadow-sm border-slate-200/60 overflow-hidden">
+                                <CardHeader className="py-2.5 px-4 border-b border-slate-100 bg-slate-50/50">
+                                    <CardTitle className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">User Query</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <textarea
+                                        className="w-full min-h-[180px] p-5 text-[13px] bg-white outline-none border-none resize-none font-sans leading-relaxed text-slate-700 placeholder:text-slate-300"
+                                        value={userQuery}
+                                        onChange={(e) => setUserQuery(e.target.value)}
+                                        placeholder="Input text..."
+                                    />
+                                </CardContent>
+                            </Card>
+
+                            <Card className="shadow-sm border-slate-200/60 p-1 bg-white">
+                                <Input
+                                    placeholder="Update prompt..."
+                                    value={commitMessage}
+                                    onChange={(e) => setCommitMessage(e.target.value)}
+                                    className="border-none bg-transparent h-10 text-[13px] focus:ring-0"
+                                />
+                            </Card>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Run History */}
+                    <div className="col-span-3 flex flex-col bg-white">
+                        <div className="p-4 border-b border-slate-100">
+                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Run History</h3>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                            {runs.map(run => (
+                                <Card key={run.id} className="shadow-none border-slate-100 bg-slate-50/50 group relative hover:border-slate-200 transition-all">
+                                    <CardHeader className="py-2 px-3">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Badge className={cn(
+                                                    "text-[9px] font-bold uppercase px-1.5 py-0 h-4 border-none",
+                                                    run.status === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                                                )}>
+                                                    {run.status}
+                                                </Badge>
+                                                <span className="text-[10px] font-bold text-slate-500">
+                                                    {run.model_name}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[10px] text-slate-400 font-medium">{run.latency_ms}ms</span>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="py-2 px-3 pt-0">
+                                        <div className="text-[11px] font-medium text-slate-600 bg-white border border-slate-100 p-2.5 rounded-lg max-h-[160px] overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-sm">
+                                            {run.response}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            {runs.length === 0 && (
+                                <div className="text-center py-10 opacity-40">
+                                    <p className="text-[12px] font-medium text-slate-500">No runs yet.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            {/* Dialogs */}
             <Dialog open={scoreDialogOpen} onOpenChange={setScoreDialogOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Evaluate Result</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-lg font-bold">Evaluate Result</DialogTitle>
+                        <DialogDescription className="text-[13px] text-slate-500">
                             Score this execution result to track quality over time.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label>Score (0.0 - 1.0)</Label>
+                    <div className="grid gap-6 py-4">
+                        <div className="space-y-2">
+                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Score (0.0 - 1.0)</Label>
                             <Input
                                 type="number"
                                 step="0.1"
@@ -489,43 +498,46 @@ export default function PromptWorkspacePage() {
                                 max="1"
                                 value={scoreValue}
                                 onChange={(e) => setScoreValue(e.target.value)}
+                                className="h-10 text-sm"
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label>Reasoning</Label>
+                        <div className="space-y-2">
+                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reasoning</Label>
                             <Input
                                 placeholder="Why this score?"
                                 value={scoreReasoning}
                                 onChange={(e) => setScoreReasoning(e.target.value)}
+                                className="h-10 text-sm"
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleCreateScore}>Save Score</Button>
+                        <Button onClick={handleCreateScore} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all">Save Score</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
             <Dialog open={tagDialogOpen} onOpenChange={setTagDialogOpen}>
-                <DialogContent>
+                <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle>Tag Version</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-lg font-bold">Tag Version</DialogTitle>
+                        <DialogDescription className="text-[13px] text-slate-500">
                             Add a tag to version {commitToTag?.id.substring(0, 6)}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label>Tag Name</Label>
+                        <div className="space-y-2">
+                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Tag Name</Label>
                             <Input
                                 placeholder="v1.0-release"
                                 value={tagName}
                                 onChange={(e) => setTagName(e.target.value)}
+                                className="h-10 text-sm"
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleCreateTag}>Add Tag</Button>
+                        <Button onClick={handleCreateTag} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all">Add Tag</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

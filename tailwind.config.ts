@@ -13,6 +13,15 @@ export default {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
             },
+            keyframes: {
+                scroll: {
+                    from: { transform: "translateX(0)" },
+                    to: { transform: "translateX(-50%)" },
+                },
+            },
+            animation: {
+                scroll: "scroll 40s linear infinite",
+            },
         },
     },
     plugins: [],

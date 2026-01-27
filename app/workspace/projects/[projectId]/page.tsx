@@ -78,53 +78,58 @@ export default function ProjectDetailsPage() {
     if (!project) return <div className="p-8">Loading project...</div>;
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center gap-4">
-                <Link href="/projects">
-                    <Button variant="ghost" size="icon">
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                </Link>
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{project.name}</h2>
-                    <p className="text-zinc-500 dark:text-zinc-400">{project.description}</p>
+        <div className="p-8 max-w-7xl mx-auto space-y-6">
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                    <Link href="/workspace/projects">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 hover:bg-slate-100">
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-900">{project.name}</h2>
                 </div>
+                <p className="text-[13px] text-slate-500 ml-10">{project.description}</p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
-                <Card className="col-span-2">
-                    <CardHeader>
-                        <CardTitle>Prompts</CardTitle>
-                        <CardDescription>Manage prompt chains within this project.</CardDescription>
+            <div className="grid gap-6 md:grid-cols-12">
+                <Card className="md:col-span-8 shadow-sm border-slate-200/60 transition-all hover:shadow-md/5">
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-lg font-bold text-slate-900">Prompts</CardTitle>
+                        <CardDescription className="text-[13px]">Manage prompt chains within this project.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex gap-4">
+                    <CardContent className="space-y-6">
+                        <div className="flex gap-3">
                             <Input
                                 placeholder="New Prompt Name (e.g., 'Hero Generator')"
                                 value={newPromptName}
                                 onChange={(e) => setNewPromptName(e.target.value)}
+                                className="h-9 text-[13px] bg-slate-50/50"
                             />
-                            <Button onClick={handleCreatePrompt} disabled={isLoading}>
+                            <Button onClick={handleCreatePrompt} disabled={isLoading} size="sm" className="bg-[#4F46E5] hover:bg-[#4338CA] transition-colors h-9 px-4">
                                 <Plus className="mr-2 h-4 w-4" />
                                 Add Prompt
                             </Button>
                         </div>
 
-                        <div className="space-y-2 mt-4">
+                        <div className="space-y-3">
                             {prompts.map(prompt => (
-                                <div key={prompt.id} className="flex items-center justify-between p-4 border rounded-lg bg-card text-card-foreground shadow-sm">
-                                    <div>
-                                        <h4 className="font-semibold">{prompt.name}</h4>
-                                        <p className="text-xs text-zinc-500">Updated {new Date(prompt.updated_at).toLocaleDateString()}</p>
+                                <div key={prompt.id} className="flex items-center justify-between p-4 border border-slate-200/60 rounded-xl bg-white shadow-sm hover:border-slate-300 transition-all group">
+                                    <div className="space-y-1">
+                                        <h4 className="font-semibold text-slate-900 text-sm">{prompt.name}</h4>
+                                        <p className="text-[11px] text-slate-400 font-medium">
+                                            Updated {prompt.updated_at ? new Date(prompt.updated_at).toLocaleDateString() : "Never"}
+                                        </p>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="flex items-center gap-2">
                                         <Link href={`/prompts/${prompt.id}`}>
-                                            <Button variant="secondary" size="sm">Open Workspace</Button>
+                                            <Button variant="outline" size="sm" className="h-8 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 border-slate-200">
+                                                Open Workspace
+                                            </Button>
                                         </Link>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-9 w-9 text-zinc-400 hover:text-red-500"
+                                            className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                             onClick={() => handleDeletePrompt(prompt.id)}
                                         >
                                             <Trash2 className="h-4 w-4" />
@@ -133,24 +138,31 @@ export default function ProjectDetailsPage() {
                                 </div>
                             ))}
                             {prompts.length === 0 && (
-                                <p className="text-center text-zinc-500 py-8">No prompts yet.</p>
+                                <div className="text-center text-slate-400 py-12 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                                    <p className="text-sm font-medium">No prompts yet.</p>
+                                    <p className="text-xs">Create your first prompt to get started.</p>
+                                </div>
                             )}
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="md:col-span-4 shadow-sm border-slate-200/60 h-fit">
                     <CardHeader>
-                        <CardTitle>Project Info</CardTitle>
+                        <CardTitle className="text-lg font-bold text-slate-900">Project Info</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm space-y-2">
-                        <div>
-                            <span className="font-semibold block">ID:</span>
-                            <span className="text-zinc-500 font-mono text-xs">{project.id}</span>
+                    <CardContent className="space-y-5">
+                        <div className="space-y-1.5">
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">ID:</span>
+                            <span className="text-[13px] text-slate-600 font-medium break-all block bg-slate-50/50 p-2 rounded-md border border-slate-100">
+                                {project.id}
+                            </span>
                         </div>
-                        <div>
-                            <span className="font-semibold block">Created By:</span>
-                            <span className="text-zinc-500 font-mono text-xs">{project.created_by}</span>
+                        <div className="space-y-1.5">
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Created By:</span>
+                            <span className="text-[13px] text-slate-600 font-medium block bg-slate-50/50 p-2 rounded-md border border-slate-100">
+                                {project.created_by}
+                            </span>
                         </div>
                     </CardContent>
                 </Card>

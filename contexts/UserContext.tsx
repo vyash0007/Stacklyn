@@ -54,7 +54,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        if (!isLoading && !user && pathname !== "/login") {
+        const publicPaths = ["/", "/login"];
+        if (!isLoading && !user && !publicPaths.includes(pathname)) {
             router.push("/login");
         }
     }, [user, isLoading, pathname]);
@@ -67,7 +68,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setUser(user);
             localStorage.setItem("stacklyn_user_id", user.id);
             localStorage.setItem("stacklyn_token", token);
-            router.push("/");
+            router.push("/workspace/dashboard");
         } catch (e) {
             console.error("Login failed", e);
             throw e;
@@ -84,7 +85,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setUser(user);
             localStorage.setItem("stacklyn_user_id", user.id);
             localStorage.setItem("stacklyn_token", token);
-            router.push("/");
+            router.push("/workspace/dashboard");
         } catch (e) {
             console.error("Signup failed", e);
             throw e;
