@@ -18,7 +18,7 @@ import {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const res = await fetch(`${BASE_URL}${endpoint}`, {
+    const res = await fetch(`${BASE_URL}/api${endpoint}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
