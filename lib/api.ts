@@ -54,6 +54,11 @@ export const api = {
     createProject: (data: CreateProjectDto) => fetchAPI<Project>("/projects", { method: "POST", body: JSON.stringify(data) }),
     deleteProject: (id: string) => fetchAPI(`/projects/${id}`, { method: "DELETE" }),
     getProjects: () => fetchAPI<Project[]>("/projects"),
+    getProjectMembers: (projectId: string) => fetchAPI<any[]>(`/projects/${projectId}/members`),
+    addProjectMemberByEmail: (projectId: string, data: { email: string; role?: string }) =>
+        fetchAPI(`/projects/${projectId}/members/email`, { method: "POST", body: JSON.stringify(data) }),
+    removeProjectMember: (projectId: string, userId: string) =>
+        fetchAPI(`/projects/${projectId}/members/${userId}`, { method: "DELETE" }),
 
     // Prompts
     createPrompt: (data: CreatePromptDto) => fetchAPI<Prompt>("/prompts", { method: "POST", body: JSON.stringify(data) }),
