@@ -11,7 +11,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { Prompt, Commit, Run, Score, Tag } from "@/types";
-import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+    DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers } from "lucide-react";
 
 export default function PromptWorkspacePage() {
     const params = useParams();
@@ -24,6 +32,7 @@ export default function PromptWorkspacePage() {
     const [runs, setRuns] = useState<Run[]>([]);
     const [scores, setScores] = useState<Score[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
+    const [availableModels, setAvailableModels] = useState<string[]>([]);
 
     // Editor State
     const [systemPrompt, setSystemPrompt] = useState("");
@@ -71,9 +80,13 @@ export default function PromptWorkspacePage() {
             setCommits(promptCommits);
 
             // Load all tags for context
-            // In a real app we might optimize this efficiently
             const allTags = await api.getTags();
             setTags(allTags);
+
+            // Load models
+            const models = await api.getAvailableModels();
+            const flatModels = Object.values(models).flat();
+            setAvailableModels(flatModels);
 
             if (promptCommits.length > 0) {
                 setSelectedCommit(promptCommits[0]);
@@ -125,14 +138,38 @@ export default function PromptWorkspacePage() {
         }
     };
 
-    const handleRun = async () => {
+    const handleRun = async (model?: string) => {
         if (!selectedCommit) return;
         setIsRunning(true);
         try {
-            const newRun = await api.executeCommit(selectedCommit.id);
-            setRuns([newRun, ...runs]);
+            const newRun = await api.executeCommit(selectedCommit.id, model);
+            setRuns(prev => [newRun, ...prev]);
         } catch (e) {
             console.error("Failed to run", e);
+        } finally {
+            setIsRunning(false);
+        }
+    };
+
+    const handleRunAll = async () => {
+        if (!selectedCommit || availableModels.length === 0) return;
+        setIsRunning(true);
+        try {
+            // Run all models in parallel
+            const promises = availableModels.map(model =>
+                api.executeCommit(selectedCommit.id, model)
+                    .catch(e => {
+                        console.error(`Failed to run model ${model}`, e);
+                        return null;
+                    })
+            );
+
+            const results = await Promise.all(promises);
+            const successfulRuns = results.filter(r => r !== null) as Run[];
+
+            setRuns(prev => [...successfulRuns, ...prev]);
+        } catch (e) {
+            console.error("Failed to run all models", e);
         } finally {
             setIsRunning(false);
         }
@@ -201,10 +238,38 @@ export default function PromptWorkspacePage() {
                         <GitCommit className="mr-2 h-4 w-4" />
                         Commit Version
                     </Button>
-                    <Button onClick={handleRun} disabled={isRunning || !selectedCommit}>
-                        <Play className="mr-2 h-4 w-4" />
-                        {isRunning ? "Running..." : "Run"}
-                    </Button>
+
+                    <div className="flex items-center">
+                        <Button
+                            className="rounded-r-none border-r-0"
+                            onClick={() => handleRun()} // Default run
+                            disabled={isRunning || !selectedCommit}
+                        >
+                            <Play className="mr-2 h-4 w-4" />
+                            {isRunning ? "Running..." : "Run"}
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="rounded-l-none px-2" disabled={isRunning || !selectedCommit}>
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={handleRunAll}>
+                                    <Layers className="mr-2 h-4 w-4" />
+                                    Run All Models
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel>Run with...</DropdownMenuLabel>
+                                {availableModels.map(model => (
+                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)}>
+                                        <Zap className="mr-2 h-4 w-4" />
+                                        {model}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
             </div>
 
@@ -235,9 +300,9 @@ export default function PromptWorkspacePage() {
                                 </div>
                                 <p className="text-sm font-medium truncate">{commit.commit_message}</p>
                                 <div className="flex flex-wrap gap-1 mt-1">
-                                    {commitTags.map(tag => (
-                                        <Badge key={tag.id} variant="secondary" className="text-[10px] px-1 py-0 h-4">
-                                            {tag.name}
+                                    {commitTags.map((tag, i) => (
+                                        <Badge key={`${tag.commit_id}-${tag.tag_name}-${i}`} variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                                            {tag.tag_name}
                                         </Badge>
                                     ))}
                                 </div>
@@ -298,7 +363,12 @@ export default function PromptWorkspacePage() {
                         <Card key={run.id} className="bg-zinc-50 dark:bg-zinc-900 group relative">
                             <CardHeader className="py-2 px-3">
                                 <div className="flex items-center justify-between">
-                                    <Badge variant={run.status === 'success' ? 'success' : 'destructive'}>{run.status}</Badge>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant={run.status === 'success' ? 'success' : 'destructive'}>{run.status}</Badge>
+                                        <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 border px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">
+                                            {run.model_name}
+                                        </span>
+                                    </div>
                                     <div className="flex gap-2 text-xs text-zinc-400 items-center">
                                         <span>{run.latency_ms}ms</span>
                                         <Button

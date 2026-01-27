@@ -29,7 +29,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || `API Error: ${res.statusText}`);
+        throw new Error(errorData.error || errorData.message || `API Error: ${res.statusText}`);
     }
 
     return res.json();
@@ -60,9 +60,10 @@ export const api = {
     // Runs
     createRun: (data: CreateRunDto) => fetchAPI<Run>("/runs", { method: "POST", body: JSON.stringify(data) }),
     getRuns: () => fetchAPI<Run[]>("/runs"),
+    getAvailableModels: () => fetchAPI<Record<string, string[]>>("/runs/models"),
 
     // Execution
-    executeCommit: (commitId: string) => fetchAPI<Run>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId }) }),
+    executeCommit: (commitId: string, model?: string) => fetchAPI<Run>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId, model }) }),
 
     // Scores
     createScore: (data: CreateScoreDto) => fetchAPI<Score>("/scores", { method: "POST", body: JSON.stringify(data) }),

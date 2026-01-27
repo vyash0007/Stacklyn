@@ -58,9 +58,8 @@ export interface Score {
 }
 
 export interface Tag {
-    id: string;
-    name: string;
     commit_id: string;
+    tag_name: string;
     created_at: string;
 }
 
