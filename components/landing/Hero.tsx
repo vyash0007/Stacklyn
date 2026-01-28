@@ -4,12 +4,10 @@ import Link from "next/link";
 import {
     Layers,
     ChevronRight,
-    PlayCircle,
-    Terminal,
-    Layout,
     Zap,
+    Terminal,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import WorkspacePreview from "./WorkspacePreview";
 
 export function Hero() {
     const companies = [
@@ -43,93 +41,7 @@ export function Hero() {
                 {/* Right Side: Preview */}
                 <div className="lg:w-1/2 relative group">
                     <div className="relative z-10 transform scale-100 lg:scale-110 transition-transform duration-500">
-                        <div className="relative bg-[#0F1117] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden ring-1 ring-white/10">
-                            <div className="flex h-[400px] flex-col md:flex-row">
-                                <div className="w-56 border-r border-slate-800 bg-[#0F1117] p-4 hidden md:flex flex-col">
-                                    <div className="flex items-center space-x-2 mb-6 px-2">
-                                        <div className="h-2.5 w-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                                        <div className="h-2.5 w-2.5 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
-                                        <div className="h-2.5 w-2.5 rounded-full bg-green-500/20 border border-green-500/50"></div>
-                                    </div>
-                                    <div className="text-[10px] uppercase font-bold text-slate-500 mb-4 tracking-widest px-2">
-                                        Workspace
-                                    </div>
-                                    <ul className="space-y-1">
-                                        {[
-                                            "Dashboard",
-                                            "Prompts",
-                                            "Requests",
-                                            "Evaluation",
-                                            "Datasets",
-                                        ].map((item) => (
-                                            <li
-                                                key={item}
-                                                className={`flex items-center space-x-3 px-3 py-1.5 rounded-lg cursor-default transition-colors ${item === "Prompts"
-                                                    ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                                                    : "text-slate-500"
-                                                    }`}
-                                            >
-                                                <Layout className="h-3.5 w-3.5 opacity-70" />
-                                                <span className="text-[13px] font-medium">{item}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="flex-1 flex flex-col min-w-0">
-                                    <div className="flex items-center justify-between bg-[#0F1117] px-6 py-3 border-b border-slate-800">
-                                        <div className="flex items-center space-x-3">
-                                            <Terminal className="h-4 w-4 text-indigo-400" />
-                                            <span className="text-sm text-slate-300 font-mono">
-                                                onboarding_flow.py
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-400 text-[10px] font-medium border border-green-500/20">
-                                                Active
-                                            </span>
-                                            <span className="text-[10px] text-slate-500 font-mono">v12.4</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 p-6 overflow-y-auto font-mono text-sm leading-relaxed bg-[#0F1117]">
-                                        <div className="space-y-1.5 opacity-80">
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">1</span>
-                                                <span className="text-purple-400">import</span>
-                                                <span className="text-slate-300 pl-2">stacklyn</span>
-                                            </div>
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">2</span>
-                                                <span className="text-purple-400">import</span>
-                                                <span className="text-slate-300 pl-2">openai</span>
-                                            </div>
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">3</span>
-                                            </div>
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">4</span>
-                                                <span className="text-slate-500 italic">
-                                                    # Swap standard OpenAI for Stacklyn
-                                                </span>
-                                            </div>
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">5</span>
-                                                <span className="text-slate-300">openai.api_key = </span>
-                                                <span className="text-orange-300">&quot;sk-...&quot;</span>
-                                            </div>
-                                            <div className="flex">
-                                                <span className="w-8 text-slate-700 select-none">6</span>
-                                                <span className="text-yellow-200">stacklyn.api_key</span>
-                                                <span className="text-slate-300 pl-2">=</span>
-                                                <span className="text-orange-300 pl-2">
-                                                    &quot;st_...&quot;
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                        <WorkspacePreview />
                     </div>
 
                     {/* Background Glow */}
