@@ -7,7 +7,7 @@ interface ActivityItemProps {
     title: string;
     user: string;
     time: string;
-    status: "success" | "warning" | "error";
+    status: "success" | "warning" | "neutral";
 }
 
 export function ActivityItem({
@@ -21,9 +21,9 @@ export function ActivityItem({
             <div
                 className={cn(
                     "mt-1.5 h-2 w-2 rounded-full",
-                    status === "success"
-                        ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
-                        : "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]"
+                    status === "success" && "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]",
+                    status === "warning" && "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]",
+                    status === "neutral" && "bg-slate-400 shadow-[0_0_8px_rgba(148,163,184,0.4)]"
                 )}
             ></div>
             <div className="flex-1">

@@ -21,7 +21,8 @@ export function useApi() {
             const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
                 endpoint.includes('/prompts') || endpoint.includes('/commits') ||
                 endpoint.includes('/runs') || endpoint.includes('/scores') ||
-                endpoint.includes('/tags/mappings');
+                endpoint.includes('/tags/mappings') || endpoint.includes('/activities') ||
+                endpoint.includes('/memberships');
             if (endpoint.includes('/search')) {
                 return { projects: [], prompts: [], commits: [] } as T;
             }
@@ -34,7 +35,8 @@ export function useApi() {
             const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
                 endpoint.includes('/prompts') || endpoint.includes('/commits') ||
                 endpoint.includes('/runs') || endpoint.includes('/scores') ||
-                endpoint.includes('/tags/mappings');
+                endpoint.includes('/tags/mappings') || endpoint.includes('/activities') ||
+                endpoint.includes('/memberships');
             if (endpoint.includes('/search')) {
                 return { projects: [], prompts: [], commits: [] } as T;
             }
@@ -103,6 +105,7 @@ export function useApi() {
             fetchWithAuth(`/projects/${projectId}/members/email`, { method: "POST", body: JSON.stringify(data) }),
         removeProjectMember: (projectId: string, userId: string) =>
             fetchWithAuth(`/projects/${projectId}/members/${userId}`, { method: "DELETE" }),
+        getProjectMemberships: () => fetchWithAuth<any[]>("/projects/memberships"),
 
         // Prompts
         getPrompts: () => fetchWithAuth<any[]>("/prompts"),
@@ -168,5 +171,9 @@ export function useApi() {
             prompts: any[];
             commits: any[];
         }>(`/search?q=${encodeURIComponent(query)}`),
+
+        // Activities
+        getActivities: (limit: number = 20, offset: number = 0) =>
+            fetchWithAuth<any[]>(`/activities?limit=${limit}&offset=${offset}`),
     }), [fetchWithAuth]);
 }

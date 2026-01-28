@@ -94,14 +94,27 @@ export default function ProjectDetailsPage() {
     const loadData = async () => {
         setError(null);
         try {
-            const allProjects = await api.getProjects();
+            // Check both owned projects and memberships
+            const [allProjects, memberships] = await Promise.all([
+                api.getProjects(),
+                api.getProjectMemberships(),
+            ]);
             setHasAttemptedLoad(true);
-            const p = allProjects.find((x) => x.id === projectId);
+
+            // First check owned projects
+            let p = allProjects.find((x) => x.id === projectId);
+
+            // If not found in owned projects, check memberships
+            if (!p) {
+                const membership = memberships.find((m: any) => m.project_id === projectId);
+                if (membership?.projects) {
+                    p = membership.projects;
+                }
+            }
 
             if (!p) {
-                // Only set error if we got a non-empty response but project wasn't in it
-                // If we got empty array, auth might still be loading, so retry
-                if (allProjects.length > 0) {
+                // Only set error if we got responses but project wasn't in either
+                if (allProjects.length > 0 || memberships.length > 0) {
                     setError('Project not found or you do not have access to this project.');
                 }
                 return;

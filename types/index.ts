@@ -63,6 +63,27 @@ export interface Tag {
     created_at: string;
 }
 
+export interface Activity {
+    id: string;
+    user_id: string;
+    project_id: string;
+    entity_type: 'project' | 'prompt' | 'commit' | 'run' | 'member';
+    entity_id: string;
+    action: 'created' | 'updated' | 'deleted' | 'executed' | 'failed';
+    title: string;
+    metadata: any;
+    created_at: string;
+    users: {
+        id: string;
+        email: string;
+        name: string;
+    };
+    projects: {
+        id: string;
+        name: string;
+    };
+}
+
 export type CreateUserDto = Omit<User, 'id' | 'created_at' | 'updated_at'>;
 export type CreateProjectDto = Omit<Project, 'id' | 'created_at' | 'updated_at'>;
 export type CreatePromptDto = Omit<Prompt, 'id' | 'created_at' | 'updated_at'>;

@@ -41,10 +41,10 @@ export function Sidebar() {
 
     const settingsRoutes = [
         {
-            label: "Team",
+            label: "Teams",
             icon: Users,
-            href: "/workspace/team",
-            active: pathname === "/workspace/team",
+            href: "/workspace/teams",
+            active: pathname === "/workspace/teams",
         },
         {
             label: "Settings",

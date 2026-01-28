@@ -6,6 +6,8 @@ import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityItem } from "@/components/dashboard/ActivityItem";
 import { OverviewChart } from "@/components/dashboard/OverviewChart";
+import { Activity } from "@/types";
+import { formatRelativeTime } from "@/lib/utils";
 
 export default function Dashboard() {
     const api = useApi();
@@ -14,14 +16,16 @@ export default function Dashboard() {
         runs: 0,
         avgScore: 0,
     });
+    const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
-        async function loadStats() {
+        async function loadData() {
             try {
-                const [projects, runs, scores] = await Promise.all([
+                const [projects, runs, scores, recentActivities] = await Promise.all([
                     api.getProjects(),
                     api.getRuns(),
                     api.getScores(),
+                    api.getActivities(5, 0),
                 ]);
 
                 let avg = 0;
@@ -35,12 +39,20 @@ export default function Dashboard() {
                     runs: runs.length,
                     avgScore: avg,
                 });
+
+                setActivities(recentActivities);
             } catch (e) {
-                console.error("Failed to load dashboard stats", e);
+                console.error("Failed to load dashboard data", e);
             }
         }
-        loadStats();
+        loadData();
     }, [api]);
+
+    const getActivityStatus = (action: Activity['action']): "success" | "warning" | "neutral" => {
+        if (['created', 'updated', 'executed'].includes(action)) return 'success';
+        if (action === 'failed') return 'warning';
+        return 'neutral';
+    };
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -84,30 +96,21 @@ export default function Dashboard() {
                         </p>
                     </div>
                     <div className="flex-1 overflow-y-auto max-h-[400px] no-scrollbar">
-                        <ActivityItem
-                            title="Updated 'customer_support_v2'"
-                            user="You"
-                            time="2 mins ago"
-                            status="success"
-                        />
-                        <ActivityItem
-                            title="New evaluation run on 'Marketing'"
-                            user="System"
-                            time="1 hour ago"
-                            status="success"
-                        />
-                        <ActivityItem
-                            title="Failed generation in 'Webyrix'"
-                            user="API"
-                            time="3 hours ago"
-                            status="warning"
-                        />
-                        <ActivityItem
-                            title="Project created: 'New Experiment'"
-                            user="Sarah"
-                            time="5 hours ago"
-                            status="success"
-                        />
+                        {activities.length > 0 ? (
+                            activities.map((activity) => (
+                                <ActivityItem
+                                    key={activity.id}
+                                    title={activity.title}
+                                    user={activity.users?.name || activity.users?.email || "Unknown"}
+                                    time={formatRelativeTime(activity.created_at)}
+                                    status={getActivityStatus(activity.action)}
+                                />
+                            ))
+                        ) : (
+                            <div className="p-8 text-center text-slate-400 text-sm">
+                                No recent activity
+                            </div>
+                        )}
                     </div>
                     <div className="p-4 border-t border-slate-50">
                         <button className="w-full py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
