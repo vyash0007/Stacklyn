@@ -162,7 +162,7 @@ const WorkspacePreview = () => {
                     </div>
 
                     <div className="p-2">
-                        <div className="text-[10px] uppercase font-bold text-slate-500 mb-2 px-3 tracking-widest mt-2">Workspace</div>
+                        <div className="text-[10px] uppercase font-lg tracking-tight text-slate-500 mb-2 px-3 tracking-widest mt-2">Workspace</div>
                         <ul className="space-y-1">
                             {tabs.map((tab) => {
                                 const Icon = tab.icon;

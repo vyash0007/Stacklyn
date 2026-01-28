@@ -66,7 +66,7 @@ export default function ProjectsPage() {
     return (
         <div className="p-8 max-w-7xl mx-auto">
             <div className="bg-white rounded-md border border-slate-200 p-8 shadow-sm mb-10">
-                <h2 className="text-lg font-bold text-slate-900 mb-6">
+                <h2 className="text-lg font-lg tracking-tight text-slate-900 mb-6">
                     Create New Project
                 </h2>
                 <div className="flex gap-4">
@@ -114,13 +114,13 @@ export default function ProjectsPage() {
                                 </div>
                             </div>
 
-                            <h3 className="text-lg font-bold text-slate-900 mb-2">{p.name}</h3>
+                            <h3 className="text-lg font-lg tracking-tight text-slate-900 mb-2">{p.name}</h3>
                             <p className="text-slate-500 text-sm mb-6 line-clamp-2 h-10">
                                 {p.description || "No description provided."}
                             </p>
 
                             <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-lg tracking-tight uppercase tracking-wider bg-slate-100 text-slate-500">
                                     Development
                                 </span>
                                 <div className="flex items-center text-[11px] font-medium text-slate-400">

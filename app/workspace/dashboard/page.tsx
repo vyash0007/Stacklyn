@@ -76,7 +76,7 @@ export default function Dashboard() {
                 <div className="bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold text-slate-900">Recent Activity</h2>
+                            <h2 className="text-lg font-lg tracking-tight text-slate-900">Recent Activity</h2>
                             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         </div>
                         <p className="text-sm text-slate-500 mt-1">

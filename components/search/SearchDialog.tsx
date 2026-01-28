@@ -51,7 +51,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
         <span>
             {parts.map((part, i) =>
                 part.toLowerCase() === query.toLowerCase() ? (
-                    <mark key={i} className="bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 rounded-sm px-0 font-bold decoration-2 decoration-indigo-500/50 underline-offset-2">
+                    <mark key={i} className="bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 rounded-sm px-0 font-lg tracking-tight decoration-2 decoration-indigo-500/50 underline-offset-2">
                         {part}
                     </mark>
                 ) : (
@@ -257,10 +257,10 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                             <div className="w-16 h-16 bg-white rounded-md shadow-sm border border-slate-100 flex items-center justify-center mb-6">
                                 <Command className="h-8 w-8 text-indigo-500/80" />
                             </div>
-                            <h3 className="text-slate-900 font-semibold mb-2">Search Stacklyn</h3>
+                            <h3 className="text-slate-900 font-lg tracking-tight mb-2">Search Stacklyn</h3>
                             <p className="max-w-xs mx-auto text-sm text-slate-400 leading-relaxed">
                                 Search for projects, prompts, and more.
-                                <br /> Use <kbd className="font-sans font-semibold text-slate-600">↑↓</kbd> to navigate, <kbd className="font-sans font-semibold text-slate-600">Enter</kbd> to select.
+                                <br /> Use <kbd className="font-sans font-lg tracking-tight text-slate-600">↑↓</kbd> to navigate, <kbd className="font-sans font-lg tracking-tight text-slate-600">Enter</kbd> to select.
                             </p>
                         </div>
                     )}
@@ -313,21 +313,21 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-0.5">
-                                                <span className={cn("font-semibold truncate", isActive ? "text-slate-900" : "text-slate-700")}>
+                                                <span className={cn("font-lg tracking-tight truncate", isActive ? "text-slate-900" : "text-slate-700")}>
                                                     <Highlight text={item.title} query={query} />
                                                 </span>
                                                 {item.type === 'prompt' && (
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-emerald-600/70 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50">
                                                         Prompt
                                                     </span>
                                                 )}
                                                 {item.type === 'project' && (
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600/70 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-indigo-600/70 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100/50">
                                                         Project
                                                     </span>
                                                 )}
                                                 {item.type === 'commit' && (
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-amber-600/70 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100/50">
                                                         Commit
                                                     </span>
                                                 )}

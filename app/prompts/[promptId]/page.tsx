@@ -329,8 +329,8 @@ export default function PromptWorkspacePage() {
                     </Link>
                     <div>
                         <div className="flex items-center space-x-2">
-                            <h1 className="text-lg font-bold text-slate-900">{prompt.name}</h1>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 tracking-wider uppercase">Workspace</span>
+                            <h1 className="text-lg font-lg tracking-tight text-slate-900">{prompt.name}</h1>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-lg tracking-tight bg-slate-100 text-slate-500 tracking-wider uppercase">Workspace</span>
                         </div>
                     </div>
                 </div>
@@ -339,7 +339,7 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={openCompareDialog}
                         disabled={!selectedCommit || commits.length < 2}
-                        className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
                     >
                         <GitBranch className="h-4 w-4 mr-2" />
                         Compare
@@ -347,7 +347,7 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={handleCommit}
                         disabled={isSaving}
-                        className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
                     >
                         <GitCommit className="h-4 w-4 mr-2" />
                         Commit
@@ -357,7 +357,7 @@ export default function PromptWorkspacePage() {
                         <button
                             onClick={() => handleRun()}
                             disabled={isRunning || !selectedCommit}
-                            className="pl-5 pr-3 py-2 text-sm font-bold text-white flex items-center disabled:opacity-75"
+                            className="pl-5 pr-3 py-2 text-sm font-lg tracking-tight text-white flex items-center disabled:opacity-75"
                         >
                             <Play className="h-4 w-4 mr-2 fill-current" />
                             {isRunning ? "Running..." : "Run"}
@@ -370,14 +370,14 @@ export default function PromptWorkspacePage() {
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 p-1 rounded-2xl border-slate-200 shadow-xl mt-2 animate-in fade-in slide-in-from-top-2">
-                                <DropdownMenuItem onClick={handleRunAll} className="text-xs font-semibold rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
+                                <DropdownMenuItem onClick={handleRunAll} className="text-xs font-lg tracking-tight rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
                                     <Layers className="mr-2 h-4 w-4 text-slate-400 group-focus:text-indigo-600" />
                                     Run All Models
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="my-1 bg-slate-100" />
                                 <DropdownMenuLabel className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-3 py-2">Run with...</DropdownMenuLabel>
                                 {availableModels.map(model => (
-                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs font-semibold rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
+                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs font-lg tracking-tight rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
                                         <Zap className="mr-2 h-4 w-4 text-amber-500" />
                                         {model}
                                     </DropdownMenuItem>
@@ -394,7 +394,7 @@ export default function PromptWorkspacePage() {
                 {/* LEFT SIDEBAR: Versions */}
                 <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
                     <div className="p-4 border-b border-slate-100">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Versions</h3>
+                        <h3 className="text-xs font-lg tracking-tight text-slate-400 uppercase tracking-wider">Versions</h3>
                     </div>
                     <div className="flex-1 overflow-y-auto p-2 space-y-1">
                         {commits.map((commit) => {
@@ -440,7 +440,7 @@ export default function PromptWorkspacePage() {
                                             <Badge
                                                 key={`${tag.commit_id}-${tag.tag_name}-${i}`}
                                                 variant="secondary"
-                                                className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
+                                                className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-lg tracking-tight uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
                                             >
                                                 {tag.tag_name}
                                                 <button
@@ -468,7 +468,7 @@ export default function PromptWorkspacePage() {
                         {/* System Prompt Section */}
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
                             <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3 flex justify-between items-center">
-                                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">System Prompt</label>
+                                <label className="text-[11px] font-lg tracking-tight text-slate-500 uppercase tracking-widest">System Prompt</label>
                                 <div className="flex items-center gap-2">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                     <span className="text-[10px] text-slate-400 font-mono tracking-tight font-medium uppercase">Active Editor</span>
@@ -485,7 +485,7 @@ export default function PromptWorkspacePage() {
                         {/* User Query Section */}
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
                             <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3">
-                                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">User Query</label>
+                                <label className="text-[11px] font-lg tracking-tight text-slate-500 uppercase tracking-widest">User Query</label>
                             </div>
                             <textarea
                                 value={userQuery}
@@ -501,7 +501,7 @@ export default function PromptWorkspacePage() {
                                 <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
                                     <GitCommit className="h-4 w-4" />
                                 </div>
-                                <h3 className="text-sm font-bold text-slate-900 tracking-tight">Save New Version</h3>
+                                <h3 className="text-sm font-lg tracking-tight text-slate-900 tracking-tight">Save New Version</h3>
                             </div>
                             <div className="flex gap-3">
                                 <div className="relative flex-1 group">
@@ -520,7 +520,7 @@ export default function PromptWorkspacePage() {
                                 <button
                                     onClick={handleCommit}
                                     disabled={isSaving}
-                                    className="bg-slate-900 text-white px-8 rounded-2xl text-sm font-bold hover:bg-slate-800 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 disabled:opacity-50"
+                                    className="bg-slate-900 text-white px-8 rounded-2xl text-sm font-lg tracking-tight hover:bg-slate-800 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 disabled:opacity-50"
                                 >
                                     {isSaving ? "Saving..." : "Commit"}
                                 </button>
@@ -533,7 +533,7 @@ export default function PromptWorkspacePage() {
                 {/* RIGHT SIDEBAR: Run History */}
                 <div className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0">
                     <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Run History</h3>
+                        <h3 className="text-xs font-lg tracking-tight text-slate-400 uppercase tracking-wider">Run History</h3>
                         <button className="text-slate-400 hover:text-slate-600">
                             <Settings className="h-4 w-4" />
                         </button>
@@ -545,7 +545,7 @@ export default function PromptWorkspacePage() {
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center space-x-2">
                                         <span className={cn(
-                                            "px-2 py-0.5 rounded text-[10px] font-bold border uppercase",
+                                            "px-2 py-0.5 rounded text-[10px] font-lg tracking-tight border uppercase",
                                             run.status === 'success' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
                                         )}>
                                             {run.status}
@@ -580,14 +580,14 @@ export default function PromptWorkspacePage() {
             <Dialog open={scoreDialogOpen} onOpenChange={setScoreDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Evaluate Result</DialogTitle>
+                        <DialogTitle className="text-lg font-lg tracking-tight">Evaluate Result</DialogTitle>
                         <DialogDescription className="text-[13px] text-slate-500">
                             Score this execution result to track quality over time.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-6 py-4">
                         <div className="space-y-2">
-                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Score (0.0 - 1.0)</Label>
+                            <Label className="text-[11px] font-lg tracking-tight uppercase tracking-wider text-slate-500">Score (0.0 - 1.0)</Label>
                             <Input
                                 type="number"
                                 step="0.1"
@@ -599,7 +599,7 @@ export default function PromptWorkspacePage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reasoning</Label>
+                            <Label className="text-[11px] font-lg tracking-tight uppercase tracking-wider text-slate-500">Reasoning</Label>
                             <Input
                                 placeholder="Why this score?"
                                 value={scoreReasoning}
@@ -609,7 +609,7 @@ export default function PromptWorkspacePage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleCreateScore} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all">Save Score</Button>
+                        <Button onClick={handleCreateScore} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-lg tracking-tight text-xs uppercase tracking-wider transition-all">Save Score</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -617,14 +617,14 @@ export default function PromptWorkspacePage() {
             <Dialog open={tagDialogOpen} onOpenChange={setTagDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Tag Version</DialogTitle>
+                        <DialogTitle className="text-lg font-lg tracking-tight">Tag Version</DialogTitle>
                         <DialogDescription className="text-[13px] text-slate-500">
                             Add a tag to version {commitToTag?.id.substring(0, 6)}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="space-y-2">
-                            <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Tag Name</Label>
+                            <Label className="text-[11px] font-lg tracking-tight uppercase tracking-wider text-slate-500">Tag Name</Label>
                             <Input
                                 placeholder="v1.0-release"
                                 value={tagName}
@@ -634,7 +634,7 @@ export default function PromptWorkspacePage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleCreateTag} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all">Add Tag</Button>
+                        <Button onClick={handleCreateTag} className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-lg tracking-tight text-xs uppercase tracking-wider transition-all">Add Tag</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -642,7 +642,7 @@ export default function PromptWorkspacePage() {
             <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
                 <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold">Compare Versions</DialogTitle>
+                        <DialogTitle className="text-lg font-lg tracking-tight">Compare Versions</DialogTitle>
                         <DialogDescription className="text-[13px] text-slate-500">
                             Compare version {commitToCompare?.id.substring(0, 6)} with another version
                         </DialogDescription>
@@ -651,7 +651,7 @@ export default function PromptWorkspacePage() {
                     {!comparisonResult ? (
                         <div className="grid gap-4 py-4">
                             <div className="space-y-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Compare With</Label>
+                                <Label className="text-[11px] font-lg tracking-tight uppercase tracking-wider text-slate-500">Compare With</Label>
                                 <select
                                     value={compareTargetId}
                                     onChange={(e) => setCompareTargetId(e.target.value)}
@@ -672,7 +672,7 @@ export default function PromptWorkspacePage() {
                                 <Button
                                     onClick={handleCompare}
                                     disabled={!compareTargetId || isComparing}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-bold text-xs uppercase tracking-wider transition-all"
+                                    className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-lg tracking-tight text-xs uppercase tracking-wider transition-all"
                                 >
                                     {isComparing ? "Comparing..." : "Compare"}
                                 </Button>
@@ -713,7 +713,7 @@ export default function PromptWorkspacePage() {
                                         if (part.type === "removed") {
                                             return (
                                                 <div key={index} className="bg-red-100 border-l-4 border-red-400 px-3 py-2 my-1">
-                                                    <span className="text-red-500 font-bold mr-2 select-none">−</span>
+                                                    <span className="text-red-500 font-lg tracking-tight mr-2 select-none">−</span>
                                                     <span className="text-red-800">{part.value}</span>
                                                 </div>
                                             );
@@ -721,7 +721,7 @@ export default function PromptWorkspacePage() {
                                         if (part.type === "added") {
                                             return (
                                                 <div key={index} className="bg-green-100 border-l-4 border-green-400 px-3 py-2 my-1">
-                                                    <span className="text-green-600 font-bold mr-2 select-none">+</span>
+                                                    <span className="text-green-600 font-lg tracking-tight mr-2 select-none">+</span>
                                                     <span className="text-green-800">{part.value}</span>
                                                 </div>
                                             );

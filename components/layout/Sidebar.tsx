@@ -64,12 +64,12 @@ export function Sidebar() {
                     <div className="bg-[#4F46E5] p-2 rounded-md">
                         <Layers className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xl font-bold tracking-tight">Stacklyn</span>
+                    <span className="text-xl font-lg text-white tracking-tight">Stacklyn</span>
                 </Link>
 
                 <div className="space-y-10">
                     <div>
-                        <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
+                        <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
                             Platform
                         </h3>
                         <nav className="space-y-1.5">
@@ -92,7 +92,7 @@ export function Sidebar() {
                     </div>
 
                     <div>
-                        <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
+                        <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
                             Settings
                         </h3>
                         <nav className="space-y-1.5">

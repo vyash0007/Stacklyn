@@ -8,7 +8,7 @@ export default function SignInPage() {
                     elements: {
                         rootBox: "mx-auto",
                         card: "shadow-2xl",
-                        headerTitle: "text-2xl font-bold",
+                        headerTitle: "text-2xl font-lg tracking-tight",
                         headerSubtitle: "text-slate-600"
                     }
                 }}
