@@ -107,6 +107,10 @@ export function useApi() {
             method: "POST",
             body: JSON.stringify(data),
         }),
+        updatePrompt: (id: string, data: { name: string }) => fetchWithAuth<any>(`/prompts/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        }),
         deletePrompt: (id: string) => fetchWithAuth<void>(`/prompts/${id}`, { method: "DELETE" }),
 
         // Commits

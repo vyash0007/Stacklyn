@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { useApi } from "@/hooks/useApi";
 import { Project, Prompt } from "@/types";
-import { Plus, ArrowLeft, Trash2, UserPlus, X } from "lucide-react";
+import { Plus, ArrowLeft, Trash2, UserPlus, X, Pencil } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function ProjectDetailsPage() {
@@ -48,6 +48,20 @@ export default function ProjectDetailsPage() {
         id: string;
         name: string;
     }>({ open: false, type: null, id: "", name: "" });
+
+    // Edit prompt state
+    const [editPromptDialog, setEditPromptDialog] = useState<{
+        open: boolean;
+        id: string;
+        name: string;
+    }>({ open: false, id: "", name: "" });
+    const [editPromptLoading, setEditPromptLoading] = useState(false);
+
+    // Edit project state
+    const [editProjectDialog, setEditProjectDialog] = useState(false);
+    const [editProjectName, setEditProjectName] = useState("");
+    const [editProjectDescription, setEditProjectDescription] = useState("");
+    const [editProjectLoading, setEditProjectLoading] = useState(false);
 
     useEffect(() => {
         if (projectId) {
@@ -135,13 +149,46 @@ export default function ProjectDetailsPage() {
         }
     };
 
-    const handleRemoveMember = async (userId: string) => {
-        if (!confirm("Are you sure you want to remove this member?")) return;
+    const handleEditPromptClick = (id: string, name: string) => {
+        setEditPromptDialog({ open: true, id, name });
+    };
+
+    const handleEditPromptSave = async () => {
+        if (!editPromptDialog.name.trim()) return;
+        setEditPromptLoading(true);
         try {
-            await api.removeProjectMember(projectId, userId);
-            setMembers(members.filter(m => m.user_id !== userId));
+            await api.updatePrompt(editPromptDialog.id, { name: editPromptDialog.name });
+            setEditPromptDialog({ open: false, id: "", name: "" });
+            loadData();
         } catch (error) {
-            console.error("Failed to remove member", error);
+            console.error("Failed to update prompt", error);
+        } finally {
+            setEditPromptLoading(false);
+        }
+    };
+
+    const handleEditProjectClick = () => {
+        if (project) {
+            setEditProjectName(project.name);
+            setEditProjectDescription(project.description || "");
+            setEditProjectDialog(true);
+        }
+    };
+
+    const handleEditProjectSave = async () => {
+        if (!editProjectName.trim()) return;
+        setEditProjectLoading(true);
+        try {
+            await api.updateProject(projectId, {
+                name: editProjectName,
+                description: editProjectDescription
+            });
+            setEditProjectDialog(false);
+            loadData();
+        } catch (error) {
+            console.error("Failed to update project", error);
+        } finally {
+            setEditProjectLoading(false);
         }
     };
 
@@ -200,6 +247,14 @@ export default function ProjectDetailsPage() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
+                                            className="h-8 w-8 text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-all"
+                                            onClick={() => handleEditPromptClick(prompt.id, prompt.name)}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
                                             onClick={() => handleDeletePromptClick(prompt.id, prompt.name)}
                                         >
@@ -219,8 +274,16 @@ export default function ProjectDetailsPage() {
                 </Card>
 
                 <Card className="md:col-span-4 shadow-sm border-slate-200/60 h-fit">
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                         <CardTitle className="text-lg font-bold text-slate-900">Project Info</CardTitle>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                            onClick={handleEditProjectClick}
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
                     </CardHeader>
                     <CardContent className="space-y-5">
                         <div className="space-y-1.5">
@@ -334,6 +397,84 @@ export default function ProjectDetailsPage() {
                 confirmText={deleteDialog.type === 'prompt' ? "Delete Prompt" : "Remove Member"}
                 variant="danger"
             />
+
+            {/* Edit Prompt Dialog */}
+            <Dialog open={editPromptDialog.open} onOpenChange={(open) => setEditPromptDialog({ ...editPromptDialog, open })}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit Prompt</DialogTitle>
+                        <DialogDescription>Update the prompt name.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Input
+                            placeholder="Prompt name"
+                            value={editPromptDialog.name}
+                            onChange={(e) => setEditPromptDialog({ ...editPromptDialog, name: e.target.value })}
+                            className="h-10 text-sm"
+                        />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setEditPromptDialog({ open: false, id: "", name: "" })}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleEditPromptSave}
+                            disabled={editPromptLoading || !editPromptDialog.name.trim()}
+                            className="bg-[#4F46E5] hover:bg-[#4338CA]"
+                        >
+                            {editPromptLoading ? "Saving..." : "Save"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Project Dialog */}
+            <Dialog open={editProjectDialog} onOpenChange={setEditProjectDialog}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Edit Project</DialogTitle>
+                        <DialogDescription>Update the project details.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Name</label>
+                            <Input
+                                placeholder="Project name"
+                                value={editProjectName}
+                                onChange={(e) => setEditProjectName(e.target.value)}
+                                className="h-10 text-sm"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Description</label>
+                            <Input
+                                placeholder="Project description (optional)"
+                                value={editProjectDescription}
+                                onChange={(e) => setEditProjectDescription(e.target.value)}
+                                className="h-10 text-sm"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => setEditProjectDialog(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleEditProjectSave}
+                            disabled={editProjectLoading || !editProjectName.trim()}
+                            className="bg-[#4F46E5] hover:bg-[#4338CA]"
+                        >
+                            {editProjectLoading ? "Saving..." : "Save"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
