@@ -206,7 +206,9 @@ const WorkspacePreview = () => {
                                 <GitBranch className="h-3 w-3 text-indigo-400" />
                                 <span className="text-xs text-indigo-400 font-medium">main</span>
                             </div>
-                            <span className="text-xs text-slate-500">Python 3.9</span>
+                            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-green-500/10 border border-green-500/20">
+                                <span className="text-xs text-green-400 font-medium">Active</span>
+                            </div>
                         </div>
                     </div>
 
