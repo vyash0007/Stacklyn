@@ -17,7 +17,7 @@ export function ActivityItem({
     status,
 }: ActivityItemProps) {
     return (
-        <div className="flex items-start space-x-4 p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-50 last:border-0">
+        <div className="flex items-start space-x-4 p-4 hover:bg-slate-50 rounded-md transition-colors border-b border-slate-50 last:border-0">
             <div
                 className={cn(
                     "mt-1.5 h-2 w-2 rounded-full",

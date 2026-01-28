@@ -65,6 +65,8 @@ export const api = {
 
     // Projects
     createProject: (data: CreateProjectDto) => fetchAPI<Project>("/projects", { method: "POST", body: JSON.stringify(data) }),
+    updateProject: (id: string, data: { name?: string; description?: string }) =>
+        fetchAPI<Project>(`/projects/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     deleteProject: (id: string) => fetchAPI(`/projects/${id}`, { method: "DELETE" }),
     getProjects: () => fetchAPI<Project[]>("/projects"),
     getProjectMembers: (projectId: string) => fetchAPI<any[]>(`/projects/${projectId}/members`),
@@ -75,6 +77,8 @@ export const api = {
 
     // Prompts
     createPrompt: (data: CreatePromptDto) => fetchAPI<Prompt>("/prompts", { method: "POST", body: JSON.stringify(data) }),
+    updatePrompt: (id: string, data: { name: string }) =>
+        fetchAPI<Prompt>(`/prompts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     deletePrompt: (id: string) => fetchAPI(`/prompts/${id}`, { method: "DELETE" }),
     getPrompts: () => fetchAPI<Prompt[]>("/prompts"),
 

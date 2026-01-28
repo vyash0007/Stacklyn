@@ -51,21 +51,18 @@ export default function Dashboard() {
                     value={stats.projects}
                     subtext="Active workspaces"
                     icon={Folder}
-                    trend={12}
                 />
                 <StatCard
                     title="Total Runs"
                     value={stats.runs}
                     subtext="LLM executions"
                     icon={Zap}
-                    trend={8}
                 />
                 <StatCard
                     title="Average Score"
                     value={stats.avgScore.toFixed(2)}
                     subtext="Human evaluation"
                     icon={BarChart3}
-                    trend={2.4}
                 />
             </div>
 
@@ -76,7 +73,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Recent Activity Feed */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+                <div className="bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-bold text-slate-900">Recent Activity</h2>

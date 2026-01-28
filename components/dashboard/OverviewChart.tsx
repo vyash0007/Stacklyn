@@ -2,7 +2,7 @@
 
 export function OverviewChart() {
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h2 className="text-lg font-bold text-slate-900">Overview</h2>
@@ -10,7 +10,7 @@ export function OverviewChart() {
                         Request volume over the last 30 days
                     </p>
                 </div>
-                <select className="bg-slate-50 border border-slate-200 text-slate-600 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                <select className="bg-slate-50 border border-slate-200 text-slate-600 text-sm rounded-sm px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
                     <option>Last 30 Days</option>
                     <option>Last 7 Days</option>
                     <option>Last 24 Hours</option>

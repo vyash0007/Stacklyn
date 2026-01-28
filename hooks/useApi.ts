@@ -16,15 +16,21 @@ export function useApi() {
         try {
             token = await getToken();
         } catch (e: any) {
-            // Silently skip if auth is not ready or throws "Unauthenticated"
-            if (e.message !== 'Unauthenticated') {
-                console.error(`[API] getToken failure for ${endpoint}:`, e);
+            // Auth is still loading or user not signed in - return empty data gracefully
+            console.debug(`[API] Auth not ready for ${endpoint}, returning empty`);
+            const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
+                endpoint.includes('/prompts') || endpoint.includes('/commits') ||
+                endpoint.includes('/runs') || endpoint.includes('/scores') ||
+                endpoint.includes('/tags/mappings');
+            if (endpoint.includes('/search')) {
+                return { projects: [], prompts: [], commits: [] } as T;
             }
+            return (isList ? [] : {}) as T;
         }
 
         if (!token) {
-            // Return appropriate empty types to prevent frontend crashes (.length, etc)
-            console.debug(`[API] Skipping ${endpoint} - Auth session not ready`);
+            // Auth is still loading - return empty data gracefully
+            console.debug(`[API] No token yet for ${endpoint}, returning empty`);
             const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
                 endpoint.includes('/prompts') || endpoint.includes('/commits') ||
                 endpoint.includes('/runs') || endpoint.includes('/scores') ||
@@ -39,23 +45,21 @@ export function useApi() {
             ...options,
             headers: {
                 "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                Authorization: `Bearer ${token}`,
                 ...options?.headers,
             },
         });
 
         if (!res.ok) {
-            if (res.status === 401 || res.status === 403) {
-                // Return empty result for list/search endpoints on auth failure instead of throwing
-                console.debug(`[API] Auth failed for ${endpoint} (${res.status}) - Returning empty`);
-                const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
-                    endpoint.includes('/prompts') || endpoint.includes('/commits') ||
-                    endpoint.includes('/runs') || endpoint.includes('/scores') ||
-                    endpoint.includes('/tags/mappings');
-                if (endpoint.includes('/search')) {
-                    return { projects: [], prompts: [], commits: [] } as T;
-                }
-                return (isList ? [] : {}) as T;
+            // Now we have a token but backend rejected it - this is a real error
+            if (res.status === 401) {
+                throw new Error('Authentication required. Please sign in.');
+            }
+            if (res.status === 403) {
+                throw new Error('Access denied. You do not have permission to access this resource.');
+            }
+            if (res.status === 404) {
+                throw new Error('Resource not found.');
             }
 
             const errorData = await res.json().catch(() => ({}));
@@ -105,6 +109,10 @@ export function useApi() {
         getPrompt: (id: string) => fetchWithAuth<any>(`/prompts/${id}`),
         createPrompt: (data: any) => fetchWithAuth<any>("/prompts", {
             method: "POST",
+            body: JSON.stringify(data),
+        }),
+        updatePrompt: (id: string, data: { name: string }) => fetchWithAuth<any>(`/prompts/${id}`, {
+            method: "PUT",
             body: JSON.stringify(data),
         }),
         deletePrompt: (id: string) => fetchWithAuth<void>(`/prompts/${id}`, { method: "DELETE" }),

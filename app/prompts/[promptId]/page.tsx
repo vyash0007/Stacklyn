@@ -19,7 +19,20 @@ import {
     DropdownMenuSeparator,
     DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2, Clock, GitCompare } from "lucide-react";
+import {
+    ArrowLeft,
+    GitBranch,
+    GitCommit,
+    Play,
+    Settings,
+    CornerDownLeft,
+    ChevronDown,
+    Layers,
+    Zap,
+    Trash2,
+    X,
+    GitCompare
+} from 'lucide-react';
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
@@ -37,6 +50,8 @@ export default function PromptWorkspacePage() {
     const [scores, setScores] = useState<Score[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
     const [availableModels, setAvailableModels] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
     // Editor State
     const [systemPrompt, setSystemPrompt] = useState("");
@@ -91,10 +106,21 @@ export default function PromptWorkspacePage() {
     }, [selectedCommit]);
 
     const loadData = async () => {
+        setError(null);
         try {
             const allPrompts = await api.getPrompts();
+            setHasAttemptedLoad(true);
             const p = allPrompts.find(x => x.id === promptId);
-            setPrompt(p || null);
+
+            if (!p) {
+                // Only set error if we got a non-empty response but prompt wasn't in it
+                if (allPrompts.length > 0) {
+                    setError('Prompt not found or you do not have access to this prompt.');
+                }
+                return;
+            }
+
+            setPrompt(p);
 
             const allCommits = await api.getCommits();
             const promptCommits = allCommits
@@ -115,8 +141,10 @@ export default function PromptWorkspacePage() {
             if (promptCommits.length > 0) {
                 setSelectedCommit(promptCommits[0]);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error("Failed to load workspace", e);
+            setHasAttemptedLoad(true);
+            setError(e.message || 'Failed to load prompt. Please try again.');
         }
     };
 
@@ -300,241 +328,296 @@ export default function PromptWorkspacePage() {
     };
 
     if (!promptId) return <div>Invalid ID</div>;
-    if (!prompt) return <div className="p-8">Loading workspace...</div>;
+
+    // Don't render until we've attempted to load (prevents null errors)
+    if (!hasAttemptedLoad) {
+        return null;
+    }
+
+    // After loading, if error or no prompt found, show error
+    if (error || !prompt) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="text-center max-w-md p-8 bg-white rounded-lg border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                    <p className="text-slate-600 mb-6">
+                        {error || 'This prompt does not exist or you do not have permission to access it.'}
+                    </p>
+                    <Link href="/workspace/projects">
+                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                            Back to Projects
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
-            <main className="flex-1 flex flex-col h-screen overflow-hidden bg-slate-50/30">
-                {/* Header */}
-                <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-40">
-                    <div className="flex items-center gap-3">
-                        <Link href={`/workspace/projects/${prompt.project_id}`}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                        <div>
-                            <h1 className="text-[13px] font-bold text-slate-900 leading-none">{prompt.name}</h1>
-                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 block">Workspace</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={openCompareDialog}
-                            disabled={!selectedCommit || commits.length < 2}
-                            className="h-8 text-[11px] font-bold text-slate-600 border-slate-200 hover:bg-slate-50"
+        <div className="flex flex-col h-screen bg-slate-50">
+            {/* Editor Header */}
+            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-20">
+                <div className="flex items-center space-x-4">
+                    <Link href={`/workspace/projects/${prompt!.project_id}`}>
+                        <button
+                            className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                         >
-                            <GitCompare className="mr-2 h-3.5 w-3.5" />
-                            Compare
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCommit}
-                            disabled={isSaving}
-                            className="h-8 text-[11px] font-bold text-slate-600 border-slate-200 hover:bg-slate-50"
-                        >
-                            <GitCommit className="mr-2 h-3.5 w-3.5" />
-                            Commit Version
-                        </Button>
-
-                        <div className="flex items-center">
-                            <Button
-                                size="sm"
-                                className="h-8 text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white rounded-r-none border-r border-slate-700 px-4 transition-all"
-                                onClick={() => handleRun()}
-                                disabled={isRunning || !selectedCommit}
-                            >
-                                <Play className="mr-2 h-3.5 w-3.5 fill-current" />
-                                {isRunning ? "Running..." : "Run"}
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button size="sm" className="h-8 px-1.5 rounded-l-none bg-slate-900 hover:bg-slate-800 border-l-0" disabled={isRunning || !selectedCommit}>
-                                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
-                                    <DropdownMenuItem onClick={handleRunAll} className="text-xs font-medium">
-                                        <Layers className="mr-2 h-3.5 w-3.5" />
-                                        Run All Models
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuLabel className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 py-1.5">Run with...</DropdownMenuLabel>
-                                    {availableModels.map(model => (
-                                        <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs">
-                                            <Zap className="mr-2 h-3.5 w-3.5 text-indigo-500" />
-                                            {model}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Main Content */}
-                <div className="flex-1 grid grid-cols-12 gap-0 overflow-hidden">
-                    {/* Left Column: Versions */}
-                    <div className="col-span-2 border-r border-slate-100 flex flex-col bg-white">
-                        <div className="p-4 border-b border-slate-100">
-                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Versions</h3>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                            {commits.map(commit => {
-                                const commitTags = tags.filter(t => t.commit_id === commit.id);
-                                const isActive = selectedCommit?.id === commit.id;
-                                return (
-                                    <div
-                                        key={commit.id}
-                                        onClick={() => setSelectedCommit(commit)}
-                                        className={cn(
-                                            "p-3 rounded-lg cursor-pointer transition-all border border-transparent group relative",
-                                            isActive
-                                                ? "bg-slate-50 border-slate-100"
-                                                : "hover:bg-slate-50/50"
-                                        )}
-                                    >
-                                        <div className="flex items-center justify-between mb-1.5">
-                                            <div className="flex items-center gap-1.5">
-                                                <GitCommit className={cn("h-3 w-3", isActive ? "text-indigo-600" : "text-slate-400")} />
-                                                <span className="text-[10px] font-mono text-slate-400">{commit.id.substring(0, 6)}</span>
-                                            </div>
-                                            <div className="flex gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600"
-                                                    onClick={(e) => openTagDialog(commit, e)}
-                                                >
-                                                    <TagIcon className="h-3 w-3" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <h4 className={cn("text-[12px] font-semibold truncate mb-1", isActive ? "text-slate-900" : "text-slate-600")}>
-                                            {commit.commit_message}
-                                        </h4>
-                                        <div className="flex flex-wrap gap-1">
-                                            {commitTags.map((tag, i) => (
-                                                <Badge
-                                                    key={`${tag.commit_id}-${tag.tag_name}-${i}`}
-                                                    variant="secondary"
-                                                    className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
-                                                >
-                                                    {tag.tag_name}
-                                                    <button
-                                                        onClick={(e) => handleDeleteTagClick(commit.id, tag.tag_name, e)}
-                                                        className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
-                                                    >
-                                                        <X className="h-2 w-2" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                        <p className="text-[9px] text-slate-400 font-medium mt-2">
-                                            {new Date(commit.created_at).toLocaleDateString()} • {new Date(commit.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Middle Column: Editor */}
-                    <div className="col-span-7 border-r border-slate-100 flex flex-col bg-slate-50/30 overflow-y-auto">
-                        <div className="p-6 space-y-6 max-w-4xl mx-auto w-full">
-                            <Card className="shadow-sm border-slate-200/60 overflow-hidden">
-                                <CardHeader className="py-2.5 px-4 border-b border-slate-100 bg-slate-50/50">
-                                    <CardTitle className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">System Prompt</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0">
-                                    <textarea
-                                        className="w-full min-h-[280px] p-5 text-[13px] bg-white outline-none border-none resize-none font-sans leading-relaxed text-slate-700 placeholder:text-slate-300"
-                                        value={systemPrompt}
-                                        onChange={(e) => setSystemPrompt(e.target.value)}
-                                        placeholder="You are a helpful assistant..."
-                                    />
-                                </CardContent>
-                            </Card>
-
-                            <Card className="shadow-sm border-slate-200/60 overflow-hidden">
-                                <CardHeader className="py-2.5 px-4 border-b border-slate-100 bg-slate-50/50">
-                                    <CardTitle className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">User Query</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0">
-                                    <textarea
-                                        className="w-full min-h-[180px] p-5 text-[13px] bg-white outline-none border-none resize-none font-sans leading-relaxed text-slate-700 placeholder:text-slate-300"
-                                        value={userQuery}
-                                        onChange={(e) => setUserQuery(e.target.value)}
-                                        placeholder="Input text..."
-                                    />
-                                </CardContent>
-                            </Card>
-
-                            <Card className="shadow-sm border-slate-200/60 p-1 bg-white">
-                                <Input
-                                    placeholder="Update prompt..."
-                                    value={commitMessage}
-                                    onChange={(e) => setCommitMessage(e.target.value)}
-                                    className="border-none bg-transparent h-10 text-[13px] focus:ring-0"
-                                />
-                            </Card>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Run History */}
-                    <div className="col-span-3 flex flex-col bg-white">
-                        <div className="p-4 border-b border-slate-100">
-                            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Run History</h3>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                            {runs.map(run => (
-                                <Card key={run.id} className="shadow-none border-slate-100 bg-slate-50/50 group relative hover:border-slate-200 transition-all">
-                                    <CardHeader className="py-2 px-3">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <Badge className={cn(
-                                                    "text-[9px] font-bold uppercase px-1.5 py-0 h-4 border-none",
-                                                    run.status === 'success' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-                                                )}>
-                                                    {run.status}
-                                                </Badge>
-                                                <span className="text-[10px] font-bold text-slate-500">
-                                                    {run.model_name}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] text-slate-400 font-medium">{run.latency_ms}ms</span>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500"
-                                                    onClick={() => handleDeleteRunClick(run.id)}
-                                                >
-                                                    <Trash2 className="h-3 w-3" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="py-2 px-3 pt-0">
-                                        <div className="text-[11px] font-medium text-slate-600 bg-white border border-slate-100 p-2.5 rounded-lg max-h-[160px] overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-sm">
-                                            {run.response}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                            {runs.length === 0 && (
-                                <div className="text-center py-10 opacity-40">
-                                    <p className="text-[12px] font-medium text-slate-500">No runs yet.</p>
-                                </div>
-                            )}
+                            <ArrowLeft className="h-5 w-5" />
+                        </button>
+                    </Link>
+                    <div>
+                        <div className="flex items-center space-x-2">
+                            <h1 className="text-lg font-bold text-slate-900">{prompt!.name}</h1>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 tracking-wider uppercase">Workspace</span>
                         </div>
                     </div>
                 </div>
-            </main>
+
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={openCompareDialog}
+                        disabled={!selectedCommit || commits.length < 2}
+                        className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                    >
+                        <GitBranch className="h-4 w-4 mr-2" />
+                        Compare
+                    </button>
+                    <button
+                        onClick={handleCommit}
+                        disabled={isSaving}
+                        className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                    >
+                        <GitCommit className="h-4 w-4 mr-2" />
+                        Commit
+                    </button>
+
+                    <div className="relative flex items-center bg-indigo-600 rounded-full shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        <button
+                            onClick={() => handleRun()}
+                            disabled={isRunning || !selectedCommit}
+                            className="pl-5 pr-3 py-2 text-sm font-bold text-white flex items-center disabled:opacity-75"
+                        >
+                            <Play className="h-4 w-4 mr-2 fill-current" />
+                            {isRunning ? "Running..." : "Run"}
+                        </button>
+                        <div className="w-[1px] h-4 bg-indigo-400 opacity-50" />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="pl-2 pr-4 py-2 text-white disabled:opacity-75 h-full" disabled={isRunning || !selectedCommit}>
+                                    <ChevronDown className="h-4 w-4" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 p-1 rounded-2xl border-slate-200 shadow-xl mt-2 animate-in fade-in slide-in-from-top-2">
+                                <DropdownMenuItem onClick={handleRunAll} className="text-xs font-semibold rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
+                                    <Layers className="mr-2 h-4 w-4 text-slate-400 group-focus:text-indigo-600" />
+                                    Run All Models
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="my-1 bg-slate-100" />
+                                <DropdownMenuLabel className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-3 py-2">Run with...</DropdownMenuLabel>
+                                {availableModels.map(model => (
+                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs font-semibold rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
+                                        <Zap className="mr-2 h-4 w-4 text-amber-500" />
+                                        {model}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </div>
+            </header>
+
+            {/* Main Workspace Layout */}
+            <div className="flex-1 flex overflow-hidden">
+
+                {/* LEFT SIDEBAR: Versions */}
+                <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+                    <div className="p-4 border-b border-slate-100">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Versions</h3>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                        {commits.map((commit) => {
+                            const isActive = selectedCommit?.id === commit.id;
+                            const commitTags = tags.filter(t => t.commit_id === commit.id);
+                            return (
+                                <div
+                                    key={commit.id}
+                                    onClick={() => setSelectedCommit(commit)}
+                                    className={cn(
+                                        "p-3 rounded-lg border cursor-pointer transition-all group",
+                                        isActive
+                                            ? "bg-indigo-50 border-indigo-100"
+                                            : "hover:bg-slate-50 border-transparent hover:border-slate-100"
+                                    )}
+                                >
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={cn(
+                                                "text-xs font-mono px-1.5 py-0.5 rounded",
+                                                isActive ? "text-indigo-600 bg-indigo-100" : "text-slate-400 bg-slate-100 group-hover:text-slate-600"
+                                            )}>
+                                                {commit.id.substring(0, 6)}
+                                            </span>
+                                            <button
+                                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600"
+                                                onClick={(e) => openTagDialog(commit, e)}
+                                            >
+                                                <Settings className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                        <span className="text-[10px] text-slate-400">
+                                            {new Date(commit.created_at).toLocaleDateString() === new Date().toLocaleDateString()
+                                                ? new Date(commit.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                                : new Date(commit.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p className={cn("text-sm font-medium truncate", isActive ? "text-slate-900" : "text-slate-600 group-hover:text-slate-900")}>
+                                        {commit.commit_message}
+                                    </p>
+                                    <div className="flex flex-wrap gap-1 mt-1.5">
+                                        {commitTags.map((tag, i) => (
+                                            <Badge
+                                                key={`${tag.commit_id}-${tag.tag_name}-${i}`}
+                                                variant="secondary"
+                                                className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
+                                            >
+                                                {tag.tag_name}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteTagClick(commit.id, tag.tag_name, e);
+                                                    }}
+                                                    className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
+                                                >
+                                                    <X className="h-2 w-2" />
+                                                </button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* CENTER: Editor Area */}
+                <div className="flex-1 flex flex-col min-w-0 bg-slate-50/50 overflow-y-auto">
+                    <div className="max-w-4xl mx-auto w-full p-8 space-y-8">
+
+                        {/* System Prompt Section */}
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
+                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3 flex justify-between items-center">
+                                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">System Prompt</label>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[10px] text-slate-400 font-mono tracking-tight font-medium uppercase">Active Editor</span>
+                                </div>
+                            </div>
+                            <textarea
+                                value={systemPrompt}
+                                onChange={(e) => setSystemPrompt(e.target.value)}
+                                className="w-full h-56 p-6 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed"
+                                placeholder="Define the persona and rules for the AI..."
+                            />
+                        </div>
+
+                        {/* User Query Section */}
+                        <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
+                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3">
+                                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">User Query</label>
+                            </div>
+                            <textarea
+                                value={userQuery}
+                                onChange={(e) => setUserQuery(e.target.value)}
+                                className="w-full h-40 p-6 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed"
+                                placeholder="Enter a test message to preview the prompt..."
+                            />
+                        </div>
+
+                        {/* COMMIT SECTION */}
+                        <div className="pt-8 border-t border-slate-200/60">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+                                    <GitCommit className="h-4 w-4" />
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-900 tracking-tight">Save New Version</h3>
+                            </div>
+                            <div className="flex gap-3">
+                                <div className="relative flex-1 group">
+                                    <input
+                                        type="text"
+                                        value={commitMessage}
+                                        onChange={(e) => setCommitMessage(e.target.value)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleCommit()}
+                                        placeholder="Briefly describe what changed..."
+                                        className="w-full pl-5 pr-12 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                        <CornerDownLeft className="h-4 w-4" />
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleCommit}
+                                    disabled={isSaving}
+                                    className="bg-slate-900 text-white px-8 rounded-2xl text-sm font-bold hover:bg-slate-800 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 disabled:opacity-50"
+                                >
+                                    {isSaving ? "Saving..." : "Commit"}
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* RIGHT SIDEBAR: Run History */}
+                <div className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0">
+                    <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Run History</h3>
+                        <button className="text-slate-400 hover:text-slate-600">
+                            <Settings className="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        {runs.map((run) => (
+                            <div key={run.id} className="rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow bg-white relative group">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center space-x-2">
+                                        <span className={cn(
+                                            "px-2 py-0.5 rounded text-[10px] font-bold border uppercase",
+                                            run.status === 'success' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
+                                        )}>
+                                            {run.status}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 font-mono">{run.latency_ms}ms</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[10px] text-slate-400">{run.model_name}</span>
+                                        <button
+                                            onClick={() => handleDeleteRunClick(run.id)}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-600 font-mono leading-relaxed border border-slate-100 whitespace-pre-wrap">
+                                    {run.response}
+                                </div>
+                            </div>
+                        ))}
+                        {runs.length === 0 && (
+                            <div className="text-center py-10 opacity-40">
+                                <p className="text-[12px] font-medium text-slate-500">No runs yet.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             {/* Dialogs */}
             <Dialog open={scoreDialogOpen} onOpenChange={setScoreDialogOpen}>
@@ -706,4 +789,5 @@ export default function PromptWorkspacePage() {
             />
         </div>
     );
+
 }

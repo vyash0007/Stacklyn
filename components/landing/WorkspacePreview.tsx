@@ -50,21 +50,15 @@ const WorkspacePreview = () => {
             ]
         },
         prompts: {
-            file: 'payment_flow.py',
+            file: 'onboarding_flow.py',
             lang: 'python',
             lines: [
-                { num: 1, text: 'import openai', color: 'text-purple-400' },
-                { num: 2, text: 'import promptlayer', color: 'text-purple-400' },
+                { num: 1, text: 'import stacklyn', color: 'text-purple-400' },
+                { num: 2, text: 'import openai', color: 'text-purple-400' },
                 { num: 3, text: '', color: '' },
-                { num: 4, text: '# Get versioned template', color: 'text-slate-500' },
-                { num: 5, text: 'tpl = promptlayer.prompts.get("payment")', color: 'text-blue-400' },
-                { num: 6, text: '', color: '' },
-                { num: 7, text: 'response = openai.ChatCompletion.create(', color: 'text-blue-400' },
-                { num: 8, text: '    **tpl.kwargs,', color: 'text-slate-300' },
-                { num: 9, text: '    messages=tpl.format(user="Alice")', color: 'text-orange-300' },
-                { num: 10, text: ')', color: 'text-slate-300' },
-                { num: 11, text: '', color: '' },
-                { num: 12, text: '# Template is now decoupled from code!', color: 'text-slate-500' },
+                { num: 4, text: '# Swap standard OpenAI for Stacklyn', color: 'text-slate-500' },
+                { num: 5, text: 'openai.api_key = "sk-..."', color: 'text-slate-200' },
+                { num: 6, text: 'stacklyn.api_key = "st_..."', color: 'text-yellow-200' },
             ]
         },
         requests: {
@@ -212,7 +206,9 @@ const WorkspacePreview = () => {
                                 <GitBranch className="h-3 w-3 text-indigo-400" />
                                 <span className="text-xs text-indigo-400 font-medium">main</span>
                             </div>
-                            <span className="text-xs text-slate-500">Python 3.9</span>
+                            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-green-500/10 border border-green-500/20">
+                                <span className="text-xs text-green-400 font-medium">Active</span>
+                            </div>
                         </div>
                     </div>
 

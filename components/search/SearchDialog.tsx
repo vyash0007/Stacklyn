@@ -198,12 +198,12 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border-0 shadow-2xl bg-white rounded-xl sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-slate-900/5">
+            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border-0 shadow-2xl bg-white rounded-md sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-slate-900/5">
 
                 {/* Header / Input Area - Fixed Height */}
                 <DialogHeader className="p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
                     <DialogTitle className="sr-only">Search</DialogTitle>
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl transition-all focus-within:bg-white focus-within:border-slate-300 focus-within:shadow-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-md transition-all focus-within:bg-white focus-within:border-slate-300 focus-within:shadow-sm">
                         <div className="flex items-center justify-center w-5 h-5 shrink-0">
                             {isLoading ? (
                                 <Loader2 className="h-4 w-4 text-indigo-500 animate-spin" />
@@ -254,7 +254,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                     {!query && (
                         /* Empty State / Initial View */
                         <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
-                            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 bg-white rounded-md shadow-sm border border-slate-100 flex items-center justify-center mb-6">
                                 <Command className="h-8 w-8 text-indigo-500/80" />
                             </div>
                             <h3 className="text-slate-900 font-semibold mb-2">Search Stacklyn</h3>
@@ -290,7 +290,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         }}
                                         onMouseEnter={() => setActiveIndex(index)}
                                         className={cn(
-                                            "group cursor-pointer rounded-xl px-4 py-3 flex items-center gap-4 transition-all duration-200 border border-transparent",
+                                            "group cursor-pointer rounded-md px-4 py-3 flex items-center gap-4 transition-all duration-200 border border-transparent",
                                             isActive
                                                 ? "bg-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border-slate-200/60 scale-[0.99]"
                                                 : "hover:bg-slate-200/50 hover:scale-[0.995]"
@@ -298,7 +298,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                     >
                                         {/* Icon Box */}
                                         <div className={cn(
-                                            "w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border transition-colors",
+                                            "w-10 h-10 rounded-md flex items-center justify-center shrink-0 border transition-colors",
                                             item.type === 'project'
                                                 ? (isActive ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-white border-slate-200 text-slate-400")
                                                 : item.type === 'prompt'

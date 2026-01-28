@@ -61,7 +61,7 @@ export function Sidebar() {
                     href="/"
                     className="flex items-center space-x-3 text-white mb-10 cursor-pointer"
                 >
-                    <div className="bg-[#4F46E5] p-2 rounded-lg">
+                    <div className="bg-[#4F46E5] p-2 rounded-md">
                         <Layers className="h-5 w-5 text-white" />
                     </div>
                     <span className="text-xl font-bold tracking-tight">Stacklyn</span>
@@ -78,7 +78,7 @@ export function Sidebar() {
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all border border-transparent",
                                         route.active
                                             ? "bg-[#1A1D26] text-white border-white/5"
                                             : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -101,7 +101,7 @@ export function Sidebar() {
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all border border-transparent",
                                         route.active
                                             ? "bg-[#1A1D26] text-white border-white/5"
                                             : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -118,7 +118,7 @@ export function Sidebar() {
 
             <div className="mt-auto p-4 border-t border-white/5">
                 <SignOutButton>
-                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
                         <LogOut className="h-4 w-4 text-slate-400 group-hover:text-white" />
                         <span className="text-sm font-medium">Sign Out</span>
                     </button>

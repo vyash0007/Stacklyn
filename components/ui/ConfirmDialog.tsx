@@ -30,7 +30,7 @@ export function ConfirmDialog({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-slate-200">
+            <div className="bg-white rounded-md shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-slate-200">
                 <div className="p-6">
                     <div className="flex items-start gap-4">
                         <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${variant === 'danger' ? 'bg-red-100' : 'bg-yellow-100'
@@ -53,15 +53,15 @@ export function ConfirmDialog({
                 <div className="bg-slate-50 px-6 py-4 flex gap-3 justify-end border-t border-slate-200">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
                     >
                         {cancelText}
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${variant === 'danger'
-                                ? 'bg-red-600 hover:bg-red-700'
-                                : 'bg-yellow-600 hover:bg-yellow-700'
+                        className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${variant === 'danger'
+                            ? 'bg-red-600 hover:bg-red-700'
+                            : 'bg-yellow-600 hover:bg-yellow-700'
                             }`}
                     >
                         {confirmText}
