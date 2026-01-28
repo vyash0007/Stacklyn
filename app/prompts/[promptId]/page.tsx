@@ -50,6 +50,8 @@ export default function PromptWorkspacePage() {
     const [scores, setScores] = useState<Score[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
     const [availableModels, setAvailableModels] = useState<string[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
     // Editor State
     const [systemPrompt, setSystemPrompt] = useState("");
@@ -104,10 +106,21 @@ export default function PromptWorkspacePage() {
     }, [selectedCommit]);
 
     const loadData = async () => {
+        setError(null);
         try {
             const allPrompts = await api.getPrompts();
+            setHasAttemptedLoad(true);
             const p = allPrompts.find(x => x.id === promptId);
-            setPrompt(p || null);
+
+            if (!p) {
+                // Only set error if we got a non-empty response but prompt wasn't in it
+                if (allPrompts.length > 0) {
+                    setError('Prompt not found or you do not have access to this prompt.');
+                }
+                return;
+            }
+
+            setPrompt(p);
 
             const allCommits = await api.getCommits();
             const promptCommits = allCommits
@@ -128,8 +141,10 @@ export default function PromptWorkspacePage() {
             if (promptCommits.length > 0) {
                 setSelectedCommit(promptCommits[0]);
             }
-        } catch (e) {
+        } catch (e: any) {
             console.error("Failed to load workspace", e);
+            setHasAttemptedLoad(true);
+            setError(e.message || 'Failed to load prompt. Please try again.');
         }
     };
 
@@ -313,14 +328,42 @@ export default function PromptWorkspacePage() {
     };
 
     if (!promptId) return <div>Invalid ID</div>;
-    if (!prompt) return <div className="p-8">Loading workspace...</div>;
+
+    // Don't render until we've attempted to load (prevents null errors)
+    if (!hasAttemptedLoad) {
+        return null;
+    }
+
+    // After loading, if error or no prompt found, show error
+    if (error || !prompt) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="text-center max-w-md p-8 bg-white rounded-lg border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                    <p className="text-slate-600 mb-6">
+                        {error || 'This prompt does not exist or you do not have permission to access it.'}
+                    </p>
+                    <Link href="/workspace/projects">
+                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                            Back to Projects
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen bg-slate-50">
             {/* Editor Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-20">
                 <div className="flex items-center space-x-4">
-                    <Link href={`/workspace/projects/${prompt.project_id}`}>
+                    <Link href={`/workspace/projects/${prompt!.project_id}`}>
                         <button
                             className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                         >
@@ -329,7 +372,7 @@ export default function PromptWorkspacePage() {
                     </Link>
                     <div>
                         <div className="flex items-center space-x-2">
-                            <h1 className="text-lg font-bold text-slate-900">{prompt.name}</h1>
+                            <h1 className="text-lg font-bold text-slate-900">{prompt!.name}</h1>
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 tracking-wider uppercase">Workspace</span>
                         </div>
                     </div>
