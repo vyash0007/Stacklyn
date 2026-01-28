@@ -1,8 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layers, ChevronRight, Menu, X } from "lucide-react";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 export function LandingNavbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -60,12 +59,19 @@ export function LandingNavbar() {
                     </div>
 
                     <div className="hidden md:flex items-center space-x-4">
-                        <Link
-                            href="/login"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                        >
-                            Sign in
-                        </Link>
+                        <SignedOut>
+                            <Link
+                                href="/sign-in"
+                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
+                            >
+                                Sign in
+                            </Link>
+                        </SignedOut>
+
+                        <SignedIn>
+                            <UserButton />
+                        </SignedIn>
+
                         <Link
                             href="/workspace/dashboard"
                             className="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20"
