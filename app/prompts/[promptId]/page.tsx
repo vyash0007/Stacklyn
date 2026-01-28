@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { Prompt, Commit, Run, Score, Tag } from "@/types";
 import {
     DropdownMenu,
@@ -21,10 +21,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowLeft, Play, Save, GitCommit, Star, Tag as TagIcon, Plus, ChevronDown, Zap, Layers, X, Trash2, Clock, GitCompare } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
 export default function PromptWorkspacePage() {
     const params = useParams();
+    const api = useApi();
     const promptId = typeof params?.promptId === 'string' ? params.promptId :
         Array.isArray(params?.promptId) ? params.promptId[0] : "";
 
@@ -65,6 +67,15 @@ export default function PromptWorkspacePage() {
         diff: Array<{ value: string; type: "added" | "removed" | "unchanged" }>;
     } | null>(null);
     const [isComparing, setIsComparing] = useState(false);
+
+    // Delete state
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        type: 'commit' | 'run' | 'score' | 'tag' | null;
+        id: string;
+        name: string;
+        metadata?: any;
+    }>({ open: false, type: null, id: "", name: "" });
 
     useEffect(() => {
         if (promptId) loadData();
@@ -231,55 +242,39 @@ export default function PromptWorkspacePage() {
         }
     };
 
-    const handleDeleteTag = async (commitId: string, tagName: string, e: React.MouseEvent) => {
+    const handleDeleteTagClick = (commitId: string, tagName: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!confirm(`Are you sure you want to delete tag "${tagName}"?`)) return;
-
-        try {
-            await api.deleteTag(commitId, tagName);
-            setTags(tags.filter(t => !(t.commit_id === commitId && t.tag_name === tagName)));
-        } catch (error) {
-            console.error("Failed to delete tag", error);
-        }
+        setDeleteDialog({ open: true, type: 'tag', id: commitId, name: tagName, metadata: { tagName } });
     };
 
-    const handleDeleteRun = async (runId: string) => {
-        if (!confirm("Are you sure you want to delete this run?")) return;
-        try {
-            await api.deleteRun(runId);
-            setRuns(runs.filter(r => r.id !== runId));
-        } catch (error) {
-            console.error("Failed to delete run", error);
-        }
+    const handleDeleteRunClick = (runId: string) => {
+        setDeleteDialog({ open: true, type: 'run', id: runId, name: "this run" });
     };
 
-    const handleDeleteCommit = async (commitId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (commits.length <= 1) {
-            alert("Cannot delete the only version of this prompt.");
-            return;
-        }
-        if (!confirm("Are you sure you want to delete this version? All associated runs and tags will be lost.")) return;
+    const handleDeleteScoreClick = (scoreId: string) => {
+        setDeleteDialog({ open: true, type: 'score', id: scoreId, name: "this score" });
+    };
 
+    const handleDeleteConfirm = async () => {
+        if (!deleteDialog.id) return;
         try {
-            await api.deleteCommit(commitId);
-            setCommits(commits.filter(c => c.id !== commitId));
-            if (selectedCommit?.id === commitId) {
-                const remaining = commits.filter(c => c.id !== commitId);
-                setSelectedCommit(remaining[0]);
+            switch (deleteDialog.type) {
+                case 'run':
+                    await api.deleteRun(deleteDialog.id);
+                    setRuns(runs.filter(r => r.id !== deleteDialog.id));
+                    break;
+                case 'score':
+                    await api.deleteScore(deleteDialog.id);
+                    setScores(scores.filter(s => s.id !== deleteDialog.id));
+                    break;
+                case 'tag':
+                    await api.deleteTag(deleteDialog.id, deleteDialog.metadata.tagName);
+                    setTags(tags.filter(t => !(t.commit_id === deleteDialog.id && t.tag_name === deleteDialog.metadata.tagName)));
+                    break;
             }
-        } catch (error) {
-            console.error("Failed to delete commit", error);
-        }
-    };
-
-    const handleDeleteScore = async (scoreId: string) => {
-        if (!confirm("Delete this score?")) return;
-        try {
-            await api.deleteScore(scoreId);
-            setScores(scores.filter(s => s.id !== scoreId));
-        } catch (error) {
-            console.error("Failed to delete score", error);
+            setDeleteDialog({ ...deleteDialog, open: false });
+        } catch (e) {
+            console.error(`Failed to delete ${deleteDialog.type}`, e);
         }
     };
 
@@ -408,22 +403,34 @@ export default function PromptWorkspacePage() {
                                                 <GitCommit className={cn("h-3 w-3", isActive ? "text-indigo-600" : "text-slate-400")} />
                                                 <span className="text-[10px] font-mono text-slate-400">{commit.id.substring(0, 6)}</span>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400"
-                                                onClick={(e) => openTagDialog(commit, e)}
-                                            >
-                                                <TagIcon className="h-3 w-3" />
-                                            </Button>
+                                            <div className="flex gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600"
+                                                    onClick={(e) => openTagDialog(commit, e)}
+                                                >
+                                                    <TagIcon className="h-3 w-3" />
+                                                </Button>
+                                            </div>
                                         </div>
                                         <h4 className={cn("text-[12px] font-semibold truncate mb-1", isActive ? "text-slate-900" : "text-slate-600")}>
                                             {commit.commit_message}
                                         </h4>
                                         <div className="flex flex-wrap gap-1">
                                             {commitTags.map((tag, i) => (
-                                                <Badge key={`${tag.commit_id}-${tag.tag_name}-${i}`} variant="secondary" className="text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none">
+                                                <Badge
+                                                    key={`${tag.commit_id}-${tag.tag_name}-${i}`}
+                                                    variant="secondary"
+                                                    className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
+                                                >
                                                     {tag.tag_name}
+                                                    <button
+                                                        onClick={(e) => handleDeleteTagClick(commit.id, tag.tag_name, e)}
+                                                        className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
+                                                    >
+                                                        <X className="h-2 w-2" />
+                                                    </button>
                                                 </Badge>
                                             ))}
                                         </div>
@@ -499,8 +506,16 @@ export default function PromptWorkspacePage() {
                                                     {run.model_name}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-1">
+                                            <div className="flex items-center gap-2">
                                                 <span className="text-[10px] text-slate-400 font-medium">{run.latency_ms}ms</span>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-500"
+                                                    onClick={() => handleDeleteRunClick(run.id)}
+                                                >
+                                                    <Trash2 className="h-3 w-3" />
+                                                </Button>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -679,6 +694,16 @@ export default function PromptWorkspacePage() {
                     )}
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onClose={() => setDeleteDialog({ ...deleteDialog, open: false })}
+                onConfirm={handleDeleteConfirm}
+                title={`Delete ${deleteDialog.type?.[0].toUpperCase()}${deleteDialog.type?.slice(1)}`}
+                description={`Are you sure you want to delete ${deleteDialog.name}? This action cannot be undone.`}
+                confirmText={`Delete ${deleteDialog.type?.[0].toUpperCase()}${deleteDialog.type?.slice(1)}`}
+                variant="danger"
+            />
         </div>
     );
 }
