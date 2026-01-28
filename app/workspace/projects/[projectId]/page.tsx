@@ -51,6 +51,8 @@ export default function ProjectDetailsPage() {
     const [prompts, setPrompts] = useState<Prompt[]>([]);
     const [newPromptName, setNewPromptName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
 
     // Member invite state
@@ -90,10 +92,22 @@ export default function ProjectDetailsPage() {
     }, [projectId]);
 
     const loadData = async () => {
+        setError(null);
         try {
             const allProjects = await api.getProjects();
+            setHasAttemptedLoad(true);
             const p = allProjects.find((x) => x.id === projectId);
-            setProject(p || null);
+
+            if (!p) {
+                // Only set error if we got a non-empty response but project wasn't in it
+                // If we got empty array, auth might still be loading, so retry
+                if (allProjects.length > 0) {
+                    setError('Project not found or you do not have access to this project.');
+                }
+                return;
+            }
+
+            setProject(p);
 
             const allPrompts = await api.getPrompts();
             // Filter clientside because our mock API might not have filtering.
@@ -105,8 +119,10 @@ export default function ProjectDetailsPage() {
             // Load project members
             const projectMembers = await api.getProjectMembers(projectId);
             setMembers(projectMembers);
-        } catch (e) {
+        } catch (e: any) {
             console.error("Failed to load project data", e);
+            setHasAttemptedLoad(true);
+            setError(e.message || 'Failed to load project. Please try again.');
         }
     };
 
@@ -217,7 +233,35 @@ export default function ProjectDetailsPage() {
     );
 
     if (!projectId) return <div>Invalid Project ID</div>;
-    if (!project) return <div className="p-8">Loading project...</div>;
+
+    // Don't render until we've attempted to load (prevents null errors)
+    if (!hasAttemptedLoad) {
+        return null;
+    }
+
+    // After loading, if error or no project found, show error
+    if (error || !project) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50">
+                <div className="text-center max-w-md p-8 bg-white rounded-lg border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                    <p className="text-slate-600 mb-6">
+                        {error || 'This project does not exist or you do not have permission to access it.'}
+                    </p>
+                    <Link href="/workspace/projects">
+                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                            Back to Projects
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50/50 font-sans text-slate-900 animate-in fade-in duration-500 overflow-x-hidden">
@@ -242,11 +286,12 @@ export default function ProjectDetailsPage() {
                                 </button>
                             </Link>
                             <div>
-                                <h1 className="text-3xl md:text-4xl font-lg text-slate-900 tracking-tight flex items-center gap-3">
-                                    {project.name}
+                                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                                    {project!.name}
+
                                 </h1>
                                 <p className="text-slate-500 mt-2 text-lg">
-                                    {project.description || 'Orchestrate your prompt chains and manage versions.'}
+                                    {project!.description || 'Orchestrate your prompt chains and manage versions.'}
                                 </p>
                             </div>
                         </div>
