@@ -65,7 +65,7 @@ export default function ProjectsPage() {
 
     return (
         <div className="p-8 max-w-7xl mx-auto">
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm mb-10">
+            <div className="bg-white rounded-md border border-slate-200 p-8 shadow-sm mb-10">
                 <h2 className="text-lg font-bold text-slate-900 mb-6">
                     Create New Project
                 </h2>
@@ -75,12 +75,12 @@ export default function ProjectsPage() {
                         placeholder="Project Name (e.g. customer-onboarding-bot)"
                         value={newProjectName}
                         onChange={(e) => setNewProjectName(e.target.value)}
-                        className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-5 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     />
                     <button
                         onClick={handleCreateProject}
                         disabled={isLoading}
-                        className="bg-slate-900 text-white border-0 px-8 py-3 rounded-xl font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center disabled:opacity-50"
+                        className="bg-slate-900 text-white border-0 px-8 py-3 rounded-md font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center disabled:opacity-50"
                     >
                         <Plus className="h-5 w-5 mr-2" />
                         Create Project
@@ -93,13 +93,13 @@ export default function ProjectsPage() {
                     <Link
                         key={p.id}
                         href={`/workspace/projects/${p.id}`}
-                        className="group block bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-indigo-200 transition-all cursor-pointer relative overflow-hidden"
+                        className="group block bg-white rounded-md border border-slate-200 p-6 hover:shadow-lg hover:shadow-slate-200/50 hover:border-indigo-200 transition-all cursor-pointer relative overflow-hidden"
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-slate-50 rounded-bl-[80px] -mr-6 -mt-6 transition-colors group-hover:bg-indigo-50"></div>
 
                         <div className="relative z-10">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="p-2.5 bg-slate-50 rounded-lg group-hover:bg-indigo-50 transition-colors">
+                                <div className="p-2.5 bg-slate-50 rounded-md group-hover:bg-indigo-50 transition-colors">
                                     <Folder className="h-5 w-5 text-slate-500 group-hover:text-indigo-600 transition-colors" />
                                 </div>
                                 <div className="flex gap-1">
@@ -134,7 +134,7 @@ export default function ProjectsPage() {
             </div>
 
             {projects.length === 0 && (
-                <div className="text-center py-20 bg-white border-2 border-dashed border-slate-200 rounded-2xl">
+                <div className="text-center py-20 bg-white border-2 border-dashed border-slate-200 rounded-md">
                     <p className="text-slate-500">
                         No projects found. Create one to get started.
                     </p>

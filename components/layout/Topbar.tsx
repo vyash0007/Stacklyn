@@ -49,14 +49,14 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                             Search projects or prompts...
                         </div>
                         <div className="flex items-center gap-1.5 ml-2">
-                            <span className="text-[10px] text-slate-400 border border-slate-200 rounded px-1.5 py-0.5 bg-slate-50 font-bold">
+                            <span className="text-[10px] text-slate-400 border border-slate-200 rounded-md px-1.5 py-0.5 bg-slate-50 font-bold">
                                 ⌘K
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <button className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-lg hover:bg-slate-50 relative">
+                <button className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-md hover:bg-slate-50 relative">
                     <Bell className="h-4 w-4" />
                     <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-red-500 rounded-full ring-2 ring-white"></span>
                 </button>
