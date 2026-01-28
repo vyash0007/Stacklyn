@@ -113,7 +113,6 @@ export default function PromptWorkspacePage() {
             const p = allPrompts.find(x => x.id === promptId);
 
             if (!p) {
-                // Only set error if we got a non-empty response but prompt wasn't in it
                 if (allPrompts.length > 0) {
                     setError('Prompt not found or you do not have access to this prompt.');
                 }
@@ -363,7 +362,7 @@ export default function PromptWorkspacePage() {
             {/* Editor Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-20">
                 <div className="flex items-center space-x-4">
-                    <Link href={`/workspace/projects/${prompt!.project_id}`}>
+                    <Link href={`/workspace/projects/${prompt.project_id}`}>
                         <button
                             className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                         >
