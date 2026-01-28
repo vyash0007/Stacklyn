@@ -17,12 +17,29 @@ import {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// This will be set by components using useAuth hook
+let getTokenFn: (() => Promise<string | null>) | null = null;
+
+export function setAuthToken(fn: () => Promise<string | null>) {
+    getTokenFn = fn;
+}
+
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    // Get Clerk session token
+    let token: string | null = null;
+    if (getTokenFn) {
+        try {
+            token = await getTokenFn();
+        } catch (error) {
+            console.error("Error getting token:", error);
+        }
+    }
+
     const res = await fetch(`${BASE_URL}/api${endpoint}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            ...(localStorage.getItem("stacklyn_token") ? { Authorization: `Bearer ${localStorage.getItem("stacklyn_token")}` } : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options?.headers,
         },
     });
@@ -41,10 +58,6 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 }
 
 export const api = {
-    // Auth
-    login: (data: any) => fetchAPI<{ user: User, token: string }>("/auth/login", { method: "POST", body: JSON.stringify(data) }),
-    register: (data: any) => fetchAPI<{ user: User, token: string }>("/auth/register", { method: "POST", body: JSON.stringify(data) }),
-
     // Users
     createUser: (data: CreateUserDto) => fetchAPI<User>("/users", { method: "POST", body: JSON.stringify(data) }),
     getUsers: () => fetchAPI<User[]>("/users"),
