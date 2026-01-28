@@ -288,6 +288,7 @@ export default function ProjectDetailsPage() {
                             <div>
                                 <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
                                     {project!.name}
+
                                 </h1>
                                 <p className="text-slate-500 mt-2 text-lg">
                                     {project!.description || 'Orchestrate your prompt chains and manage versions.'}
@@ -351,8 +352,8 @@ export default function ProjectDetailsPage() {
                         {/* List Header */}
                         <div className="flex items-center justify-between px-2">
                             <div className="flex items-center gap-2">
-                                <h2 className="text-lg font-bold text-slate-900">Prompts</h2>
-                                <span className="bg-white border border-slate-200 text-slate-500 text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                <h2 className="text-lg font-lg tracking-tight text-slate-900">Prompts</h2>
+                                <span className="bg-white border border-slate-200 text-slate-500 text-xs font-lg tracking-tight px-2 py-0.5 rounded-full shadow-sm">
                                     {filteredPrompts.length}
                                 </span>
                             </div>
@@ -372,7 +373,7 @@ export default function ProjectDetailsPage() {
                                         <div className="flex items-center gap-4">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-bold text-slate-900 text-lg group-hover:text-indigo-700 transition-colors uppercase tracking-tight">
+                                                    <h3 className="font-lg text-slate-900 text-lg group-hover:text-indigo-700 transition-colors tracking-tight">
                                                         {prompt.name}
                                                     </h3>
                                                 </div>
@@ -381,7 +382,7 @@ export default function ProjectDetailsPage() {
                                                         <Clock className="h-3.5 w-3.5" />
                                                         {prompt.updated_at ? new Date(prompt.updated_at).toLocaleDateString() : "Never"}
                                                     </span>
-                                                    <span className="text-slate-300 font-bold">•</span>
+                                                    <span className="text-slate-300 font-lg tracking-tight">•</span>
                                                     <span className="font-mono bg-slate-50 px-2 py-0.5 rounded-md text-slate-600 border border-slate-100">
                                                         v1.0
                                                     </span>
@@ -391,7 +392,7 @@ export default function ProjectDetailsPage() {
 
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                                             <Link href={`/prompts/${prompt.id}`}>
-                                                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-md hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm">
+                                                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-lg tracking-tight rounded-md hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm">
                                                     Open <ExternalLink className="h-3.5 w-3.5" />
                                                 </button>
                                             </Link>
@@ -428,7 +429,7 @@ export default function ProjectDetailsPage() {
                                 <div className="w-12 h-12 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center mb-3 group-hover:bg-white group-hover:border-indigo-200 group-hover:scale-110 shadow-sm transition-all text-slate-400 group-hover:text-indigo-600">
                                     <Plus className="h-6 w-6" />
                                 </div>
-                                <span className="text-sm font-bold tracking-tight">Create another prompt</span>
+                                <span className="text-sm font-lg tracking-tight">Create another prompt</span>
                             </button>
                         </div>
                     </div>
@@ -440,8 +441,8 @@ export default function ProjectDetailsPage() {
                         {/* Team Members Card */}
                         <div className="bg-white rounded-md border border-slate-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="font-bold text-slate-900 tracking-tight">Team Members</h3>
-                                <span className="text-xs bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
+                                <h3 className="font-lg text-slate-900 tracking-tight">Team Members</h3>
+                                <span className="text-xs bg-slate-100 text-slate-600 font-lg tracking-tight px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
                                     {members.length}
                                 </span>
                             </div>
@@ -451,14 +452,14 @@ export default function ProjectDetailsPage() {
                                     <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-slate-50/50 transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
-                                                "w-10 h-10 rounded-md flex items-center justify-center text-xs font-bold shadow-sm transition-transform group-hover:scale-105",
+                                                "w-10 h-10 rounded-md flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105",
                                                 member.role === 'admin' ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"
                                             )}>
                                                 {member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-slate-900 tracking-tight">{member.users?.name || member.users?.email || "Unknown"}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{member.role}</div>
+                                                <div className="text-sm font-lg text-slate-900 tracking-tight">{member.users?.name || member.users?.email || "Unknown"}</div>
+                                                <div className="text-[10px] font-lg tracking-tight text-slate-400 uppercase tracking-widest">{member.role}</div>
                                             </div>
                                         </div>
                                         <button
@@ -476,7 +477,7 @@ export default function ProjectDetailsPage() {
 
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="w-full mt-6 py-3 border-2 border-dashed border-slate-200 rounded-md text-sm font-bold text-slate-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2 group"
+                                className="w-full mt-6 py-3 border-2 border-dashed border-slate-200 rounded-md text-sm font-lg tracking-tight text-slate-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2 group"
                             >
                                 <UserPlus className="h-4 w-4 group-hover:scale-110 transition-transform" />
                                 Invite Member
@@ -507,7 +508,7 @@ export default function ProjectDetailsPage() {
             <Dialog open={editPromptDialog.open} onOpenChange={(open) => setEditPromptDialog({ ...editPromptDialog, open })}>
                 <DialogContent className="sm:max-w-md rounded-md">
                     <DialogHeader>
-                        <DialogTitle className="font-bold text-xl">Edit Prompt</DialogTitle>
+                        <DialogTitle className="font-lg tracking-tight text-xl">Edit Prompt</DialogTitle>
                         <DialogDescription className="text-slate-500">Update the prompt name.</DialogDescription>
                     </DialogHeader>
                     <div className="py-6">
@@ -521,7 +522,7 @@ export default function ProjectDetailsPage() {
                     <div className="flex justify-end gap-3">
                         <Button
                             variant="ghost"
-                            className="rounded-sm font-bold text-slate-500 hover:bg-slate-100"
+                            className="rounded-sm font-lg tracking-tight text-slate-500 hover:bg-slate-100"
                             onClick={() => setEditPromptDialog({ open: false, id: "", name: "" })}
                         >
                             Cancel
@@ -529,7 +530,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditPromptSave}
                             disabled={editPromptLoading || !editPromptDialog.name.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-bold px-6 shadow-md shadow-indigo-100"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-6 shadow-md shadow-indigo-100"
                         >
                             {editPromptLoading ? "Saving..." : "Save Changes"}
                         </Button>
@@ -541,12 +542,12 @@ export default function ProjectDetailsPage() {
             <Dialog open={editProjectDialog} onOpenChange={setEditProjectDialog}>
                 <DialogContent className="sm:max-w-md rounded-md">
                     <DialogHeader>
-                        <DialogTitle className="font-bold text-xl">Project Settings</DialogTitle>
+                        <DialogTitle className="font-lg tracking-tight text-xl">Project Settings</DialogTitle>
                         <DialogDescription className="text-slate-500">Update the project details.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6 py-6">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Project Name</label>
+                            <label className="text-[11px] font-lg tracking-tight text-slate-400 uppercase tracking-widest ml-1">Project Name</label>
                             <Input
                                 placeholder="Project name"
                                 value={editProjectName}
@@ -555,7 +556,7 @@ export default function ProjectDetailsPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Description</label>
+                            <label className="text-[11px] font-lg tracking-tight text-slate-400 uppercase tracking-widest ml-1">Description</label>
                             <Input
                                 placeholder="Project description (optional)"
                                 value={editProjectDescription}
@@ -567,7 +568,7 @@ export default function ProjectDetailsPage() {
                     <div className="flex justify-end gap-3">
                         <Button
                             variant="ghost"
-                            className="rounded-sm font-bold text-slate-500 hover:bg-slate-100"
+                            className="rounded-sm font-lg tracking-tight text-slate-500 hover:bg-slate-100"
                             onClick={() => setEditProjectDialog(false)}
                         >
                             Cancel
@@ -575,7 +576,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditProjectSave}
                             disabled={editProjectLoading || !editProjectName.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-bold px-6 shadow-md shadow-indigo-100"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-6 shadow-md shadow-indigo-100"
                         >
                             {editProjectLoading ? "Saving..." : "Save Settings"}
                         </Button>
@@ -587,14 +588,14 @@ export default function ProjectDetailsPage() {
             <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
                 <DialogContent className="sm:max-w-md rounded-md">
                     <DialogHeader>
-                        <DialogTitle className="font-bold text-xl">Invite Team Member</DialogTitle>
+                        <DialogTitle className="font-lg tracking-tight text-xl">Invite Team Member</DialogTitle>
                         <DialogDescription className="text-slate-500">
                             Add a team member by their email address.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6 py-6">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                            <label className="text-[11px] font-lg tracking-tight text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
                             <Input
                                 placeholder="member@example.com"
                                 value={inviteEmail}
@@ -603,11 +604,11 @@ export default function ProjectDetailsPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Role</label>
+                            <label className="text-[11px] font-lg tracking-tight text-slate-400 uppercase tracking-widest ml-1">Role</label>
                             <select
                                 value={inviteRole}
                                 onChange={(e) => setInviteRole(e.target.value)}
-                                className="w-full h-12 px-4 text-sm font-semibold border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+                                className="w-full h-12 px-4 text-sm font-lg tracking-tight border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
                             >
                                 <option value="member">Member</option>
                                 <option value="admin">Admin</option>
@@ -615,13 +616,13 @@ export default function ProjectDetailsPage() {
                             </select>
                         </div>
                         {inviteError && (
-                            <p className="text-xs font-bold text-red-500 ml-1">{inviteError}</p>
+                            <p className="text-xs font-lg tracking-tight text-red-500 ml-1">{inviteError}</p>
                         )}
                     </div>
                     <div className="flex justify-end gap-3">
                         <Button
                             variant="ghost"
-                            className="rounded-sm font-bold text-slate-500 hover:bg-slate-100"
+                            className="rounded-sm font-lg tracking-tight text-slate-500 hover:bg-slate-100"
                             onClick={() => setInviteDialogOpen(false)}
                         >
                             Cancel
@@ -629,7 +630,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleInviteMember}
                             disabled={inviteLoading || !inviteEmail.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-bold px-8 shadow-md shadow-indigo-100"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-8 shadow-md shadow-indigo-100"
                         >
                             {inviteLoading ? "Inviting..." : "Send Invitation"}
                         </Button>

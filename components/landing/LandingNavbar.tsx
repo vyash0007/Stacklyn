@@ -26,7 +26,7 @@ export function LandingNavbar() {
                         <div className="bg-slate-900 p-1.5 rounded-lg">
                             <Layers className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-xl font-bold text-slate-900 tracking-tight">
+                        <span className="text-xl font-lg tracking-tight text-slate-900 tracking-tight">
                             Stacklyn
                         </span>
                     </Link>

@@ -26,7 +26,7 @@ export function StatCard({
             <div>
                 <h3 className="text-slate-500 text-sm font-medium mb-1">{title}</h3>
                 <div className="flex items-end space-x-2">
-                    <span className="text-3xl font-bold text-slate-900 tracking-tight">
+                    <span className="text-3xl font-lg text-slate-900 tracking-tight">
                         {value}
                     </span>
                     <span className="text-slate-400 text-sm mb-1">{subtext}</span>

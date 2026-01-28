@@ -36,7 +36,7 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                         <span className="text-slate-300 text-sm">/</span>
                     </>
                 )}
-                <h1 className="text-[13px] font-bold text-slate-900">{title}</h1>
+                <h1 className="text-[13px] font-lg tracking-tight text-slate-900">{title}</h1>
             </div>
             <div className="flex items-center space-x-4">
                 <div
@@ -49,7 +49,7 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                             Search projects or prompts...
                         </div>
                         <div className="flex items-center gap-1.5 ml-2">
-                            <span className="text-[10px] text-slate-400 border border-slate-200 rounded-md px-1.5 py-0.5 bg-slate-50 font-bold">
+                            <span className="text-[10px] text-slate-400 border border-slate-200 rounded-md px-1.5 py-0.5 bg-slate-50 font-lg tracking-tight">
                                 ⌘K
                             </span>
                         </div>

@@ -5,7 +5,7 @@ export function OverviewChart() {
         <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h2 className="text-lg font-bold text-slate-900">Overview</h2>
+                    <h2 className="text-lg font-lg tracking-tight text-slate-900">Overview</h2>
                     <p className="text-sm text-slate-500">
                         Request volume over the last 30 days
                     </p>
