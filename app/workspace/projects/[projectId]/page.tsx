@@ -176,7 +176,7 @@ export default function ProjectDetailsPage() {
                                 onChange={(e) => setNewPromptName(e.target.value)}
                                 className="h-9 text-[13px] bg-slate-50/50"
                             />
-                            <Button onClick={handleCreatePrompt} disabled={isLoading} size="sm" className="bg-[#4F46E5] hover:bg-[#4338CA] transition-colors h-9 px-4">
+                            <Button onClick={handleCreatePrompt} disabled={isLoading} size="sm" className="bg-[#4F46E5] hover:bg-[#4338CA] transition-colors h-9 px-4 text-white">
                                 <Plus className="mr-2 h-4 w-4" />
                                 Add Prompt
                             </Button>
