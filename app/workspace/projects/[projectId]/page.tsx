@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,14 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { Project, Prompt } from "@/types";
 import { Plus, ArrowLeft, Trash2, UserPlus, X } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function ProjectDetailsPage() {
     const params = useParams();
+    const api = useApi();
     // Ensure we consistently treat params.projectId as a string.
     // In newer Next.js versions params can be a promise or parsed differently, 
     // but useParams() hook usually returns strings for dynamic segments.
@@ -38,6 +40,14 @@ export default function ProjectDetailsPage() {
     const [inviteRole, setInviteRole] = useState("member");
     const [inviteLoading, setInviteLoading] = useState(false);
     const [inviteError, setInviteError] = useState("");
+
+    // Delete dialog state
+    const [deleteDialog, setDeleteDialog] = useState<{
+        open: boolean;
+        type: 'prompt' | 'member' | null;
+        id: string;
+        name: string;
+    }>({ open: false, type: null, id: "", name: "" });
 
     useEffect(() => {
         if (projectId) {
@@ -84,13 +94,27 @@ export default function ProjectDetailsPage() {
         }
     };
 
-    const handleDeletePrompt = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this prompt? This will delete all its versions and history.")) return;
+    const handleDeletePromptClick = (id: string, name: string) => {
+        setDeleteDialog({ open: true, type: 'prompt', id, name });
+    };
+
+    const handleDeleteMemberClick = (id: string, email: string) => {
+        setDeleteDialog({ open: true, type: 'member', id, name: email });
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteDialog.id) return;
+
         try {
-            await api.deletePrompt(id);
-            setPrompts(prompts.filter(p => p.id !== id));
+            if (deleteDialog.type === 'prompt') {
+                await api.deletePrompt(deleteDialog.id);
+                setPrompts(prompts.filter(p => p.id !== deleteDialog.id));
+            } else if (deleteDialog.type === 'member') {
+                await api.removeProjectMember(projectId, deleteDialog.id);
+                setMembers(members.filter(m => m.user_id !== deleteDialog.id));
+            }
         } catch (error) {
-            console.error("Failed to delete prompt", error);
+            console.error(`Failed to delete ${deleteDialog.type}`, error);
         }
     };
 
@@ -177,7 +201,7 @@ export default function ProjectDetailsPage() {
                                             variant="ghost"
                                             size="icon"
                                             className="h-8 w-8 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                                            onClick={() => handleDeletePrompt(prompt.id)}
+                                            onClick={() => handleDeletePromptClick(prompt.id, prompt.name)}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -282,7 +306,7 @@ export default function ProjectDetailsPage() {
                                             variant="ghost"
                                             size="icon"
                                             className="h-6 w-6 text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
-                                            onClick={() => handleRemoveMember(member.user_id)}
+                                            onClick={() => handleDeleteMemberClick(member.user_id, member.users?.email || "Unknown")}
                                         >
                                             <X className="h-3 w-3" />
                                         </Button>
@@ -296,6 +320,20 @@ export default function ProjectDetailsPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onClose={() => setDeleteDialog({ ...deleteDialog, open: false })}
+                onConfirm={handleDeleteConfirm}
+                title={`Delete ${deleteDialog.type === 'prompt' ? 'Prompt' : 'Member'}`}
+                description={
+                    deleteDialog.type === 'prompt'
+                        ? `Are you sure you want to delete the prompt "${deleteDialog.name}"? This will permanently delete all its versions, runs, and scores.`
+                        : `Are you sure you want to remove ${deleteDialog.name} from this project?`
+                }
+                confirmText={deleteDialog.type === 'prompt' ? "Delete Prompt" : "Remove Member"}
+                variant="danger"
+            />
         </div>
     );
 }

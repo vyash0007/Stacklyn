@@ -13,6 +13,7 @@ import {
     User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SignOutButton } from "@clerk/nextjs";
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -116,15 +117,12 @@ export function Sidebar() {
             </div>
 
             <div className="mt-auto p-4 border-t border-white/5">
-                <Link
-                    href="/"
-                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group"
-                >
-                    <div className="h-7 w-7 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold text-slate-300 group-hover:text-white group-hover:bg-white/20">
-                        N
-                    </div>
-                    <span className="text-sm font-medium">Sign Out</span>
-                </Link>
+                <SignOutButton>
+                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
+                        <LogOut className="h-4 w-4 text-slate-400 group-hover:text-white" />
+                        <span className="text-sm font-medium">Sign Out</span>
+                    </button>
+                </SignOutButton>
             </div>
         </aside>
     );

@@ -1,57 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Folder, Plus, Trash2, Clock, MoreHorizontal } from "lucide-react";
-import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { Project } from "@/types";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function ProjectsPage() {
+    const api = useApi();
     const [projects, setProjects] = useState<Project[]>([]);
     const [newProjectName, setNewProjectName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [userId, setUserId] = useState<string>("");
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; projectId: string | null; projectName: string }>(
+        { open: false, projectId: null, projectName: "" }
+    );
 
-    useEffect(() => {
-        loadProjects();
-        ensureUser();
-    }, []);
-
-    const ensureUser = async () => {
-        try {
-            const users = await api.getUsers();
-            if (users.length > 0) {
-                setUserId(users[0].id);
-            } else {
-                const newUser = await api.createUser({
-                    name: "Demo User",
-                    email: "demo@stacklyn.com",
-                });
-                setUserId(newUser.id);
-            }
-        } catch (e) {
-            console.error("Failed to ensure user", e);
-        }
-    };
-
-    const loadProjects = async () => {
+    const loadProjects = useCallback(async () => {
         try {
             const data = await api.getProjects();
             setProjects(data);
         } catch (error) {
             console.error("Failed to load projects", error);
         }
-    };
+    }, [api]);
+
+    useEffect(() => {
+        loadProjects();
+    }, [loadProjects]);
 
     const handleCreateProject = async () => {
-        if (!newProjectName.trim() || !userId) return;
+        if (!newProjectName.trim()) return;
         setIsLoading(true);
         try {
             await api.createProject({
                 name: newProjectName,
                 description: "Created via frontend",
-                created_by: userId,
             });
             setNewProjectName("");
             loadProjects();
@@ -62,18 +47,17 @@ export default function ProjectsPage() {
         }
     };
 
-    const handleDeleteProject = async (id: string, e: React.MouseEvent) => {
+    const handleDeleteClick = (id: string, name: string, e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (
-            !confirm(
-                "Are you sure you want to delete this project? This will delete everything inside it (prompts, versions, runs)."
-            )
-        )
-            return;
+        setDeleteDialog({ open: true, projectId: id, projectName: name });
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!deleteDialog.projectId) return;
         try {
-            await api.deleteProject(id);
-            setProjects(projects.filter((p) => p.id !== id));
+            await api.deleteProject(deleteDialog.projectId);
+            setProjects(projects.filter((p) => p.id !== deleteDialog.projectId));
         } catch (error) {
             console.error("Failed to delete project", error);
         }
@@ -95,7 +79,7 @@ export default function ProjectsPage() {
                     />
                     <button
                         onClick={handleCreateProject}
-                        disabled={isLoading || !userId}
+                        disabled={isLoading}
                         className="bg-slate-900 text-white border-0 px-8 py-3 rounded-xl font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center disabled:opacity-50"
                     >
                         <Plus className="h-5 w-5 mr-2" />
@@ -123,7 +107,7 @@ export default function ProjectsPage() {
                                         variant="ghost"
                                         size="icon"
                                         className="h-8 w-8 text-slate-400 hover:text-red-500"
-                                        onClick={(e) => handleDeleteProject(p.id, e)}
+                                        onClick={(e) => handleDeleteClick(p.id, p.name, e)}
                                     >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -156,6 +140,16 @@ export default function ProjectsPage() {
                     </p>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={deleteDialog.open}
+                onClose={() => setDeleteDialog({ open: false, projectId: null, projectName: "" })}
+                onConfirm={handleDeleteConfirm}
+                title="Delete Project"
+                description={`Are you sure you want to delete "${deleteDialog.projectName}"? This will permanently delete all prompts, commits, runs, and scores associated with this project.`}
+                confirmText="Delete Project"
+                variant="danger"
+            />
         </div>
     );
 }

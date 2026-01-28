@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Folder, Zap, BarChart3 } from "lucide-react";
-import { api } from "@/lib/api";
+import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityItem } from "@/components/dashboard/ActivityItem";
 import { OverviewChart } from "@/components/dashboard/OverviewChart";
 
 export default function Dashboard() {
+    const api = useApi();
     const [stats, setStats] = useState({
         projects: 0,
         runs: 0,
@@ -25,7 +26,7 @@ export default function Dashboard() {
 
                 let avg = 0;
                 if (scores.length > 0) {
-                    const total = scores.reduce((acc, s) => acc + s.score, 0);
+                    const total = scores.reduce((acc: number, s: any) => acc + s.score, 0);
                     avg = total / scores.length;
                 }
 
@@ -39,7 +40,7 @@ export default function Dashboard() {
             }
         }
         loadStats();
-    }, []);
+    }, [api]);
 
     return (
         <div className="p-8 max-w-7xl mx-auto space-y-8">
