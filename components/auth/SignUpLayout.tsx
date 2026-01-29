@@ -13,42 +13,41 @@ export function SignUpLayout({
     children,
     title = "Ship AI agents without friction",
     subtitle = "The unified platform for prompt engineering, evaluation, and production monitoring.",
-    badge = "Get Started"
 }: SignUpLayoutProps) {
     return (
-        <div className="flex min-h-screen font-sans bg-white selection:bg-indigo-100 relative lg:flex-row-reverse flex-row overflow-hidden">
+        <div className="flex h-screen font-sans bg-white selection:bg-indigo-100 relative flex-row overflow-hidden">
 
-            {/* REFINED ANCHORED WAVE SEAM: Right of 55% Split */}
-            {/* Reduced Width: 160px (was 300px). */}
-            <div className="hidden lg:block absolute top-0 bottom-0 z-50 w-[160px] pointer-events-none left-[55%]">
+            {/* REFINED ANCHORED WAVE SEAM: Left of 45% Split */}
+            {/* Reduced Width: 160px (was 300px) for elegance. */}
+            <div className="hidden lg:block absolute top-0 bottom-0 z-50 w-[160px] pointer-events-none left-[45%] -translate-x-full">
                 <svg className="h-full w-full" viewBox="0 0 100 1000" preserveAspectRatio="none">
                     {/* Layer 1: Subtle Pulse Background */}
                     <path
-                        d="M0,0 L0,1000 C 100,800 100,200 0,0 Z"
-                        fill="#6366F1"
+                        d="M100,0 L100,1000 C 0,800 0,200 100,0 Z"
+                        fill="#1E293B"
                         opacity="0.3"
-                        className="animate-pulse"
                         style={{ animationDuration: '4s' }}
                     />
 
                     {/* Layer 2: Main Liquid Wave (Simple Arc) */}
-                    {/* Seam at 0. Bulge Right (100). */}
+                    {/* Starts Top-Right (100,0). Ends Bottom-Right (100,1000).
+                        Curve: Smooth bulge to left (x=0).
+                    */}
                     <path
-                        d="M0,0 L0,1000 C 100,800 100,200 0,0 Z"
-                        fill="#4F46E5"
-                        className="animate-liquid-pulse"
+                        d="M100,0 L100,1000 C 0,800 0,200 100,0 Z"
+                        fill="#0F172A"
                     />
                 </svg>
             </div>
 
-            {/* Auth Pane (Form Side - RIGHT) */}
-            <div className="flex flex-col w-full lg:w-[45%] bg-white px-8 md:px-16 py-10 relative z-10 lg:pl-32">
-                <div className="flex items-center mb-16 animate-fade-in text-left justify-start px-2 lg:px-0">
+            {/* Auth Pane (Form Side - LEFT) */}
+            <div className="flex flex-col w-full lg:w-[45%] h-full bg-white px-8 md:px-16 py-6 lg:py-8 relative z-10 lg:pr-32 overflow-hidden justify-center shadow-[10px_0_30px_-10px_rgba(0,0,0,0.05)]">
+                <div className="flex items-center mb-6 lg:mb-10 2xl:mb-16 text-left justify-start px-2 lg:px-0">
                     <Link href="/" className="flex items-center space-x-3 group min-w-max">
-                        <div className="bg-slate-900 p-2.5 rounded-xl group-hover:bg-[#4F46E5] transition-all duration-300 shadow-md transform group-hover:rotate-6">
+                        <div className="bg-slate-900 p-2.5 rounded-xl group-hover:bg-[#0F172A] transition-all duration-300 shadow-md transform group-hover:rotate-6">
                             <Layers className="h-5.5 w-5.5 text-white" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-[#4F46E5] transition-colors uppercase whitespace-nowrap">
+                        <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-[#0F172A] transition-colors whitespace-nowrap">
                             Stacklyn
                         </span>
                     </Link>
@@ -58,24 +57,29 @@ export function SignUpLayout({
                     {children}
                 </div>
 
-                <div className="mt-12 text-center pt-8 animate-fade-in [animation-delay:400ms]">
+                <div className="mt-6 2xl:mt-12 text-center">
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.25em]">
                         Frictionless Agent Infrastructure
                     </p>
                 </div>
             </div>
 
-            {/* Branding Pane (Illustration Side - LEFT) */}
-            <div className="hidden lg:flex lg:w-[55%] bg-[#4F46E5] relative overflow-hidden flex-col items-center justify-center p-12 transition-all duration-1000 z-10">
+            {/* Branding Pane (Illustration Side - RIGHT) */}
+            <div className="hidden lg:flex lg:w-[55%] h-full bg-[#0F172A] relative flex-col items-center justify-center p-8 transition-all duration-1000 z-10 overflow-hidden">
                 <div className="absolute inset-0 z-0 overflow-hidden">
-                    <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[80%] bg-[#4338CA] rounded-full blur-[120px] opacity-60 animate-pulse" />
-                    <div className="absolute bottom-[-15%] left-[-5%] w-[70%] h-[70%] bg-[#6366F1] rounded-full blur-[100px] opacity-40 animate-pulse [animation-delay:3s]" />
                 </div>
 
                 <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
-                    <div className="relative w-full h-[540px] flex items-center justify-center">
+                    <div className="text-center self-center max-w-xl mb-4 lg:mb-6 2xl:mb-12 px-6">
+                        <h2 className="text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black tracking-tight text-white mb-2 lg:mb-4 leading-[0.95] drop-shadow-2xl">
+                            {title}
+                        </h2>
+                    </div>
+
+                    <div className="relative w-full h-[450px] lg:h-[480px] xl:h-[540px] flex items-center justify-center scale-100 transition-all duration-500 origin-center">
                         {/* Prompt Management Card */}
-                        <div className="absolute top-4 right-[2%] w-[340px] bg-white rounded-[40px] shadow-[0_48px_96px_-24px_rgba(0,0,0,0.18)] p-10 animate-float z-30 transition-all border border-slate-50">
+                        <div className="absolute top-4 right-[2%] w-[340px] bg-white rounded-[40px] shadow-[0_48px_96px_-24px_rgba(0,0,0,0.18)] p-10 z-30 transition-all border border-slate-50">
+                            {/* ... (rest of prompt card) */}
                             <div className="flex justify-between items-center mb-6">
                                 <div className="space-y-1.5 text-left">
                                     <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Core Product</div>
@@ -91,7 +95,8 @@ export function SignUpLayout({
                         </div>
 
                         {/* Collaboration Experts Card */}
-                        <div className="absolute bottom-6 left-0 w-[400px] bg-white rounded-[44px] shadow-[0_56px_110px_-28px_rgba(0,0,0,0.2)] p-10 animate-float [animation-delay:1.5s] z-20 border border-white/50 backdrop-blur-sm group">
+                        <div className="absolute bottom-6 left-0 w-[400px] bg-white rounded-[44px] shadow-[0_56px_110px_-28px_rgba(0,0,0,0.2)] p-10 z-20 border border-white/50 backdrop-blur-sm group">
+                            {/* ... (rest of collaboration card) */}
                             <div className="flex items-center space-x-5 mb-6 text-left">
                                 <div className="h-12 w-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
                                     <Users className="h-6 w-6 text-indigo-600" />
@@ -104,28 +109,7 @@ export function SignUpLayout({
                             <p className="text-sm text-slate-500 font-medium leading-relaxed mb-6 text-left">
                                 Open up prompt iteration to non-technical stakeholders. Our LLM observability allows you to find edge-cases and improve prompts.
                             </p>
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className={`h-9 w-9 rounded-full border-2 border-white bg-slate-${i * 100 + 200} flex items-center justify-center shadow-md`}>
-                                        <span className="text-[9px] font-black text-white">{String.fromCharCode(64 + i)}</span>
-                                    </div>
-                                ))}
-                                <div className="h-9 w-9 rounded-full border-2 border-white bg-indigo-600 flex items-center justify-center shadow-md text-[9px] font-black text-white">
-                                    +12
-                                </div>
-                            </div>
                         </div>
-                    </div>
-
-                    <div className="inline-flex items-center space-x-2 px-6 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl text-white text-[12px] font-black uppercase tracking-[0.35em] mt-8 animate-fade-in-up order-first self-center mb-10 shadow-glow-indigo">
-                        <Sparkles className="h-4 w-4 animate-pulse text-indigo-100" />
-                        <span>{badge}</span>
-                    </div>
-
-                    <div className="text-center order-first self-center max-w-xl mb-4 px-6">
-                        <h2 className="text-6xl lg:text-7xl font-black tracking-tight text-white mb-6 leading-[0.95] animate-fade-in-up [animation-delay:150ms] drop-shadow-2xl">
-                            {title}
-                        </h2>
                     </div>
                 </div>
             </div>
