@@ -9,6 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
 import { Prompt, Commit, Run, Score, Tag } from "@/types";
 import {
@@ -311,12 +318,14 @@ export default function PromptWorkspacePage() {
         setCompareDialogOpen(true);
     };
 
-    const handleCompare = async () => {
-        if (!commitToCompare || !compareTargetId) return;
+    const handleCompare = async (targetId?: string) => {
+        const idToCompare = targetId || compareTargetId;
+        if (!commitToCompare || !idToCompare) return;
         setIsComparing(true);
         try {
-            const result = await api.compareCommits(commitToCompare.id, compareTargetId);
+            const result = await api.compareCommits(commitToCompare.id, idToCompare);
             setComparisonResult(result);
+            if (targetId) setCompareTargetId(targetId);
         } catch (error) {
             console.error("Failed to compare commits", error);
         } finally {
@@ -356,7 +365,7 @@ export default function PromptWorkspacePage() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-slate-50">
+        <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
             {/* Editor Header */}
             <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-20">
                 <div className="flex items-center space-x-4">
@@ -380,7 +389,7 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={openCompareDialog}
                         disabled={!selectedCommit || commits.length < 2}
-                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-md shadow-sm hover:border-slate-300 hover:bg-slate-50 transition-professional flex items-center disabled:opacity-50"
                     >
                         <GitBranch className="h-4 w-4 mr-2" />
                         Compare
@@ -388,13 +397,13 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={handleCommit}
                         disabled={isSaving}
-                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 rounded-full shadow-sm hover:border-indigo-200 hover:bg-slate-50 transition-all flex items-center disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-lg tracking-tight text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-md shadow-sm hover:border-slate-300 hover:bg-slate-50 transition-professional flex items-center disabled:opacity-50"
                     >
                         <GitCommit className="h-4 w-4 mr-2" />
                         Commit
                     </button>
 
-                    <div className="relative flex items-center bg-indigo-600 rounded-full shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <div className="relative flex items-center bg-slate-900 rounded-md shadow-sm hover:bg-slate-800 transition-professional hover:scale-[1.01] active:scale-[0.99]">
                         <button
                             onClick={() => handleRun()}
                             disabled={isRunning || !selectedCommit}
@@ -403,22 +412,22 @@ export default function PromptWorkspacePage() {
                             <Play className="h-4 w-4 mr-2 fill-current" />
                             {isRunning ? "Running..." : "Run"}
                         </button>
-                        <div className="w-[1px] h-4 bg-indigo-400 opacity-50" />
+                        <div className="w-[1px] h-4 bg-white/20" />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="pl-2 pr-4 py-2 text-white disabled:opacity-75 h-full" disabled={isRunning || !selectedCommit}>
                                     <ChevronDown className="h-4 w-4" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 p-1 rounded-2xl border-slate-200 shadow-xl mt-2 animate-in fade-in slide-in-from-top-2">
-                                <DropdownMenuItem onClick={handleRunAll} className="text-xs font-lg tracking-tight rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
-                                    <Layers className="mr-2 h-4 w-4 text-slate-400 group-focus:text-indigo-600" />
+                            <DropdownMenuContent align="end" className="w-56 p-1 rounded-md border-slate-200 shadow-xl mt-2 animate-in fade-in slide-in-from-top-2">
+                                <DropdownMenuItem onClick={handleRunAll} className="text-xs font-lg tracking-tight rounded-md py-2.5 cursor-pointer focus:bg-slate-50 focus:text-slate-900 transition-colors">
+                                    <Layers className="mr-2 h-4 w-4 text-slate-400 group-focus:text-slate-900" />
                                     Run All Models
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator className="my-1 bg-slate-100" />
-                                <DropdownMenuLabel className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-3 py-2">Run with...</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-[10px] font-lg tracking-tight text-slate-400 uppercase tracking-widest px-3 py-2">Run with...</DropdownMenuLabel>
                                 {availableModels.map(model => (
-                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs font-lg tracking-tight rounded-xl py-2.5 cursor-pointer focus:bg-indigo-50 focus:text-indigo-600 transition-colors">
+                                    <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="text-xs font-lg tracking-tight rounded-md py-2.5 cursor-pointer focus:bg-slate-50 focus:text-slate-900 transition-colors">
                                         <Zap className="mr-2 h-4 w-4 text-amber-500" />
                                         {model}
                                     </DropdownMenuItem>
@@ -446,9 +455,9 @@ export default function PromptWorkspacePage() {
                                     key={commit.id}
                                     onClick={() => setSelectedCommit(commit)}
                                     className={cn(
-                                        "p-3 rounded-lg border cursor-pointer transition-all group",
+                                        "p-3 rounded-md border cursor-pointer transition-all group",
                                         isActive
-                                            ? "bg-indigo-50 border-indigo-100"
+                                            ? "bg-slate-100 border-slate-200"
                                             : "hover:bg-slate-50 border-transparent hover:border-slate-100"
                                     )}
                                 >
@@ -456,12 +465,12 @@ export default function PromptWorkspacePage() {
                                         <div className="flex items-center gap-1.5">
                                             <span className={cn(
                                                 "text-xs font-mono px-1.5 py-0.5 rounded",
-                                                isActive ? "text-indigo-600 bg-indigo-100" : "text-slate-400 bg-slate-100 group-hover:text-slate-600"
+                                                isActive ? "text-slate-900 bg-slate-200" : "text-slate-400 bg-slate-100 group-hover:text-slate-600"
                                             )}>
                                                 {commit.id.substring(0, 6)}
                                             </span>
                                             <button
-                                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-indigo-600"
+                                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-slate-900"
                                                 onClick={(e) => openTagDialog(commit, e)}
                                             >
                                                 <Settings className="h-3 w-3" />
@@ -481,7 +490,7 @@ export default function PromptWorkspacePage() {
                                             <Badge
                                                 key={`${tag.commit_id}-${tag.tag_name}-${i}`}
                                                 variant="secondary"
-                                                className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-lg tracking-tight uppercase tracking-wider bg-indigo-50 text-indigo-600 border-none hover:pr-4 relative transition-all"
+                                                className="group/tag inline-flex items-center gap-1 text-[9px] px-1.5 py-0 h-3.5 font-lg tracking-tight uppercase tracking-wider bg-slate-100 text-slate-600 border-none hover:pr-4 relative transition-all"
                                             >
                                                 {tag.tag_name}
                                                 <button
@@ -503,43 +512,43 @@ export default function PromptWorkspacePage() {
                 </div>
 
                 {/* CENTER: Editor Area */}
-                <div className="flex-1 flex flex-col min-w-0 bg-slate-50/50 overflow-y-auto">
-                    <div className="max-w-4xl mx-auto w-full p-8 space-y-8">
+                <div className="flex-1 flex flex-col min-w-0 bg-slate-50/50">
+                    <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-6 space-y-6 overflow-hidden h-full">
 
                         {/* System Prompt Section */}
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
-                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3 flex justify-between items-center">
+                        <div className="flex-[3] min-h-0 bg-white rounded-md border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-slate-500/10 focus-within:border-slate-400 transition-professional flex flex-col">
+                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-2.5 flex justify-between items-center shrink-0">
                                 <label className="text-[11px] font-lg tracking-tight text-slate-500 uppercase tracking-widest">System Prompt</label>
                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] text-slate-400 font-mono tracking-tight font-medium uppercase">Active Editor</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                    <span className="text-[10px] text-slate-400 font-mono tracking-tight font-lg tracking-tight uppercase">Active Editor</span>
                                 </div>
                             </div>
                             <textarea
                                 value={systemPrompt}
                                 onChange={(e) => setSystemPrompt(e.target.value)}
-                                className="w-full h-56 p-6 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed"
+                                className="flex-1 w-full p-4 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed overflow-y-auto"
                                 placeholder="Define the persona and rules for the AI..."
                             />
                         </div>
 
                         {/* User Query Section */}
-                        <div className="bg-white rounded-2xl border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-500 transition-all duration-300">
-                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-3">
+                        <div className="flex-[2] min-h-0 bg-white rounded-md border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden group focus-within:ring-4 focus-within:ring-slate-500/10 focus-within:border-slate-400 transition-professional flex flex-col">
+                            <div className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100 px-5 py-2.5 shrink-0">
                                 <label className="text-[11px] font-lg tracking-tight text-slate-500 uppercase tracking-widest">User Query</label>
                             </div>
                             <textarea
                                 value={userQuery}
                                 onChange={(e) => setUserQuery(e.target.value)}
-                                className="w-full h-40 p-6 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed"
+                                className="flex-1 w-full p-4 text-sm font-mono text-slate-800 focus:outline-none resize-none leading-relaxed overflow-y-auto"
                                 placeholder="Enter a test message to preview the prompt..."
                             />
                         </div>
 
                         {/* COMMIT SECTION */}
-                        <div className="pt-8 border-t border-slate-200/60">
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
+                        <div className="pt-4 border-t border-slate-200/60 shrink-0">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="p-1.5 rounded-md bg-slate-100 text-slate-800">
                                     <GitCommit className="h-4 w-4" />
                                 </div>
                                 <h3 className="text-sm font-lg tracking-tight text-slate-900 tracking-tight">Save New Version</h3>
@@ -552,16 +561,16 @@ export default function PromptWorkspacePage() {
                                         onChange={(e) => setCommitMessage(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && handleCommit()}
                                         placeholder="Briefly describe what changed..."
-                                        className="w-full pl-5 pr-12 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm"
+                                        className="w-full pl-5 pr-12 py-3.5 bg-white border border-slate-200 rounded-md text-sm font-lg tracking-tight focus:outline-none focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 transition-professional shadow-sm"
                                     />
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors">
                                         <CornerDownLeft className="h-4 w-4" />
                                     </div>
                                 </div>
                                 <button
                                     onClick={handleCommit}
                                     disabled={isSaving}
-                                    className="bg-slate-900 text-white px-8 rounded-2xl text-sm font-lg tracking-tight hover:bg-slate-800 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 disabled:opacity-50"
+                                    className="bg-slate-900 text-white px-8 rounded-md text-sm font-lg tracking-tight hover:bg-slate-800 active:scale-[0.98] transition-all shadow-lg shadow-slate-200 disabled:opacity-50"
                                 >
                                     {isSaving ? "Saving..." : "Commit"}
                                 </button>
@@ -582,11 +591,11 @@ export default function PromptWorkspacePage() {
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {runs.map((run) => (
-                            <div key={run.id} className="rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow bg-white relative group">
+                            <div key={run.id} className="rounded-md border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow bg-white relative group">
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center space-x-2">
                                         <span className={cn(
-                                            "px-2 py-0.5 rounded text-[10px] font-lg tracking-tight border uppercase",
+                                            "px-2 py-0.5 rounded-md text-[10px] font-lg tracking-tight border uppercase",
                                             run.status === 'success' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"
                                         )}>
                                             {run.status}
@@ -693,25 +702,28 @@ export default function PromptWorkspacePage() {
                         <div className="grid gap-4 py-4">
                             <div className="space-y-2">
                                 <Label className="text-[11px] font-lg tracking-tight uppercase tracking-wider text-slate-500">Compare With</Label>
-                                <select
-                                    value={compareTargetId}
-                                    onChange={(e) => setCompareTargetId(e.target.value)}
-                                    className="w-full h-10 px-3 text-sm border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"
-                                >
-                                    <option value="">Select a version...</option>
-                                    {commits
-                                        .filter(c => c.id !== commitToCompare?.id)
-                                        .map(c => (
-                                            <option key={c.id} value={c.id}>
-                                                {c.id.substring(0, 6)} - {c.commit_message}
-                                            </option>
-                                        ))
-                                    }
-                                </select>
+                                <Select value={compareTargetId} onValueChange={setCompareTargetId}>
+                                    <SelectTrigger className="h-10 border-slate-200">
+                                        <SelectValue placeholder="Select a version..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="border-slate-200">
+                                        {commits
+                                            .filter(c => c.id !== commitToCompare?.id)
+                                            .map(c => (
+                                                <SelectItem key={c.id} value={c.id}>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-mono text-xs bg-slate-100 px-1 rounded text-slate-500">{c.id.substring(0, 6)}</span>
+                                                        <span className="truncate">{c.commit_message}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))
+                                        }
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <DialogFooter>
                                 <Button
-                                    onClick={handleCompare}
+                                    onClick={() => handleCompare()}
                                     disabled={!compareTargetId || isComparing}
                                     className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 font-lg tracking-tight text-xs uppercase tracking-wider transition-all"
                                 >
@@ -724,46 +736,80 @@ export default function PromptWorkspacePage() {
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-4 text-[11px]">
                                     <span className="flex items-center gap-1.5">
-                                        <span className="w-3 h-3 rounded bg-red-100 border border-red-200"></span>
-                                        <span className="text-slate-500">Removed</span>
+                                        <span className="w-3 h-3 rounded bg-red-500"></span>
+                                        <span className="text-slate-600 font-medium">Removed</span>
                                     </span>
                                     <span className="flex items-center gap-1.5">
-                                        <span className="w-3 h-3 rounded bg-green-100 border border-green-200"></span>
-                                        <span className="text-slate-500">Added</span>
+                                        <span className="w-3 h-3 rounded bg-emerald-500"></span>
+                                        <span className="text-slate-600 font-medium">Added</span>
                                     </span>
                                 </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setComparisonResult(null)}
-                                    className="h-7 text-[10px]"
-                                >
-                                    Compare Another
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-7 text-[10px] font-lg tracking-tight flex items-center gap-1.5"
+                                        >
+                                            <GitBranch className="h-3 w-3" />
+                                            Compare Another
+                                            <ChevronDown className="h-3 w-3 opacity-50" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-64 p-1 rounded-md border-slate-200 shadow-xl mt-2 max-h-64 overflow-y-auto">
+                                        <DropdownMenuLabel className="text-[10px] text-slate-400 font-lg tracking-tight px-3 py-2 uppercase">Select Version</DropdownMenuLabel>
+                                        {commits
+                                            .filter(c => c.id !== commitToCompare?.id)
+                                            .map(c => (
+                                                <DropdownMenuItem
+                                                    key={c.id}
+                                                    onClick={() => handleCompare(c.id)}
+                                                    className="text-[11px] font-medium rounded-md py-2 px-3 cursor-pointer focus:bg-slate-50 focus:text-slate-900 transition-colors flex items-center gap-2"
+                                                >
+                                                    <span className="font-mono text-slate-400 shrink-0">{c.id.substring(0, 6)}</span>
+                                                    <span className="truncate">{c.commit_message}</span>
+                                                </DropdownMenuItem>
+                                            ))
+                                        }
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
-                            <div className="flex-1 overflow-y-auto border border-slate-200 rounded-lg bg-white">
-                                <div className="text-[14px] leading-relaxed">
+                            <div className="flex-1 overflow-y-auto border border-slate-200 rounded-md bg-white">
+                                <div className="text-[13px] font-mono leading-relaxed">
                                     {comparisonResult.diff.map((part, index) => {
                                         if (part.type === "unchanged") {
                                             return (
-                                                <span key={index} className="text-slate-700">
-                                                    {part.value}
-                                                </span>
+                                                <div key={index} className="flex border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                                                    <div className="w-8 shrink-0 flex justify-center py-2.5 bg-slate-50/50 border-r border-slate-100 text-slate-300 select-none">
+                                                        {/* No indicator */}
+                                                    </div>
+                                                    <div className="flex-1 px-4 py-2.5 text-slate-600 whitespace-pre-wrap">
+                                                        {part.value}
+                                                    </div>
+                                                </div>
                                             );
                                         }
                                         if (part.type === "removed") {
                                             return (
-                                                <div key={index} className="bg-red-100 border-l-4 border-red-400 px-3 py-2 my-1">
-                                                    <span className="text-red-500 font-lg tracking-tight mr-2 select-none">−</span>
-                                                    <span className="text-red-800">{part.value}</span>
+                                                <div key={index} className="flex bg-red-50/70 border-b border-red-100 last:border-0">
+                                                    <div className="w-8 shrink-0 flex justify-center py-2.5 bg-red-100/50 border-r border-red-200 text-red-500 font-bold select-none">
+                                                        −
+                                                    </div>
+                                                    <div className="flex-1 px-4 py-2.5 text-red-900 whitespace-pre-wrap">
+                                                        {part.value}
+                                                    </div>
                                                 </div>
                                             );
                                         }
                                         if (part.type === "added") {
                                             return (
-                                                <div key={index} className="bg-green-100 border-l-4 border-green-400 px-3 py-2 my-1">
-                                                    <span className="text-green-600 font-lg tracking-tight mr-2 select-none">+</span>
-                                                    <span className="text-green-800">{part.value}</span>
+                                                <div key={index} className="flex bg-emerald-50/70 border-b border-emerald-100 last:border-0">
+                                                    <div className="w-8 shrink-0 flex justify-center py-2.5 bg-emerald-100/50 border-r border-emerald-200 text-emerald-600 font-bold select-none">
+                                                        +
+                                                    </div>
+                                                    <div className="flex-1 px-4 py-2.5 text-green-900 whitespace-pre-wrap">
+                                                        {part.value}
+                                                    </div>
                                                 </div>
                                             );
                                         }

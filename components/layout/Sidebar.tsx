@@ -55,14 +55,14 @@ export function Sidebar() {
     ];
 
     return (
-        <aside className="w-64 bg-[#0B0E14] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50">
+        <aside className="w-64 bg-[#0F172A] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50 transition-professional">
             <div className="p-6">
                 <Link
                     href="/"
-                    className="flex items-center space-x-3 text-white mb-10 cursor-pointer"
+                    className="flex items-center space-x-3 text-white mb-10 cursor-pointer group"
                 >
-                    <div className="bg-[#4F46E5] p-2 rounded-md">
-                        <Layers className="h-5 w-5 text-white" />
+                    <div className="bg-slate-800 p-2 rounded-md border border-white/10 shadow-sm transition-professional group-hover:bg-slate-700">
+                        <Layers className="h-5 w-5 text-white/90" />
                     </div>
                     <span className="text-xl font-lg text-white tracking-tight">Stacklyn</span>
                 </Link>
@@ -72,20 +72,20 @@ export function Sidebar() {
                         <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
                             Platform
                         </h3>
-                        <nav className="space-y-1.5">
+                        <nav className="space-y-1">
                             {routes.map((route) => (
                                 <Link
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-professional border border-transparent",
                                         route.active
-                                            ? "bg-[#1A1D26] text-white border-white/5"
+                                            ? "bg-white/10 text-white shadow-sm"
                                             : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                                     )}
                                 >
-                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#6366F1]" : "text-slate-400")} />
-                                    <span className="text-sm font-medium">{route.label}</span>
+                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#818CF8]" : "text-slate-500")} />
+                                    <span className="text-sm font-lg tracking-tight">{route.label}</span>
                                 </Link>
                             ))}
                         </nav>
@@ -95,20 +95,20 @@ export function Sidebar() {
                         <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
                             Settings
                         </h3>
-                        <nav className="space-y-1.5">
+                        <nav className="space-y-1">
                             {settingsRoutes.map((route) => (
                                 <Link
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-professional border border-transparent",
                                         route.active
-                                            ? "bg-[#1A1D26] text-white border-white/5"
+                                            ? "bg-white/10 text-white shadow-sm"
                                             : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
                                     )}
                                 >
-                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#6366F1]" : "text-slate-400")} />
-                                    <span className="text-sm font-medium">{route.label}</span>
+                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#818CF8]" : "text-slate-500")} />
+                                    <span className="text-sm font-lg tracking-tight">{route.label}</span>
                                 </Link>
                             ))}
                         </nav>
@@ -118,9 +118,9 @@ export function Sidebar() {
 
             <div className="mt-auto p-4 border-t border-white/5">
                 <SignOutButton>
-                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5 transition-all group">
-                        <LogOut className="h-4 w-4 text-slate-400 group-hover:text-white" />
-                        <span className="text-sm font-medium">Sign Out</span>
+                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5 transition-professional group">
+                        <LogOut className="h-4 w-4 text-slate-500 group-hover:text-white" />
+                        <span className="text-sm font-lg tracking-tight">Sign Out</span>
                     </button>
                 </SignOutButton>
             </div>

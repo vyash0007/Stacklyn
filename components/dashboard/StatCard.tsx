@@ -19,8 +19,8 @@ export function StatCard({
     return (
         <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm hover:shadow-md transition-all group">
             <div className="flex justify-between items-start mb-4">
-                <div className="bg-slate-50 p-2.5 rounded-md group-hover:bg-indigo-50 transition-colors">
-                    <Icon className="h-5 w-5 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                <div className="bg-slate-50 p-2.5 rounded-md group-hover:bg-slate-100 transition-colors">
+                    <Icon className="h-5 w-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
                 </div>
             </div>
             <div>

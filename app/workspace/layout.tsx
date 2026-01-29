@@ -24,7 +24,7 @@ export default function WorkspaceLayout({
         <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 flex">
             <Sidebar />
             <main className="flex-1 ml-64 flex flex-col min-h-screen bg-[#F9FAFB]">
-                <Topbar title={getTitle()} breadcrumb="Stacklyn Workspace" />
+                <Topbar title={getTitle()} breadcrumb="Workspace" />
                 <div className="flex-1 overflow-y-auto">{children}</div>
             </main>
             <Toaster position="top-right" richColors />

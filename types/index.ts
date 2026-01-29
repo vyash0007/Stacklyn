@@ -2,6 +2,9 @@ export interface User {
     id: string;
     email: string;
     name: string;
+    image_url?: string;
+    avatar_url?: string;
+    profile_image_url?: string;
     created_at: string;
     updated_at: string;
 }
@@ -77,11 +80,15 @@ export interface Activity {
         id: string;
         email: string;
         name: string;
+        image_url?: string;
+        avatar_url?: string;
+        profile_image_url?: string;
     };
     projects: {
         id: string;
         name: string;
     };
+    comments?: Comment[];
 }
 
 export type CreateUserDto = Omit<User, 'id' | 'created_at' | 'updated_at'>;
@@ -91,3 +98,29 @@ export type CreateCommitDto = Omit<Commit, 'id' | 'created_at' | 'updated_at'>;
 export type CreateRunDto = Omit<Run, 'id' | 'created_at'>;
 export type CreateScoreDto = Omit<Score, 'id' | 'created_at'>;
 export type CreateTagDto = { tagName: string };
+
+export interface Task {
+    id: string;
+    title: string;
+    status: 'in_progress' | 'completed' | 'pending';
+    assignee?: {
+        name: string;
+        avatar: string;
+        color: string;
+    };
+    dueDate?: string;
+    createdAt: string;
+}
+
+export interface Comment {
+    id: string;
+    user: {
+        name: string;
+        avatar: string;
+        color: string;
+        image_url?: string;
+    };
+    content: string;
+    timestamp: string;
+    replies?: Comment[];
+}

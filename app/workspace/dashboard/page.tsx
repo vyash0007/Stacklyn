@@ -113,7 +113,7 @@ export default function Dashboard() {
                         )}
                     </div>
                     <div className="p-4 border-t border-slate-50">
-                        <button className="w-full py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                        <button className="w-full py-2 text-sm font-lg tracking-tight text-slate-500 hover:text-slate-900 transition-professional hover:bg-slate-50 rounded-md">
                             View All Activity
                         </button>
                     </div>

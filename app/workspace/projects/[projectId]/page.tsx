@@ -14,6 +14,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
 import { Project, Prompt } from "@/types";
 import {
@@ -33,7 +40,10 @@ import {
     Settings,
     Edit2,
     MoreVertical,
-    GitBranch
+    GitBranch,
+    Shield,
+    UserCircle,
+    Eye
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn, formatRelativeTime } from "@/lib/utils";
@@ -264,7 +274,7 @@ export default function ProjectDetailsPage() {
                         {error || 'This project does not exist or you do not have permission to access it.'}
                     </p>
                     <Link href="/workspace/projects">
-                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                        <button className="bg-slate-900 text-white px-6 py-2 rounded-md hover:bg-slate-800 transition-professional font-lg tracking-tight">
                             Back to Projects
                         </button>
                     </Link>
@@ -277,7 +287,7 @@ export default function ProjectDetailsPage() {
         <div className="min-h-screen bg-slate-50/50 font-sans text-slate-900 animate-in fade-in duration-500 overflow-x-hidden">
             {/* Decorative Background - Subtle & Modern */}
             <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-indigo-50/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-slate-100/40 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4" />
             </div>
 
             <div className="max-w-7xl mx-auto p-8 relative z-10">
@@ -290,17 +300,17 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-start gap-4">
                             <Link href="/workspace/projects">
                                 <button
-                                    className="group mt-1 p-2 bg-white border border-slate-200 rounded-md text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-md transition-all duration-300"
+                                    className="group mt-1 p-2 bg-white border border-slate-200 rounded-md text-slate-400 hover:text-slate-900 hover:border-slate-300 hover:shadow-sm transition-professional"
                                 >
                                     <ArrowLeft className="h-5 w-5 group-hover:-translate-x-0.5 transition-transform" />
                                 </button>
                             </Link>
                             <div>
-                                <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                                <h1 className="text-3xl md:text-4xl font-lg tracking-tight text-slate-900 flex items-center gap-3">
                                     {project!.name}
 
                                 </h1>
-                                <p className="text-slate-500 mt-2 text-lg">
+                                <p className="text-slate-500 mt-2 text-lg font-lg tracking-tight">
                                     {project!.description || 'Orchestrate your prompt chains and manage versions.'}
                                 </p>
                             </div>
@@ -309,14 +319,14 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={handleEditProjectClick}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 font-medium rounded-md hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 font-lg tracking-tight rounded-md hover:bg-slate-50 hover:text-slate-900 transition-professional shadow-sm"
                             >
                                 <Settings className="h-4 w-4" />
                                 <span>Settings</span>
                             </button>
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-500/20 transition-all shadow-md"
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white font-lg tracking-tight rounded-md hover:bg-slate-800 transition-professional shadow-sm"
                             >
                                 <UserPlus className="h-4 w-4" />
                                 <span>Invite</span>
@@ -332,7 +342,7 @@ export default function ProjectDetailsPage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Input / Action Bar */}
-                        <div className="bg-white p-2 rounded-md border border-slate-200 shadow-sm flex items-center gap-2 focus-within:ring-4 focus-within:ring-indigo-500/10 focus-within:border-indigo-300 transition-all duration-300">
+                        <div className="bg-white p-2 rounded-md border border-slate-200 shadow-sm flex items-center gap-2 focus-within:ring-4 focus-within:ring-slate-500/10 focus-within:border-slate-400 transition-professional">
                             <input
                                 type="text"
                                 value={newPromptName}
@@ -346,7 +356,7 @@ export default function ProjectDetailsPage() {
                                     }
                                 }}
                                 placeholder="Create a new prompt chain..."
-                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-slate-900 placeholder-slate-400 text-base py-3 ml-4"
+                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-slate-900 placeholder-slate-400 text-base py-3 ml-4 font-lg tracking-tight"
                             />
                             <div className="pr-2 flex items-center gap-2">
                                 <button
@@ -374,26 +384,24 @@ export default function ProjectDetailsPage() {
                             {filteredPrompts.map((prompt) => (
                                 <div
                                     key={prompt.id}
-                                    className="group bg-white rounded-md border border-slate-200 p-6 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-900/5 transition-all duration-300 relative overflow-hidden"
+                                    className="group bg-white rounded-md border border-slate-200 p-6 hover:border-slate-300 hover:shadow-md transition-professional relative overflow-hidden"
                                 >
-                                    {/* Hover Decoration */}
-                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-lg text-slate-900 text-lg group-hover:text-indigo-700 transition-colors tracking-tight">
+                                                    <h3 className="font-lg text-slate-900 text-lg group-hover:text-slate-950 transition-colors tracking-tight">
                                                         {prompt.name}
                                                     </h3>
                                                 </div>
-                                                <div className="flex items-center gap-3 text-xs text-slate-500 font-medium tracking-tight">
+                                                <div className="flex items-center gap-3 text-xs text-slate-500 font-lg tracking-tight">
                                                     <span className="flex items-center gap-1">
                                                         <Clock className="h-3.5 w-3.5" />
                                                         {prompt.created_at ? formatRelativeTime(prompt.created_at) : "Never"}
                                                     </span>
-                                                    <span className="text-slate-300 font-lg tracking-tight">•</span>
-                                                    <span className="font-mono bg-slate-50 px-2 py-0.5 rounded-md text-slate-600 border border-slate-100">
+                                                    <span className="text-slate-300">•</span>
+                                                    <span className="font-mono bg-slate-50 px-2 py-0.5 rounded text-slate-600 border border-slate-100">
                                                         v1.0
                                                     </span>
                                                 </div>
@@ -402,7 +410,7 @@ export default function ProjectDetailsPage() {
 
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                                             <Link href={`/prompts/${prompt.id}`}>
-                                                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-lg tracking-tight rounded-md hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm">
+                                                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-lg tracking-tight rounded-md hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 transition-professional shadow-sm">
                                                     Open <ExternalLink className="h-3.5 w-3.5" />
                                                 </button>
                                             </Link>
@@ -411,7 +419,7 @@ export default function ProjectDetailsPage() {
 
                                             <button
                                                 onClick={() => handleEditPromptClick(prompt.id, prompt.name)}
-                                                className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-all"
+                                                className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-md transition-professional"
                                                 title="Edit"
                                             >
                                                 <Edit2 className="h-4.5 w-4.5" />
@@ -434,9 +442,9 @@ export default function ProjectDetailsPage() {
                                     const input = document.querySelector('input');
                                     if (input) input.focus();
                                 }}
-                                className="border-2 border-dashed border-slate-200 rounded-md p-8 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-600 transition-all group min-h-[120px]"
+                                className="border-2 border-dashed border-slate-200 rounded-md p-8 flex flex-col items-center justify-center text-slate-400 hover:border-slate-300 hover:bg-slate-50 transition-professional group min-h-[120px]"
                             >
-                                <div className="w-12 h-12 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center mb-3 group-hover:bg-white group-hover:border-indigo-200 group-hover:scale-110 shadow-sm transition-all text-slate-400 group-hover:text-indigo-600">
+                                <div className="w-12 h-12 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center mb-3 group-hover:bg-white group-hover:border-slate-300 group-hover:scale-105 shadow-sm transition-professional text-slate-400 group-hover:text-slate-900">
                                     <Plus className="h-6 w-6" />
                                 </div>
                                 <span className="text-sm font-lg tracking-tight">Create another prompt</span>
@@ -463,7 +471,7 @@ export default function ProjectDetailsPage() {
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
                                                 "w-10 h-10 rounded-md flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105",
-                                                member.role === 'admin' ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"
+                                                member.role === 'admin' ? "bg-slate-200 text-slate-800 border border-slate-300" : "bg-slate-100 text-slate-600 border border-slate-200"
                                             )}>
                                                 {member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"}
                                             </div>
@@ -471,7 +479,7 @@ export default function ProjectDetailsPage() {
                                                 <div className="text-sm font-lg text-slate-900 tracking-tight">
                                                     {member.users?.name || member.users?.email || "Unknown"}
                                                     {member.isCurrentUser && (
-                                                        <span className="ml-1.5 text-xs text-indigo-600 font-medium">(You)</span>
+                                                        <span className="ml-1.5 text-[10px] text-slate-400 font-lg tracking-tight uppercase">(You)</span>
                                                     )}
                                                 </div>
                                                 <div className="text-[10px] font-lg tracking-tight text-slate-400 uppercase tracking-widest">{member.role}</div>
@@ -492,7 +500,7 @@ export default function ProjectDetailsPage() {
 
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="w-full mt-6 py-3 border-2 border-dashed border-slate-200 rounded-md text-sm font-lg tracking-tight text-slate-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2 group"
+                                className="w-full mt-6 py-3 border-2 border-dashed border-slate-200 rounded-md text-sm font-lg tracking-tight text-slate-500 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-professional flex items-center justify-center gap-2 group"
                             >
                                 <UserPlus className="h-4 w-4 group-hover:scale-110 transition-transform" />
                                 Invite Member
@@ -531,7 +539,7 @@ export default function ProjectDetailsPage() {
                             placeholder="Prompt name"
                             value={editPromptDialog.name}
                             onChange={(e) => setEditPromptDialog({ ...editPromptDialog, name: e.target.value })}
-                            className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                            className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 transition-professional font-lg tracking-tight"
                         />
                     </div>
                     <div className="flex justify-end gap-3">
@@ -545,7 +553,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditPromptSave}
                             disabled={editPromptLoading || !editPromptDialog.name.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-6 shadow-md shadow-indigo-100"
+                            className="bg-slate-900 hover:bg-slate-800 text-white rounded-md font-lg tracking-tight px-6 shadow-sm"
                         >
                             {editPromptLoading ? "Saving..." : "Save Changes"}
                         </Button>
@@ -567,7 +575,7 @@ export default function ProjectDetailsPage() {
                                 placeholder="Project name"
                                 value={editProjectName}
                                 onChange={(e) => setEditProjectName(e.target.value)}
-                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 transition-professional font-lg tracking-tight"
                             />
                         </div>
                         <div className="space-y-2">
@@ -576,7 +584,7 @@ export default function ProjectDetailsPage() {
                                 placeholder="Project description (optional)"
                                 value={editProjectDescription}
                                 onChange={(e) => setEditProjectDescription(e.target.value)}
-                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 transition-professional font-lg tracking-tight"
                             />
                         </div>
                     </div>
@@ -591,7 +599,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditProjectSave}
                             disabled={editProjectLoading || !editProjectName.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-6 shadow-md shadow-indigo-100"
+                            className="bg-slate-900 hover:bg-slate-800 text-white rounded-md font-lg tracking-tight px-6 shadow-sm"
                         >
                             {editProjectLoading ? "Saving..." : "Save Settings"}
                         </Button>
@@ -615,20 +623,36 @@ export default function ProjectDetailsPage() {
                                 placeholder="member@example.com"
                                 value={inviteEmail}
                                 onChange={(e) => setInviteEmail(e.target.value)}
-                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
+                                className="h-12 text-sm rounded-md border-slate-200 focus:ring-4 focus:ring-slate-500/10 focus:border-slate-400 transition-professional font-lg tracking-tight"
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[11px] font-lg tracking-tight text-slate-400 uppercase tracking-widest ml-1">Role</label>
-                            <select
-                                value={inviteRole}
-                                onChange={(e) => setInviteRole(e.target.value)}
-                                className="w-full h-12 px-4 text-sm font-lg tracking-tight border border-slate-200 rounded-md bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="member">Member</option>
-                                <option value="admin">Admin</option>
-                                <option value="viewer">Viewer</option>
-                            </select>
+                            <Select value={inviteRole} onValueChange={setInviteRole}>
+                                <SelectTrigger className="h-12 border-slate-200">
+                                    <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                                <SelectContent className="border-slate-200">
+                                    <SelectItem value="admin">
+                                        <div className="flex items-center gap-2">
+                                            <Shield className="h-4 w-4 text-slate-400" />
+                                            <span>Admin</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="member">
+                                        <div className="flex items-center gap-2">
+                                            <UserCircle className="h-4 w-4 text-slate-400" />
+                                            <span>Member</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="viewer">
+                                        <div className="flex items-center gap-2">
+                                            <Eye className="h-4 w-4 text-slate-400" />
+                                            <span>Viewer</span>
+                                        </div>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         {inviteError && (
                             <p className="text-xs font-lg tracking-tight text-red-500 ml-1">{inviteError}</p>
@@ -645,7 +669,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleInviteMember}
                             disabled={inviteLoading || !inviteEmail.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-lg tracking-tight px-8 shadow-md shadow-indigo-100"
+                            className="bg-slate-900 hover:bg-slate-800 text-white rounded-md font-lg tracking-tight px-8 shadow-sm"
                         >
                             {inviteLoading ? "Inviting..." : "Send Invitation"}
                         </Button>

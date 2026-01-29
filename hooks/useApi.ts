@@ -181,5 +181,70 @@ export function useApi() {
         // Activities
         getActivities: (limit: number = 20, offset: number = 0) =>
             fetchWithAuth<any[]>(`/activities?limit=${limit}&offset=${offset}`),
+
+        // Mock Tasks
+        getTasks: async () => {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return [
+                {
+                    id: '1',
+                    title: 'Greetings! Greet the client, and thank them for their purchase.',
+                    status: 'in_progress',
+                    assignee: { name: 'Luke', avatar: 'L', color: 'bg-cyan-100 text-cyan-700' },
+                    dueDate: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: '2',
+                    title: 'Get to Work. Start working on the order.',
+                    status: 'pending',
+                    dueDate: new Date(Date.now() + 86400000).toISOString(),
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: '3',
+                    title: 'QA Step. Submit deliverables to Account Manager for review.',
+                    status: 'pending',
+                    assignee: { name: 'Mike', avatar: 'M', color: 'bg-amber-100 text-amber-700' },
+                    dueDate: new Date(Date.now() + 172800000).toISOString(),
+                    createdAt: new Date().toISOString()
+                }
+            ] as any[];
+        },
+        createTask: async (task: any) => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return {
+                id: Math.random().toString(36).substr(2, 9),
+                ...task,
+                createdAt: new Date().toISOString()
+            };
+        },
+
+        // Mock Comments
+        getComments: async () => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return [
+                {
+                    id: 'c1',
+                    user: { name: 'Nikhil Arora', avatar: 'N', color: 'bg-green-100 text-green-700', image_url: undefined },
+                    content: 'Sit fugiat ratione commodi nihil. Quo et eaque natus sunt similique consequuntur. Aliquid et excepturi dolorem veniam autem.',
+                    timestamp: new Date(Date.now() - 3600000).toISOString(),
+                }
+            ] as any[];
+        },
+        postComment: async (content: string) => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return {
+                id: Math.random().toString(36).substr(2, 9),
+                content,
+                timestamp: new Date().toISOString(),
+                user: { name: 'You', avatar: 'Y', color: 'bg-indigo-100 text-indigo-700', image_url: undefined }
+            };
+        },
+        deleteTask: async (id: string) => {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return true;
+        }
     }), [fetchWithAuth]);
 }

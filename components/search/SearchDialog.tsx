@@ -51,7 +51,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
         <span>
             {parts.map((part, i) =>
                 part.toLowerCase() === query.toLowerCase() ? (
-                    <mark key={i} className="bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 rounded-sm px-0 font-lg tracking-tight decoration-2 decoration-indigo-500/50 underline-offset-2">
+                    <mark key={i} className="bg-slate-900/10 text-slate-900 rounded-sm px-0.5 font-lg tracking-tight">
                         {part}
                     </mark>
                 ) : (
@@ -206,9 +206,9 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                     <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-md transition-all focus-within:bg-white focus-within:border-slate-300 focus-within:shadow-sm">
                         <div className="flex items-center justify-center w-5 h-5 shrink-0">
                             {isLoading ? (
-                                <Loader2 className="h-4 w-4 text-indigo-500 animate-spin" />
+                                <Loader2 className="h-4 w-4 text-slate-900 animate-spin" />
                             ) : (
-                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-indigo-500" : "text-slate-400")} />
+                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-slate-900" : "text-slate-400")} />
                             )}
                         </div>
 
@@ -255,7 +255,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         /* Empty State / Initial View */
                         <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
                             <div className="w-16 h-16 bg-white rounded-md shadow-sm border border-slate-100 flex items-center justify-center mb-6">
-                                <Command className="h-8 w-8 text-indigo-500/80" />
+                                <Command className="h-8 w-8 text-slate-900/80" />
                             </div>
                             <h3 className="text-slate-900 font-lg tracking-tight mb-2">Search Stacklyn</h3>
                             <p className="max-w-xs mx-auto text-sm text-slate-400 leading-relaxed">
@@ -299,11 +299,9 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         {/* Icon Box */}
                                         <div className={cn(
                                             "w-10 h-10 rounded-md flex items-center justify-center shrink-0 border transition-colors",
-                                            item.type === 'project'
-                                                ? (isActive ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-white border-slate-200 text-slate-400")
-                                                : item.type === 'prompt'
-                                                    ? (isActive ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-white border-slate-200 text-slate-400")
-                                                    : (isActive ? "bg-amber-50 border-amber-100 text-amber-600" : "bg-white border-slate-200 text-slate-400")
+                                            isActive
+                                                ? "bg-slate-100 border-slate-300 text-slate-900"
+                                                : "bg-white border-slate-200 text-slate-400"
                                         )}>
                                             {item.type === 'project' ? <Folder className="h-5 w-5" /> :
                                                 item.type === 'prompt' ? <Zap className="h-5 w-5" /> :
@@ -317,17 +315,17 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                                     <Highlight text={item.title} query={query} />
                                                 </span>
                                                 {item.type === 'prompt' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-emerald-600/70 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
                                                         Prompt
                                                     </span>
                                                 )}
                                                 {item.type === 'project' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-indigo-600/70 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
                                                         Project
                                                     </span>
                                                 )}
                                                 {item.type === 'commit' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase tracking-wider text-amber-600/70 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100/50">
+                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
                                                         Commit
                                                     </span>
                                                 )}
@@ -343,7 +341,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         {/* Arrow Hint */}
                                         <div className={cn(
                                             "text-slate-300 transition-transform duration-300",
-                                            isActive ? "translate-x-0 opacity-100 text-indigo-400" : "-translate-x-2 opacity-0"
+                                            isActive ? "translate-x-0 opacity-100 text-slate-900" : "-translate-x-2 opacity-0"
                                         )}>
                                             <ChevronRight className="h-5 w-5" />
                                         </div>

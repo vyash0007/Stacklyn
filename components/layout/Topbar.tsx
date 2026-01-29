@@ -26,11 +26,11 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
     }, []);
 
     return (
-        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-40">
+        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-40 transition-professional">
             <div className="flex items-center space-x-2">
                 {breadcrumb && (
                     <>
-                        <span className="text-slate-400 text-[13px] font-medium">
+                        <span className="text-slate-400 text-[13px] font-lg tracking-tight">
                             {breadcrumb}
                         </span>
                         <span className="text-slate-300 text-sm">/</span>
@@ -43,9 +43,9 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                     className="relative hidden md:block group cursor-pointer"
                     onClick={() => setIsSearchOpen(true)}
                 >
-                    <div className="flex items-center bg-white border border-slate-200 rounded-md transition-all h-9 px-3 group-hover:border-indigo-200 group-hover:bg-slate-50 shadow-sm">
-                        <Search className="h-3.5 w-3.5 text-slate-400 mr-2.5 transition-colors group-hover:text-indigo-500" />
-                        <div className="text-[13px] text-slate-400 w-48 font-medium">
+                    <div className="flex items-center bg-white border border-slate-200 rounded-md transition-professional h-9 px-3 group-hover:border-slate-300 group-hover:bg-slate-50 shadow-sm">
+                        <Search className="h-3.5 w-3.5 text-slate-400 mr-2.5 transition-colors group-hover:text-slate-600" />
+                        <div className="text-[13px] text-slate-400 w-48 font-lg tracking-tight">
                             Search projects or prompts...
                         </div>
                         <div className="flex items-center gap-1.5 ml-2">
@@ -56,9 +56,9 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                     </div>
                 </div>
 
-                <button className="text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-md hover:bg-slate-50 relative">
+                <button className="text-slate-400 hover:text-slate-600 transition-professional p-1.5 rounded-md hover:bg-slate-50 relative">
                     <Bell className="h-4 w-4" />
-                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-slate-400 rounded-full ring-2 ring-white"></span>
                 </button>
 
                 <SignedIn>
@@ -67,7 +67,7 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
 
                 <SignedOut>
                     <Link href="/sign-in">
-                        <button className="px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors">
+                        <button className="px-4 py-1.5 bg-slate-900 text-white text-sm font-lg tracking-tight rounded-md hover:bg-slate-800 transition-colors">
                             Sign In
                         </button>
                     </Link>
