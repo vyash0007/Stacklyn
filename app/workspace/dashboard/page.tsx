@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Folder, Zap, BarChart3 } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -113,9 +114,11 @@ export default function Dashboard() {
                         )}
                     </div>
                     <div className="p-4 border-t border-slate-50">
-                        <button className="w-full py-2 text-sm font-lg tracking-tight text-slate-500 hover:text-slate-900 transition-professional hover:bg-slate-50 rounded-md">
-                            View All Activity
-                        </button>
+                        <Link href="/workspace/activity">
+                            <button className="w-full py-2 text-sm font-lg tracking-tight text-slate-500 hover:text-slate-900 transition-professional hover:bg-slate-50 rounded-md">
+                                View All Activity
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
