@@ -36,7 +36,6 @@ const ActivityPage = () => {
     const { getActivities, getTasks, createTask, deleteTask } = useApi();
     const [activities, setActivities] = useState<Activity[]>([]);
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingTasks, setIsLoadingTasks] = useState(true);
 
@@ -47,6 +46,7 @@ const ActivityPage = () => {
     const [isCreatingTask, setIsCreatingTask] = useState(false);
     const [activeFilter, setActiveFilter] = useState<'all' | 'created' | 'deleted'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [visibleCount, setVisibleCount] = useState(5);
 
     const fetchActivities = useCallback(async () => {
         try {
@@ -158,10 +158,10 @@ const ActivityPage = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
                 {/* --- LEFT COLUMN: Activity Feed --- */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-1 space-y-6">
 
                     {/* Filters */}
                     <div className="bg-white p-2 rounded-md border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 justify-between sticky top-20 z-20">
@@ -212,6 +212,7 @@ const ActivityPage = () => {
                                 if (activeFilter === 'deleted') return item.action === 'deleted';
                                 return true;
                             })
+                            .slice(0, visibleCount)
                             .map((item) => {
                                 const { icon: ActivityIcon, color: iconColor } = getIconForType(item.entity_type);
                                 const userAvatar = item.users?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
@@ -249,7 +250,7 @@ const ActivityPage = () => {
                                                             </div>
                                                             <span className="font-lg tracking-tight text-slate-900">{item.users?.name || 'System'}</span>
                                                             <span className="text-slate-500 font-lg tracking-tight">{item.action}</span>
-                                                            <span className="font-lg tracking-tight text-slate-700 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                                                            <span className="font-lg tracking-tight text-slate-700">
                                                                 {item.title}
                                                             </span>
                                                         </div>
@@ -264,57 +265,6 @@ const ActivityPage = () => {
                                                             {typeof item.metadata === 'string' ? item.metadata : JSON.stringify(item.metadata)}
                                                         </div>
                                                     )}
-
-                                                    {/* Comments Thread */}
-                                                    {(item.comments && item.comments.length > 0) && (
-                                                        <div className="mt-2 space-y-3 pl-3 border-l-2 border-slate-100">
-                                                            {item.comments.map((comment) => (
-                                                                <div key={comment.id} className="flex gap-3 items-start">
-                                                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-lg tracking-tight shrink-0 ${avatarColor} mt-0.5 overflow-hidden ring-1 ring-slate-100`}>
-                                                                        {comment.user.image_url ? (
-                                                                            <img src={comment.user.image_url} alt={comment.user.name} className="w-full h-full object-cover" />
-                                                                        ) : comment.user.avatar}
-                                                                    </div>
-                                                                    <div>
-                                                                        <div className="flex items-baseline gap-2">
-                                                                            <span className="text-xs font-lg tracking-tight text-slate-700">{comment.user.name}</span>
-                                                                            <span className="text-[10px] text-slate-400 font-lg tracking-tight">{formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}</span>
-                                                                        </div>
-                                                                        <p className="text-xs text-slate-600 font-lg tracking-tight leading-relaxed">{comment.content}</p>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-
-                                                    {/* Footer Actions */}
-                                                    <div className="mt-2 pt-3 border-t border-slate-50 flex items-center gap-4">
-                                                        <button
-                                                            onClick={() => setActiveReplyId(activeReplyId === item.id ? null : item.id)}
-                                                            className={`flex items-center gap-1.5 text-xs font-lg tracking-tight transition-professional ${activeReplyId === item.id ? 'text-slate-900 border-b border-slate-900' : 'text-slate-400 hover:text-slate-700'}`}
-                                                        >
-                                                            <MessageSquare className="h-3.5 w-3.5" />
-                                                            Reply
-                                                        </button>
-                                                        <button className="flex items-center gap-1.5 text-xs font-lg tracking-tight text-slate-400 hover:text-slate-700 transition-professional ml-auto">
-                                                            <MoreHorizontal className="h-3.5 w-3.5" />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Inline Reply Input */}
-                                                    {activeReplyId === item.id && (
-                                                        <div className="mt-2 flex gap-2 animate-in fade-in slide-in-from-top-1">
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Write a reply..."
-                                                                className="flex-1 bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-lg tracking-tight focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-100 transition-professional"
-                                                                autoFocus
-                                                            />
-                                                            <button className="bg-slate-900 text-white p-2 rounded-md hover:bg-slate-800 transition-professional">
-                                                                <Send className="h-3 w-3" />
-                                                            </button>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -322,6 +272,46 @@ const ActivityPage = () => {
                                 );
                             })}
                     </div>
+
+                    {activities.filter(item => {
+                        const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (item.metadata && JSON.stringify(item.metadata).toLowerCase().includes(searchQuery.toLowerCase()));
+                        if (!matchesSearch) return false;
+                        if (activeFilter === 'all') return true;
+                        if (activeFilter === 'created') return item.action === 'created';
+                        if (activeFilter === 'deleted') return item.action === 'deleted';
+                        return true;
+                    }).length > 5 && (
+                            <div className="flex justify-start gap-3 pt-4 sm:pl-[68px] pl-0">
+                                {activities.filter(item => {
+                                    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                        (item.metadata && JSON.stringify(item.metadata).toLowerCase().includes(searchQuery.toLowerCase()));
+                                    if (!matchesSearch) return false;
+                                    if (activeFilter === 'all') return true;
+                                    if (activeFilter === 'created') return item.action === 'created';
+                                    if (activeFilter === 'deleted') return item.action === 'deleted';
+                                    return true;
+                                }).length > visibleCount && (
+                                        <button
+                                            onClick={() => setVisibleCount(prev => prev + 5)}
+                                            className="px-6 py-2.5 bg-white border border-slate-200 rounded-md text-sm font-lg tracking-tight text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-professional shadow-sm flex items-center gap-2"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            Load more activities
+                                        </button>
+                                    )}
+
+                                {visibleCount > 5 && (
+                                    <button
+                                        onClick={() => setVisibleCount(5)}
+                                        className="px-6 py-2.5 bg-white border border-slate-200 rounded-md text-sm font-lg tracking-tight text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-professional shadow-sm flex items-center gap-2"
+                                    >
+                                        <X className="h-4 w-4" />
+                                        Show less
+                                    </button>
+                                )}
+                            </div>
+                        )}
                 </div>
 
                 {/* --- RIGHT COLUMN: Tasks Sidebar --- */}
