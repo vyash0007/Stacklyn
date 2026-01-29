@@ -3,6 +3,7 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { usePathname } from "next/navigation";
+import { Toaster } from "sonner";
 
 export default function WorkspaceLayout({
     children,
@@ -26,6 +27,7 @@ export default function WorkspaceLayout({
                 <Topbar title={getTitle()} breadcrumb="Stacklyn Workspace" />
                 <div className="flex-1 overflow-y-auto">{children}</div>
             </main>
+            <Toaster position="top-right" richColors />
         </div>
     );
 }

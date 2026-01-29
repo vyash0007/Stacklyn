@@ -7,6 +7,7 @@ import { useApi } from "@/hooks/useApi";
 import { Project } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { formatRelativeTime } from "@/lib/utils";
 
 export default function ProjectsPage() {
     const api = useApi();
@@ -125,7 +126,7 @@ export default function ProjectsPage() {
                                 </span>
                                 <div className="flex items-center text-[11px] font-medium text-slate-400">
                                     <Clock className="h-3 w-3 mr-1" />
-                                    {p.updated_at ? new Date(p.updated_at).toLocaleDateString() : "Never"}
+                                    {p.created_at ? formatRelativeTime(p.created_at) : "Never"}
                                 </div>
                             </div>
                         </div>

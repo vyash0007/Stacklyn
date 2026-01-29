@@ -34,7 +34,9 @@ export default function TeamsPage() {
         try {
             setIsLoading(true);
             const data = await api.getProjectMemberships();
-            setMemberships(data);
+            // Exclude projects where user is admin (those show on Projects page)
+            const sharedProjects = data.filter((m: ProjectMembership) => m.role !== 'admin');
+            setMemberships(sharedProjects);
         } catch (error) {
             console.error("Failed to load memberships", error);
         } finally {
@@ -70,7 +72,7 @@ export default function TeamsPage() {
                     <h1 className="text-3xl font-lg tracking-tight text-slate-900">Teams</h1>
                 </div>
                 <p className="text-slate-500 mt-2">
-                    Projects you have access to as a team member.
+                    Projects shared with you by other team members.
                 </p>
             </div>
 

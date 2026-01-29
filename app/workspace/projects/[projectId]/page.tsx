@@ -36,7 +36,7 @@ import {
     GitBranch
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { cn } from "@/lib/utils";
+import { cn, formatRelativeTime } from "@/lib/utils";
 
 export default function ProjectDetailsPage() {
     const params = useParams();
@@ -393,7 +393,7 @@ export default function ProjectDetailsPage() {
                                                 <div className="flex items-center gap-3 text-xs text-slate-500 font-medium tracking-tight">
                                                     <span className="flex items-center gap-1">
                                                         <Clock className="h-3.5 w-3.5" />
-                                                        {prompt.updated_at ? new Date(prompt.updated_at).toLocaleDateString() : "Never"}
+                                                        {prompt.created_at ? formatRelativeTime(prompt.created_at) : "Never"}
                                                     </span>
                                                     <span className="text-slate-300 font-lg tracking-tight">•</span>
                                                     <span className="font-mono bg-slate-50 px-2 py-0.5 rounded-md text-slate-600 border border-slate-100">
@@ -471,7 +471,12 @@ export default function ProjectDetailsPage() {
                                                 {member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-lg text-slate-900 tracking-tight">{member.users?.name || member.users?.email || "Unknown"}</div>
+                                                <div className="text-sm font-lg text-slate-900 tracking-tight">
+                                                    {member.users?.name || member.users?.email || "Unknown"}
+                                                    {member.isCurrentUser && (
+                                                        <span className="ml-1.5 text-xs text-indigo-600 font-medium">(You)</span>
+                                                    )}
+                                                </div>
                                                 <div className="text-[10px] font-lg tracking-tight text-slate-400 uppercase tracking-widest">{member.role}</div>
                                             </div>
                                         </div>

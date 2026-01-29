@@ -2,6 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,19 +54,21 @@ export function useApi() {
         });
 
         if (!res.ok) {
-            // Now we have a token but backend rejected it - this is a real error
+            const errorData = await res.json().catch(() => ({}));
+            const errorMessage = errorData.error || errorData.message || `API Error: ${res.statusText}`;
+
             if (res.status === 401) {
-                throw new Error('Authentication required. Please sign in.');
+                throw new Error(errorMessage || 'Authentication required. Please sign in.');
             }
             if (res.status === 403) {
-                throw new Error('Access denied. You do not have permission to access this resource.');
+                toast.error(errorMessage);
+                return {} as T; // Return empty instead of throwing to avoid error overlay
             }
             if (res.status === 404) {
-                throw new Error('Resource not found.');
+                throw new Error(errorMessage || 'Resource not found.');
             }
 
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error || errorData.message || `API Error: ${res.statusText}`);
+            throw new Error(errorMessage);
         }
 
         if (res.status === 204) {
