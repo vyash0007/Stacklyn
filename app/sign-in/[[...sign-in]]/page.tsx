@@ -4,8 +4,7 @@ import CustomSignIn from "@/components/auth/CustomSignIn";
 export default function SignInPage() {
     return (
         <SignInLayout
-            badge="Welcome Back"
-            title={<>Resume your <br />AI engineering</>}
+            title={<>Resume your AI engineering</>}
         >
             <CustomSignIn />
         </SignInLayout>
