@@ -355,7 +355,7 @@ export default function PromptWorkspacePage() {
                         {error || 'This prompt does not exist or you do not have permission to access it.'}
                     </p>
                     <Link href="/workspace/projects">
-                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+                        <button className="bg-slate-900 text-white px-6 py-2 rounded-md hover:bg-slate-800 transition-professional font-lg tracking-tight">
                             Back to Projects
                         </button>
                     </Link>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layers, ChevronRight, Menu, X } from "lucide-react";
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 
 export function LandingNavbar() {
+    const { isSignedIn } = useAuth();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -73,7 +74,7 @@ export function LandingNavbar() {
                         </SignedIn>
 
                         <Link
-                            href="/workspace/dashboard"
+                            href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}
                             className="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20"
                         >
                             Start Building
@@ -129,7 +130,7 @@ export function LandingNavbar() {
                                 Sign in
                             </Link>
                             <Link
-                                href="/workspace/dashboard"
+                                href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}
                                 className="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all text-center"
                             >
                                 Start Building

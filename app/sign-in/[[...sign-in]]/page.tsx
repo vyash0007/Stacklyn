@@ -1,20 +1,13 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignInLayout } from "@/components/auth/SignInLayout";
+import CustomSignIn from "@/components/auth/CustomSignIn";
 
 export default function SignInPage() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-            <SignIn
-                appearance={{
-                    elements: {
-                        rootBox: "mx-auto",
-                        card: "shadow-2xl",
-                        headerTitle: "text-2xl font-lg tracking-tight",
-                        headerSubtitle: "text-slate-600"
-                    }
-                }}
-                fallbackRedirectUrl="/workspace/dashboard"
-                signUpUrl="/sign-up"
-            />
-        </div>
+        <SignInLayout
+            badge="Welcome Back"
+            title={<>Resume your <br />AI engineering</>}
+        >
+            <CustomSignIn />
+        </SignInLayout>
     );
 }
