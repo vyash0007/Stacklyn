@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Folder, Zap, BarChart3 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Folder, Zap, BarChart3, ChevronDown } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityItem } from "@/components/dashboard/ActivityItem";
-import { OverviewChart } from "@/components/dashboard/OverviewChart";
-import { Activity } from "@/types";
+import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
+import { Activity, Project } from "@/types";
 import { formatRelativeTime } from "@/lib/utils";
 
 export default function Dashboard() {
@@ -18,11 +17,12 @@ export default function Dashboard() {
         avgScore: 0,
     });
     const [activities, setActivities] = useState<Activity[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
 
     useEffect(() => {
         async function loadData() {
             try {
-                const [projects, runs, scores, recentActivities] = await Promise.all([
+                const [projectsData, runs, scores, recentActivities] = await Promise.all([
                     api.getProjects(),
                     api.getRuns(),
                     api.getScores(),
@@ -36,11 +36,24 @@ export default function Dashboard() {
                 }
 
                 setStats({
-                    projects: projects.length,
+                    projects: projectsData.length,
                     runs: runs.length,
                     avgScore: avg,
                 });
 
+                // Fetch members for each project
+                const projectsWithMembers = await Promise.all(
+                    projectsData.map(async (project: Project) => {
+                        try {
+                            const members = await api.getProjectMembers(project.id);
+                            return { ...project, members };
+                        } catch {
+                            return { ...project, members: [] };
+                        }
+                    })
+                );
+
+                setProjects(projectsWithMembers);
                 setActivities(recentActivities);
             } catch (e) {
                 console.error("Failed to load dashboard data", e);
@@ -49,10 +62,49 @@ export default function Dashboard() {
         loadData();
     }, [api]);
 
-    const getActivityStatus = (action: Activity['action']): "success" | "warning" | "neutral" => {
-        if (['created', 'updated', 'executed'].includes(action)) return 'success';
-        if (action === 'failed') return 'warning';
-        return 'neutral';
+    // Group activities by date
+    const groupedActivities = useMemo(() => {
+        const groups: { [key: string]: Activity[] } = {};
+
+        activities.forEach((activity) => {
+            const date = new Date(activity.created_at);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            let dateKey: string;
+            if (date.toDateString() === today.toDateString()) {
+                dateKey = "Today";
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                dateKey = "Yesterday";
+            } else {
+                dateKey = date.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+            }
+
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+            }
+            groups[dateKey].push(activity);
+        });
+
+        return groups;
+    }, [activities]);
+
+    const formatActivityTime = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        }) + ' at ' + date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        }).toLowerCase();
     };
 
     return (
@@ -80,45 +132,48 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Chart Section */}
+                {/* Projects Table */}
                 <div className="lg:col-span-2">
-                    <OverviewChart />
+                    <ProjectsTable projects={projects} />
                 </div>
 
-                {/* Recent Activity Feed */}
+                {/* Recent Activity Feed - Timeline Style */}
                 <div className="bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
-                    <div className="p-6 border-b border-slate-100">
+                    <div className="px-4 py-3 border-b border-slate-100">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-lg tracking-tight text-slate-900">Recent Activity</h2>
-                            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <h2 className="text-sm font-semibold tracking-tight text-slate-900">Recent Activities</h2>
+                            <button className="flex items-center gap-1 text-xs text-[#4F46E5] hover:text-[#4338CA] font-medium">
+                                For This Month
+                                <ChevronDown className="h-3 w-3" />
+                            </button>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1">
-                            Latest actions across your projects.
-                        </p>
                     </div>
-                    <div className="flex-1 overflow-y-auto max-h-[400px] no-scrollbar">
-                        {activities.length > 0 ? (
-                            activities.map((activity) => (
-                                <ActivityItem
-                                    key={activity.id}
-                                    title={activity.title}
-                                    user={activity.users?.name || activity.users?.email || "Unknown"}
-                                    time={formatRelativeTime(activity.created_at)}
-                                    status={getActivityStatus(activity.action)}
-                                />
+                    <div className="flex-1 overflow-y-auto max-h-[350px] custom-scrollbar px-4 py-3">
+                        {Object.keys(groupedActivities).length > 0 ? (
+                            Object.entries(groupedActivities).map(([dateGroup, groupActivities]) => (
+                                <div key={dateGroup} className="mb-3 last:mb-0">
+                                    <p className="text-xs font-medium text-slate-500 mb-0.5">{dateGroup}</p>
+                                    <div>
+                                        {groupActivities.map((activity) => (
+                                            <ActivityItem
+                                                key={activity.id}
+                                                title={activity.title}
+                                                user={activity.users?.name || activity.users?.email || "Unknown"}
+                                                time={formatRelativeTime(activity.created_at)}
+                                                fullTime={formatActivityTime(activity.created_at)}
+                                                entityType={activity.entity_type}
+                                                entityId={activity.entity_id}
+                                                projectId={activity.project_id}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             ))
                         ) : (
                             <div className="p-8 text-center text-slate-400 text-sm">
                                 No recent activity
                             </div>
                         )}
-                    </div>
-                    <div className="p-4 border-t border-slate-50">
-                        <Link href="/workspace/activity">
-                            <button className="w-full py-2 text-sm font-lg tracking-tight text-slate-500 hover:text-slate-900 transition-professional hover:bg-slate-50 rounded-md">
-                                View All Activity
-                            </button>
-                        </Link>
                     </div>
                 </div>
             </div>

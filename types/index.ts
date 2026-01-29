@@ -9,6 +9,19 @@ export interface User {
     updated_at: string;
 }
 
+export interface ProjectMember {
+    user_id: string;
+    role: string;
+    users?: {
+        id: string;
+        email: string;
+        name?: string;
+        image_url?: string;
+        avatar_url?: string;
+        profile_image_url?: string;
+    };
+}
+
 export interface Project {
     id: string;
     name: string;
@@ -16,6 +29,7 @@ export interface Project {
     created_by: string;
     created_at: string;
     updated_at: string;
+    members?: ProjectMember[];
 }
 
 export interface Prompt {
