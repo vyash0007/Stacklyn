@@ -2,9 +2,11 @@
 
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Github, Loader2, Mail, Lock, ChevronRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
+
 
 export default function CustomSignIn() {
     const { isLoaded: isSignInLoaded, signIn, setActive } = useSignIn();
@@ -15,6 +17,9 @@ export default function CustomSignIn() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isSsoCallback = searchParams.get("sso_callback") === "true";
+
 
     useEffect(() => {
         if (isUserLoaded && isSignedIn) {
@@ -57,13 +62,20 @@ export default function CustomSignIn() {
         try {
             await signIn.authenticateWithRedirect({
                 strategy,
-                redirectUrl: "/sso-callback",
+                redirectUrl: "/sign-in?sso_callback=true",
                 redirectUrlComplete: "/workspace/dashboard",
             });
         } catch (err: any) {
             setError(err.errors?.[0]?.message || "Social login failed.");
         }
     };
+
+
+
+
+    if (isSsoCallback) {
+        return <AuthenticateWithRedirectCallback />;
+    }
 
     return (
         <div className="w-full max-w-sm mx-auto">
