@@ -88,6 +88,13 @@ export function useApi() {
             method: "POST",
             body: JSON.stringify(data),
         }),
+        updateMe: (data: any) => fetchWithAuth<any>("/users/me", {
+            method: "PUT",
+            body: JSON.stringify(data),
+        }),
+        deleteMe: () => fetchWithAuth<void>("/users/me", {
+            method: "DELETE",
+        }),
 
         // Projects
         getProjects: () => fetchWithAuth<any[]>("/projects"),
