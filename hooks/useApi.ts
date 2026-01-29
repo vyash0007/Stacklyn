@@ -112,6 +112,7 @@ export function useApi() {
 
         // Prompts
         getPrompts: () => fetchWithAuth<any[]>("/prompts"),
+        getPromptsByProject: (projectId: string) => fetchWithAuth<any[]>(`/prompts/project/${projectId}`),
         getPrompt: (id: string) => fetchWithAuth<any>(`/prompts/${id}`),
         createPrompt: (data: any) => fetchWithAuth<any>("/prompts", {
             method: "POST",
@@ -125,6 +126,7 @@ export function useApi() {
 
         // Commits
         getCommits: () => fetchWithAuth<any[]>("/commits"),
+        getCommitsByPrompt: (promptId: string) => fetchWithAuth<any[]>(`/commits/prompt/${promptId}`),
         getCommit: (id: string) => fetchWithAuth<any>(`/commits/${id}`),
         createCommit: (data: any) => fetchWithAuth<any>("/commits", {
             method: "POST",
@@ -134,6 +136,7 @@ export function useApi() {
 
         // Runs
         getRuns: () => fetchWithAuth<any[]>("/runs"),
+        getRunsByCommit: (commitId: string) => fetchWithAuth<any[]>(`/runs/commit/${commitId}`),
         getRun: (id: string) => fetchWithAuth<any>(`/runs/${id}`),
         createRun: (data: any) => fetchWithAuth<any>("/runs", {
             method: "POST",

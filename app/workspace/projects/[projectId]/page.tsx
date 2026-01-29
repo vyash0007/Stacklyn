@@ -122,11 +122,8 @@ export default function ProjectDetailsPage() {
 
             setProject(p);
 
-            const allPrompts = await api.getPrompts();
-            // Filter clientside because our mock API might not have filtering.
-            // If real API has filtering, use that.
-            // Assuming getPrompts() returns everything for now as per api.ts
-            const projectPrompts = allPrompts.filter((x) => x.project_id === projectId);
+            // Fetch prompts for this project (handles member access on backend)
+            const projectPrompts = await api.getPromptsByProject(projectId);
             setPrompts(projectPrompts);
 
             // Load project members

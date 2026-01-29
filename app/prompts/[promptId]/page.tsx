@@ -108,23 +108,21 @@ export default function PromptWorkspacePage() {
     const loadData = async () => {
         setError(null);
         try {
-            const allPrompts = await api.getPrompts();
+            // Fetch prompt directly - backend handles member access authorization
+            const p = await api.getPrompt(promptId);
             setHasAttemptedLoad(true);
-            const p = allPrompts.find(x => x.id === promptId);
 
-            if (!p) {
-                if (allPrompts.length > 0) {
-                    setError('Prompt not found or you do not have access to this prompt.');
-                }
+            if (!p || !p.id) {
+                setError('Prompt not found or you do not have access to this prompt.');
                 return;
             }
 
             setPrompt(p);
 
-            const allCommits = await api.getCommits();
-            const promptCommits = allCommits
-                .filter(c => c.prompt_id === promptId)
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            // Fetch commits for this prompt (handles member access on backend)
+            const promptCommits = await api.getCommitsByPrompt(promptId);
+            // Sort by created_at descending (most recent first)
+            promptCommits.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
             setCommits(promptCommits);
 
@@ -149,8 +147,8 @@ export default function PromptWorkspacePage() {
 
     const loadRuns = async (commitId: string) => {
         try {
-            const allRuns = await api.getRuns();
-            const commitRuns = allRuns.filter(r => r.commit_id === commitId);
+            // Fetch runs for this commit (handles member access on backend)
+            const commitRuns = await api.getRunsByCommit(commitId);
             commitRuns.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
             setRuns(commitRuns);
         } catch (e) {
