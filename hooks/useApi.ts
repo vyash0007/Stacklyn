@@ -151,8 +151,8 @@ export function useApi() {
         }),
         deleteRun: (id: string) => fetchWithAuth<void>(`/runs/${id}`, { method: "DELETE" }),
         getAvailableModels: () => fetchWithAuth<Record<string, string[]>>("/runs/models"),
-        executeCommit: (commitId: string, model?: string) =>
-            fetchWithAuth<any>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId, model }) }),
+        executeCommit: (commitId: string, model?: string, overridePrompts?: { system_prompt?: string; user_query?: string }) =>
+            fetchWithAuth<any>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId, model, ...overridePrompts }) }),
 
         // Scores
         getScores: () => fetchWithAuth<any[]>("/scores"),

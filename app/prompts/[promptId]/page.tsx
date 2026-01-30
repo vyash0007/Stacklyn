@@ -110,15 +110,62 @@ export default function PromptWorkspacePage() {
         metadata?: any;
     }>({ open: false, type: null, id: "", name: "" });
 
-    const [activeTab, setActiveTab] = useState<'system' | 'user'>('system');
     const [mobileTab, setMobileTab] = useState<'editor' | 'history' | 'variables' | 'runs'>('editor');
-    const [variables, setVariables] = useState(
-        JSON.stringify({
-            user_name: "Alice",
-            account_tier: "Premium",
-            last_order: "Order #9921 (Shipped)"
-        }, null, 2)
-    );
+
+    // Template variables state - extracted from {{variable}} patterns in prompts
+    const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
+
+    // Function to extract {{variable}} patterns from text
+    const extractTemplateVariables = useCallback((text: string): string[] => {
+        const regex = /\{\{(\w+)\}\}/g;
+        const matches: string[] = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (!matches.includes(match[1])) {
+                matches.push(match[1]);
+            }
+        }
+        return matches;
+    }, []);
+
+    // Get all unique variables from both prompts
+    const detectedVariables = useCallback(() => {
+        const systemVars = extractTemplateVariables(systemPrompt);
+        const userVars = extractTemplateVariables(userQuery);
+        const allVars = [...new Set([...systemVars, ...userVars])];
+        return allVars;
+    }, [systemPrompt, userQuery, extractTemplateVariables]);
+
+    // Update template variables when new variables are detected
+    useEffect(() => {
+        const vars = detectedVariables();
+        setTemplateVariables(prev => {
+            const updated: Record<string, string> = {};
+            vars.forEach(varName => {
+                // Preserve existing value if variable already exists
+                updated[varName] = prev[varName] ?? '';
+            });
+            return updated;
+        });
+    }, [detectedVariables]);
+
+    // Function to replace {{variable}} with actual values
+    const injectVariables = useCallback((text: string): string => {
+        return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+            return templateVariables[varName] ?? match;
+        });
+    }, [templateVariables]);
+
+    // Render text with colored {{variable}} patterns (just color, no background)
+    const renderColoredText = useCallback((text: string) => {
+        const parts = text.split(/(\{\{\w+\}\})/g);
+        return parts.map((part, index) => {
+            if (/^\{\{\w+\}\}$/.test(part)) {
+                return <span key={index} className="text-amber-400">{part}</span>;
+            }
+            return <span key={index}>{part}</span>;
+        });
+    }, []);
 
     useEffect(() => {
         if (promptId) loadData();
@@ -219,7 +266,26 @@ export default function PromptWorkspacePage() {
         if (!selectedCommit) return;
         setIsRunning(true);
         try {
-            const newRun = await api.executeCommit(selectedCommit.id, model);
+            // Inject template variables into current editor content (not saved commit)
+            const hasVariables = Object.keys(templateVariables).length > 0;
+
+            // Debug logs
+            console.log("=== DEBUG: handleRun ===");
+            console.log("templateVariables:", templateVariables);
+            console.log("hasVariables:", hasVariables);
+            console.log("systemPrompt (before inject):", systemPrompt);
+            console.log("userQuery (before inject):", userQuery);
+            console.log("systemPrompt (after inject):", injectVariables(systemPrompt));
+            console.log("userQuery (after inject):", injectVariables(userQuery));
+
+            const overridePrompts = hasVariables ? {
+                system_prompt: injectVariables(systemPrompt),
+                user_query: injectVariables(userQuery)
+            } : undefined;
+
+            console.log("overridePrompts being sent:", overridePrompts);
+
+            const newRun = await api.executeCommit(selectedCommit.id, model, overridePrompts);
             setRuns(prev => [newRun, ...prev]);
         } catch (e) {
             console.error("Failed to run", e);
@@ -232,9 +298,15 @@ export default function PromptWorkspacePage() {
         if (!selectedCommit || availableModels.length === 0) return;
         setIsRunning(true);
         try {
+            // Inject template variables into current editor content (not saved commit)
+            const hasVariables = Object.keys(templateVariables).length > 0;
+            const overridePrompts = hasVariables ? {
+                system_prompt: injectVariables(systemPrompt),
+                user_query: injectVariables(userQuery)
+            } : undefined;
             // Run all models in parallel
             const promises = availableModels.map(model =>
-                api.executeCommit(selectedCommit.id, model)
+                api.executeCommit(selectedCommit.id, model, overridePrompts)
                     .catch(e => {
                         console.error(`Failed to run model ${model}`, e);
                         return null;
@@ -452,16 +524,6 @@ export default function PromptWorkspacePage() {
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-
-                    <button
-                        onClick={handleCommit}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 bg-white hover:bg-zinc-200 text-black text-[10px] md:text-xs font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
-                    >
-                        {isSaving ? <Layers size={14} className="animate-spin" /> : <Save size={14} />}
-                        <span className="hidden xs:inline">Save & Deploy</span>
-                        <span className="xs:hidden">Save</span>
-                    </button>
                 </div>
             </header>
 
@@ -572,61 +634,118 @@ export default function PromptWorkspacePage() {
                     mobileTab === 'variables' ? "flex" : "hidden lg:flex"
                 )}>
                     <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Test Variables</span>
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Template Variables</span>
                         <Code size={12} className="text-zinc-600" />
                     </div>
-                    <div className="flex-1 p-0 relative group">
-                        <textarea
-                            value={variables}
-                            onChange={(e) => setVariables(e.target.value)}
-                            className="w-full h-full bg-transparent text-xs font-mono text-zinc-400 p-4 resize-none focus:outline-none focus:bg-white/[0.02] transition-colors leading-relaxed"
-                            spellCheck="false"
-                        />
-                        <div className="absolute left-0 top-4 bottom-0 w-8 text-right pr-2 text-[10px] text-zinc-800 font-mono select-none pointer-events-none">
-                            1<br />2<br />3<br />4<br />5<br />6
-                        </div>
+                    <div className="flex-1 p-4 overflow-y-auto space-y-3">
+                        {detectedVariables().length > 0 ? (
+                            detectedVariables().map((varName) => (
+                                <div key={varName} className="space-y-1.5">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                                        <span className="text-amber-500/70">{`{{`}</span>
+                                        {varName}
+                                        <span className="text-amber-500/70">{`}}`}</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={templateVariables[varName] ?? ''}
+                                        onChange={(e) => setTemplateVariables(prev => ({
+                                            ...prev,
+                                            [varName]: e.target.value
+                                        }))}
+                                        placeholder={`Enter ${varName}...`}
+                                        className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono focus:outline-none focus:border-white/20 focus:bg-black/50 transition-all placeholder:text-zinc-700"
+                                    />
+                                </div>
+                            ))
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                                <div className="p-3 bg-white/5 rounded-full mb-3">
+                                    <Code size={16} className="text-zinc-600" />
+                                </div>
+                                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">No Variables</p>
+                                <p className="text-[10px] text-zinc-700 max-w-[180px] leading-relaxed">
+                                    Use <span className="text-amber-500/70 font-mono">{`{{name}}`}</span> syntax in your prompts to create dynamic variables
+                                </p>
+                            </div>
+                        )}
                     </div>
+                    {detectedVariables().length > 0 && (
+                        <div className="px-4 py-3 border-t border-white/5 bg-black/20">
+                            <div className="text-[9px] text-zinc-600 font-mono">
+                                {detectedVariables().length} variable{detectedVariables().length !== 1 ? 's' : ''} detected
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* 3. CENTER: Prompt Editor */}
+                {/* 3. CENTER: Prompt Editor - Stacked Layout */}
                 <div className={cn(
                     "flex-1 flex flex-col bg-[#181818] relative min-w-0",
                     mobileTab === 'editor' ? "flex" : "hidden lg:flex"
                 )}>
-                    <div className="h-10 border-b border-white/[0.05] flex items-center px-4 gap-4 bg-[#121212] shrink-0">
-                        <button
-                            onClick={() => setActiveTab('system')}
-                            className={cn(
-                                "text-[10px] font-bold h-full pt-1 transition-all border-b-2 px-2",
-                                activeTab === 'system' ? "text-white border-white" : "text-zinc-500 hover:text-zinc-300 border-transparent"
-                            )}
-                        >
-                            System Prompt
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('user')}
-                            className={cn(
-                                "text-[10px] font-bold h-full pt-1 transition-all border-b-2 px-2",
-                                activeTab === 'user' ? "text-white border-white" : "text-zinc-500 hover:text-zinc-300 border-transparent"
-                            )}
-                        >
-                            User Message
-                        </button>
+                    {/* Header with token count */}
+                    <div className="h-10 border-b border-white/[0.05] flex items-center px-4 bg-[#121212] shrink-0">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Prompt Editor</span>
                         <div className="ml-auto flex items-center gap-4">
                             <span className="text-[10px] text-zinc-600 font-mono">Tokens: {systemPrompt.length + userQuery.length}</span>
                         </div>
                     </div>
 
-                    <div className="flex-1 relative flex flex-col">
-                        <textarea
-                            value={activeTab === 'system' ? systemPrompt : userQuery}
-                            onChange={(e) => activeTab === 'system' ? setSystemPrompt(e.target.value) : setUserQuery(e.target.value)}
-                            className="flex-1 w-full bg-transparent text-sm font-mono text-zinc-300 p-8 resize-none focus:outline-none leading-relaxed"
-                            placeholder={activeTab === 'system' ? "Define AI persona and rules..." : "Enter default user query for testing..."}
-                            spellCheck="false"
-                        />
+                    {/* Two column editors container - stacked on mobile, side by side on desktop */}
+                    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                        {/* System Prompt Section - Top on mobile, Left on desktop */}
+                        <div className="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-white/5 min-w-0 min-h-0">
+                            <div className="px-4 py-2 bg-[#121212] border-b border-white/[0.03] shrink-0">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">System Prompt</span>
+                            </div>
+                            <div className="flex-1 relative overflow-hidden">
+                                {/* Color overlay for {{variable}} patterns */}
+                                <div
+                                    className="absolute inset-0 p-4 text-sm font-mono leading-relaxed pointer-events-none whitespace-pre-wrap break-words overflow-auto"
+                                    style={{ color: '#d4d4d8' }}
+                                    aria-hidden="true"
+                                >
+                                    {renderColoredText(systemPrompt)}
+                                </div>
+                                <textarea
+                                    value={systemPrompt}
+                                    onChange={(e) => setSystemPrompt(e.target.value)}
+                                    className="w-full h-full bg-transparent text-sm font-mono text-transparent caret-zinc-300 p-4 resize-none focus:outline-none leading-relaxed relative z-10"
+                                    placeholder="Define AI persona and rules..."
+                                    spellCheck="false"
+                                />
+                            </div>
+                        </div>
 
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl bg-[#1F1F1F]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 flex gap-3 shadow-2xl items-center z-20">
+                        {/* User Message Section - Bottom on mobile, Right on desktop */}
+                        <div className="flex-1 flex flex-col min-w-0 min-h-0">
+                            <div className="px-4 py-2 bg-[#121212] border-b border-white/[0.03] shrink-0">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">User Message</span>
+                            </div>
+                            <div className="flex-1 relative overflow-hidden">
+                                {/* Color overlay for {{variable}} patterns */}
+                                <div
+                                    className="absolute inset-0 p-4 text-sm font-mono leading-relaxed pointer-events-none whitespace-pre-wrap break-words overflow-auto"
+                                    style={{ color: '#d4d4d8' }}
+                                    aria-hidden="true"
+                                >
+                                    {renderColoredText(userQuery)}
+                                </div>
+                                <textarea
+                                    value={userQuery}
+                                    onChange={(e) => setUserQuery(e.target.value)}
+                                    className="w-full h-full bg-transparent text-sm font-mono text-transparent caret-zinc-300 p-4 resize-none focus:outline-none leading-relaxed relative z-10"
+                                    placeholder="Enter user query for testing..."
+                                    spellCheck="false"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Commit bar at bottom */}
+                    <div className="p-3 border-t border-white/5 bg-[#121212] shrink-0">
+                        <div className="flex gap-3 items-center">
                             <div className="p-2 bg-white/5 rounded-lg text-zinc-500">
                                 <GitBranch size={16} />
                             </div>
@@ -635,12 +754,12 @@ export default function PromptWorkspacePage() {
                                 value={commitMessage}
                                 onChange={(e) => setCommitMessage(e.target.value)}
                                 placeholder="Describe changes..."
-                                className="flex-1 bg-transparent border-none text-xs text-white placeholder-zinc-600 focus:ring-0 font-medium"
+                                className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white/20"
                             />
                             <button
                                 onClick={handleCommit}
                                 disabled={isSaving}
-                                className="px-4 py-1.5 bg-white text-black text-[10px] font-bold rounded-lg hover:bg-zinc-200 transition-all flex items-center gap-2"
+                                className="px-4 py-2 bg-white text-black text-[10px] font-bold rounded-lg hover:bg-zinc-200 transition-all flex items-center gap-2"
                             >
                                 {isSaving ? "Saving..." : "Commit"} <CornerDownLeft size={12} />
                             </button>
