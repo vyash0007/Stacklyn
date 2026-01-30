@@ -82,10 +82,10 @@ export function SettingsProfile() {
                 {/* Avatar Section */}
                 <div className="flex flex-col sm:flex-row items-center gap-10">
                     <div className="relative">
-                        <div className="h-24 w-24 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                        <div className="h-24 w-24 rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-sm relative">
                             {isUploading ? (
-                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                                    <Loader2 className="h-6 w-6 text-indigo-600 animate-spin" />
+                                <div className="absolute inset-0 bg-[#181818]/80 flex items-center justify-center z-10">
+                                    <Loader2 className="h-6 w-6 text-white animate-spin" />
                                 </div>
                             ) : null}
                             <img
@@ -94,7 +94,7 @@ export function SettingsProfile() {
                                 className="h-full w-full object-cover"
                             />
                         </div>
-                        <label className="absolute -bottom-2 -right-2 p-2 bg-white rounded-lg border border-slate-200 text-slate-600 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors">
+                        <label className="absolute -bottom-2 -right-2 p-2 bg-white rounded-lg border border-white/5 text-black cursor-pointer shadow-sm hover:bg-zinc-100 transition-colors">
                             <Camera className="h-4 w-4" />
                             <input
                                 type="file"
@@ -106,43 +106,48 @@ export function SettingsProfile() {
                         </label>
                     </div>
                     <div className="text-center sm:text-left">
-                        <h4 className="text-lg font-bold text-slate-900">Avatar</h4>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <h4 className="text-lg font-bold text-white">Avatar</h4>
+                        <p className="text-sm text-zinc-500 mt-1">
                             PNG or JPG. At least 400x400px recommended.
                         </p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-2">
-                        <Label htmlFor="name" className="text-sm font-bold text-slate-700">Display Name</Label>
+                    <div className="space-y-2 group">
+                        <Label htmlFor="name" className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider group-focus-within:text-white transition-colors">Display Name</Label>
                         <Input
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="John Doe"
-                            className="h-11 bg-white border-slate-200 focus:border-indigo-600 rounded-lg"
+                            className="h-11 bg-black/40 border-white/5 text-white focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all rounded-lg"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-bold text-slate-700">Email Address</Label>
+                        <Label htmlFor="email" className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Email Address</Label>
                         <Input
                             id="email"
                             value={email}
                             disabled
-                            className="h-11 bg-slate-50 border-slate-200 cursor-not-allowed rounded-lg text-slate-500"
+                            className="h-11 bg-white/5 border-white/5 cursor-not-allowed rounded-lg text-zinc-600 disabled:opacity-100"
                         />
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-slate-100 flex justify-end">
+                <div className="pt-8 border-t border-white/5 flex justify-end">
                     <Button
                         type="submit"
                         disabled={isSaving}
-                        className="h-11 px-8 bg-black hover:bg-slate-800 text-white font-bold rounded-lg transition-all"
+                        className="h-11 px-8 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all shadow-lg"
                     >
-                        {isSaving ? "Saving..." : "Save Changes"}
+                        {isSaving ? (
+                            <div className="flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>Saving...</span>
+                            </div>
+                        ) : "Save Changes"}
                     </Button>
                 </div>
             </form>

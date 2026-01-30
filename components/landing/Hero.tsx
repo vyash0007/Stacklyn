@@ -1,10 +1,13 @@
 "use client";
 
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@clerk/nextjs';
 import WorkspacePreview from './WorkspacePreview';
 
 export function Hero() {
+    const { isSignedIn } = useAuth();
+
     return (
         <section className="relative z-10 pt-24 pb-32 px-6">
             <div className="max-w-5xl mx-auto text-center">
@@ -17,24 +20,26 @@ export function Hero() {
 
                 {/* Headline - High Contrast Gradient */}
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.05] animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    Enhance your writing.<br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-200 to-zinc-600 drop-shadow-sm">
-                        Optimize your workflow.
+                        Stop managing prompts<br />
+                        in spreadsheets.
                     </span>
                 </h1>
 
                 {/* Subtext - Brighter for readability */}
                 <p className="text-lg text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed font-light tracking-wide">
-                    A web developer who's passionate about performance, security, and great user experience. From concept to clean code.
+                    Treat your prompts like code. Track changes, rollback versions, and collaborate with your team in a purpose-built environment designed for the AI stack.
                 </p>
 
                 {/* CTA Buttons - Premium Monochrome */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-24">
-                    <button
-                        className="w-full sm:w-auto px-9 py-4 bg-white text-black rounded-full font-bold text-xs tracking-[0.15em] uppercase hover:bg-zinc-200 transition-all transform hover:-translate-y-1 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-                    >
-                        Start For Free
-                    </button>
+                    <Link href={isSignedIn ? "/workspace/dashboard" : "/sign-up"} className="w-full sm:w-auto">
+                        <button
+                            className="w-full px-9 py-4 bg-white text-black rounded-full font-bold text-xs tracking-[0.15em] uppercase hover:bg-zinc-200 transition-all transform hover:-translate-y-1 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                        >
+                            Start For Free
+                        </button>
+                    </Link>
                     <button className="w-full sm:w-auto px-9 py-4 bg-black/50 border border-white/20 rounded-full text-white font-bold text-xs tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white/40 transition-all backdrop-blur-sm">
                         Get A Plan
                     </button>
@@ -48,11 +53,11 @@ export function Hero() {
 
                         {/* Window Title Bar */}
                         <div className="h-10 bg-[#0c0c0e] border-b border-white/[0.08] flex items-center px-4 justify-between">
-                            {/* Window Controls (Greyscale for theme) */}
+                            {/* Window Controls (Apple Colors) */}
                             <div className="flex gap-2">
-                                <div className="w-3 h-3 rounded-full bg-zinc-700/50 border border-zinc-600/30"></div>
-                                <div className="w-3 h-3 rounded-full bg-zinc-700/50 border border-zinc-600/30"></div>
-                                <div className="w-3 h-3 rounded-full bg-zinc-700/50 border border-zinc-600/30"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#FF5757]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+                                <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
                             </div>
 
                             {/* Address Bar Simulation */}

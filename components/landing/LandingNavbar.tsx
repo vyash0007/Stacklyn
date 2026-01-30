@@ -33,11 +33,11 @@ export function LandingNavbar() {
 
             <div className="flex items-center gap-4">
                 <SignedOut>
-                    <SignInButton mode="modal">
+                    <Link href="/sign-in">
                         <button className="text-xs font-medium text-zinc-400 hover:text-white transition-all">
                             Sign in
                         </button>
-                    </SignInButton>
+                    </Link>
                 </SignedOut>
 
                 <SignedIn>
@@ -46,10 +46,9 @@ export function LandingNavbar() {
 
                 <Link href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}>
                     <button
-                        className="bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/30 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-sm"
+                        className="bg-zinc-100 hover:bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                     >
-                        <Sparkles className="h-3 w-3 fill-current text-zinc-400" />
-                        {isSignedIn ? "Go to Dashboard" : "Try Now"}
+                        {isSignedIn ? "Go to Dashboard" : "Sign Up"}
                     </button>
                 </Link>
             </div>
