@@ -51,7 +51,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
         <span>
             {parts.map((part, i) =>
                 part.toLowerCase() === query.toLowerCase() ? (
-                    <mark key={i} className="bg-slate-900/10 text-slate-900 rounded-sm px-0.5 font-lg tracking-tight">
+                    <mark key={i} className="bg-white/20 text-white rounded-sm px-0.5 font-bold">
                         {part}
                     </mark>
                 ) : (
@@ -198,17 +198,17 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border-0 shadow-2xl bg-white rounded-md sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-slate-900/5">
+            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border border-white/10 shadow-3xl bg-[#0c0c0e] rounded-md sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-white/5 backdrop-blur-3xl">
 
                 {/* Header / Input Area - Fixed Height */}
-                <DialogHeader className="p-4 border-b border-slate-100 bg-white sticky top-0 z-20">
+                <DialogHeader className="p-4 border-b border-white/5 bg-transparent sticky top-0 z-20">
                     <DialogTitle className="sr-only">Search</DialogTitle>
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-md transition-all focus-within:bg-white focus-within:border-slate-300 focus-within:shadow-sm">
+                    <div className="flex items-center gap-2 px-3 py-2.5 bg-white/5 border border-white/10 rounded-md transition-all focus-within:bg-white/10 focus-within:border-white/20 focus-within:shadow-2xl">
                         <div className="flex items-center justify-center w-5 h-5 shrink-0">
                             {isLoading ? (
-                                <Loader2 className="h-4 w-4 text-slate-900 animate-spin" />
+                                <Loader2 className="h-4 w-4 text-white animate-spin" />
                             ) : (
-                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-slate-900" : "text-slate-400")} />
+                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-white" : "text-zinc-600")} />
                             )}
                         </div>
 
@@ -221,7 +221,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                             }}
                             onKeyDown={handleKeyDown}
                             placeholder="Type to search..."
-                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent placeholder:text-slate-400 text-slate-800 font-medium"
+                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent placeholder:text-zinc-600 text-white font-medium"
                             autoComplete="off"
                             autoCorrect="off"
                             autoCapitalize="off"
@@ -230,15 +230,15 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         {query && (
                             <button
                                 onClick={() => { setQuery(""); inputRef.current?.focus(); }}
-                                className="p-0.5 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                                className="p-0.5 hover:bg-white/10 rounded-full text-zinc-500 hover:text-white transition-colors"
                             >
                                 <span className="sr-only">Clear</span>
                                 <X className="h-4 w-4" />
                             </button>
                         )}
 
-                        <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200 ml-1">
-                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded bg-white px-1.5 font-mono text-[10px] font-medium text-slate-400 opacity-100 border border-slate-200 shadow-sm">
+                        <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-white/10 ml-1">
+                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded bg-white/5 px-1.5 font-mono text-[10px] font-bold text-zinc-500 opacity-100 border border-white/5 shadow-inner">
                                 <span className="text-xs">ESC</span>
                             </kbd>
                         </div>
@@ -249,18 +249,18 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                 {/* 500px fixed height ensures stable UI */}
                 <div
                     ref={listRef}
-                    className="h-[500px] overflow-y-auto overflow-x-hidden bg-[#fafafa]/50 scroll-smooth"
+                    className="h-[500px] overflow-y-auto overflow-x-hidden bg-black/20 scroll-smooth"
                 >
                     {!query && (
                         /* Empty State / Initial View */
-                        <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
-                            <div className="w-16 h-16 bg-white rounded-md shadow-sm border border-slate-100 flex items-center justify-center mb-6">
-                                <Command className="h-8 w-8 text-slate-900/80" />
+                        <div className="h-full flex flex-col items-center justify-center text-center p-8 text-zinc-500">
+                            <div className="w-16 h-16 bg-white/5 rounded-md shadow-2xl border border-white/10 flex items-center justify-center mb-8 bg-gradient-to-br from-white/5 to-transparent">
+                                <Command className="h-8 w-8 text-white" />
                             </div>
-                            <h3 className="text-slate-900 font-lg tracking-tight mb-2">Search Stacklyn</h3>
-                            <p className="max-w-xs mx-auto text-sm text-slate-400 leading-relaxed">
+                            <h3 className="text-white font-bold uppercase tracking-[0.2em] mb-3 text-xs">Search Stacklyn</h3>
+                            <p className="max-w-xs mx-auto text-xs text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
                                 Search for projects, prompts, and more.
-                                <br /> Use <kbd className="font-sans font-lg tracking-tight text-slate-600">↑↓</kbd> to navigate, <kbd className="font-sans font-lg tracking-tight text-slate-600">Enter</kbd> to select.
+                                <br /> Use <kbd className="font-sans font-bold text-zinc-400">↑↓</kbd> to navigate, <kbd className="font-sans font-bold text-zinc-400">Enter</kbd> to select.
                             </p>
                         </div>
                     )}
@@ -268,11 +268,11 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                     {query && !isLoading && results.length === 0 && (
                         /* No Results State */
                         <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                <SearchX className="h-8 w-8 text-slate-300" />
+                            <div className="w-16 h-16 bg-white/5 rounded-md flex items-center justify-center mb-4 border border-white/10">
+                                <SearchX className="h-8 w-8 text-zinc-800" />
                             </div>
-                            <p className="text-slate-900 font-medium">No results found</p>
-                            <p className="text-sm text-slate-400 mt-1">We couldn&apos;t find anything matching &quot;{query}&quot;</p>
+                            <p className="text-white font-bold uppercase tracking-widest text-xs">No result protocols found</p>
+                            <p className="text-[10px] text-zinc-600 mt-2 font-bold uppercase tracking-[0.15em]">No matches detected for &quot;{query}&quot;</p>
                         </div>
                     )}
 
@@ -290,18 +290,18 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         }}
                                         onMouseEnter={() => setActiveIndex(index)}
                                         className={cn(
-                                            "group cursor-pointer rounded-md px-4 py-3 flex items-center gap-4 transition-all duration-200 border border-transparent",
+                                            "group cursor-pointer rounded-md px-5 py-4 flex items-center gap-5 transition-all duration-200 border border-transparent",
                                             isActive
-                                                ? "bg-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] border-slate-200/60 scale-[0.99]"
-                                                : "hover:bg-slate-200/50 hover:scale-[0.995]"
+                                                ? "bg-white/5 shadow-3xl border-white/10 scale-[0.99]"
+                                                : "hover:bg-white/[0.02] hover:scale-[0.995]"
                                         )}
                                     >
                                         {/* Icon Box */}
                                         <div className={cn(
-                                            "w-10 h-10 rounded-md flex items-center justify-center shrink-0 border transition-colors",
+                                            "w-12 h-12 rounded-md flex items-center justify-center shrink-0 border transition-all",
                                             isActive
-                                                ? "bg-slate-100 border-slate-300 text-slate-900"
-                                                : "bg-white border-slate-200 text-slate-400"
+                                                ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                                : "bg-white/5 border-white/5 text-zinc-600"
                                         )}>
                                             {item.type === 'project' ? <Folder className="h-5 w-5" /> :
                                                 item.type === 'prompt' ? <Zap className="h-5 w-5" /> :
@@ -310,29 +310,29 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between mb-0.5">
-                                                <span className={cn("font-lg tracking-tight truncate", isActive ? "text-slate-900" : "text-slate-700")}>
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className={cn("font-bold tracking-tight truncate uppercase text-sm", isActive ? "text-white" : "text-zinc-400")}>
                                                     <Highlight text={item.title} query={query} />
                                                 </span>
                                                 {item.type === 'prompt' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
                                                         Prompt
                                                     </span>
                                                 )}
                                                 {item.type === 'project' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
                                                         Project
                                                     </span>
                                                 )}
                                                 {item.type === 'commit' && (
-                                                    <span className="text-[10px] font-lg tracking-tight uppercase bg-slate-50 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
                                                         Commit
                                                     </span>
                                                 )}
                                             </div>
 
                                             {item.subtitle && (
-                                                <p className={cn("text-sm truncate h-5", isActive ? "text-slate-500" : "text-slate-400")}>
+                                                <p className={cn("text-[11px] truncate font-medium", isActive ? "text-zinc-500" : "text-zinc-700")}>
                                                     <Highlight text={item.subtitle} query={query} />
                                                 </p>
                                             )}
@@ -340,8 +340,8 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
                                         {/* Arrow Hint */}
                                         <div className={cn(
-                                            "text-slate-300 transition-transform duration-300",
-                                            isActive ? "translate-x-0 opacity-100 text-slate-900" : "-translate-x-2 opacity-0"
+                                            "text-zinc-500 transition-all duration-300",
+                                            isActive ? "translate-x-0 opacity-100 text-white" : "-translate-x-2 opacity-0"
                                         )}>
                                             <ChevronRight className="h-5 w-5" />
                                         </div>
@@ -353,16 +353,17 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                 </div>
 
                 {/* Footer */}
-                <div className="bg-slate-50 border-t border-slate-100 p-2 px-4 flex items-center justify-between text-xs text-slate-400 font-medium">
-                    <span className="flex items-center gap-2">
-                        <span className="flex items-center gap-1">
-                            <span className="bg-white border border-slate-200 rounded px-1.5 shadow-sm">↵</span> to select
+                {/* Footer */}
+                <div className="bg-[#0c0c0e] border-t border-white/5 p-4 px-6 flex items-center justify-between text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+                    <span className="flex items-center gap-6">
+                        <span className="flex items-center gap-3">
+                            <span className="bg-white/5 border border-white/10 text-white rounded px-2 py-0.5 shadow-inner">↵</span> SELECT
                         </span>
-                        <span className="flex items-center gap-1">
-                            <span className="bg-white border border-slate-200 rounded px-1.5 shadow-sm">↑↓</span> to navigate
+                        <span className="flex items-center gap-3">
+                            <span className="bg-white/5 border border-white/10 text-white rounded px-2 py-0.5 shadow-inner">↑↓</span> NAVIGATE
                         </span>
                     </span>
-                    <span className="opacity-70">Stacklyn Search</span>
+                    <span className="opacity-40">System Search</span>
                 </div>
             </DialogContent>
         </Dialog>

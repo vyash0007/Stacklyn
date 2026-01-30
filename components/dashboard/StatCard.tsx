@@ -17,19 +17,23 @@ export function StatCard({
     icon: Icon,
 }: StatCardProps) {
     return (
-        <div className="bg-white p-6 rounded-md border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex justify-between items-start mb-4">
-                <div className="bg-slate-50 p-2.5 rounded-md group-hover:bg-slate-100 transition-colors">
-                    <Icon className="h-5 w-5 text-slate-500 group-hover:text-slate-900 transition-colors" />
+        <div className="bg-[#1F1F1F] p-6 rounded-md border border-white/5 shadow-3xl hover:bg-[#252527] hover:border-white/10 transition-all duration-300 group relative overflow-hidden backdrop-blur-md">
+            {/* Subtle Gradient Glow */}
+            <div className="absolute -top-12 -right-12 w-24 h-24 bg-white/5 blur-2xl rounded-full group-hover:bg-white/10 transition-all duration-500"></div>
+
+            <div className="flex justify-between items-start mb-6">
+                <div className="bg-white/5 p-3 rounded-lg border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-500">
+                    <Icon className="h-5 w-5 text-zinc-400 group-hover:text-white transition-colors" />
                 </div>
             </div>
-            <div>
-                <h3 className="text-slate-500 text-sm font-medium mb-1">{title}</h3>
-                <div className="flex items-end space-x-2">
-                    <span className="text-3xl font-lg text-slate-900 tracking-tight">
+
+            <div className="space-y-1">
+                <h3 className="text-zinc-500 text-[10px] uppercase font-bold tracking-[0.15em]">{title}</h3>
+                <div className="flex items-baseline space-x-3">
+                    <span className="text-4xl font-bold text-white tracking-tighter">
                         {value}
                     </span>
-                    <span className="text-slate-400 text-sm mb-1">{subtext}</span>
+                    <span className="text-zinc-400 text-xs font-medium tracking-wide">{subtext}</span>
                 </div>
             </div>
         </div>

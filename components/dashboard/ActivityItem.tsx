@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, User, Terminal, GitBranch, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 interface ActivityItemProps {
@@ -40,29 +40,50 @@ export function ActivityItem({
 
     const link = getEntityLink();
 
+    const getEntityIcon = () => {
+        switch (entityType) {
+            case 'prompt': return <Terminal className="h-3 w-3 text-zinc-500" />;
+            case 'commit': return <GitBranch className="h-3 w-3 text-zinc-500" />;
+            case 'run': return <Sparkles className="h-3 w-3 text-zinc-500" />;
+            default: return <User className="h-3 w-3 text-zinc-500" />;
+        }
+    };
+
     return (
-        <div className="mb-3 last:mb-0">
-            <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-700">
-                    <span className="text-[#4F46E5] font-semibold hover:underline cursor-pointer">
-                        {user}
-                    </span>
-                    {" "}
-                    <span>{title}</span>
-                </p>
-                {link ? (
-                    <Link href={link}>
-                        <button className="text-slate-400 hover:text-slate-600 transition-colors p-1">
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
+        <div className="group flex items-center justify-between gap-3 py-3 border-b border-white/[0.03] last:border-0 hover:opacity-100 transition-all duration-300">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+                {/* User Avatar */}
+                <div className="shrink-0">
+                    <div className="w-8 h-8 rounded-full border border-white/10 overflow-hidden bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-zinc-500 uppercase shadow-inner">
+                        {user.charAt(0)}
+                    </div>
+                </div>
+
+                <div className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
+                            {user}
+                        </span>
+                        <div className="shrink-0 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all scale-75">
+                            {getEntityIcon()}
+                        </div>
+                    </div>
+                    <p className="text-[10px] text-zinc-500 font-medium truncate max-w-[180px] group-hover:text-zinc-400 transition-colors">
+                        {title}
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-700 whitespace-nowrap group-hover:text-zinc-500 transition-colors">
+                    {time}
+                </span>
+                {link && (
+                    <Link href={link} className="shrink-0 mt-0.5">
+                        <ChevronRight className="h-3.5 w-3.5 text-zinc-800 group-hover:text-white transition-all" />
                     </Link>
-                ) : (
-                    <button className="text-slate-400 hover:text-slate-600 transition-colors p-1">
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
                 )}
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">{fullTime || time}</p>
         </div>
     );
 }

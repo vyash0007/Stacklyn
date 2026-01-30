@@ -1,12 +1,13 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Layers, ChevronRight, Menu, X } from "lucide-react";
+import { Layers, Sparkles, Menu, X } from "lucide-react";
 import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 
 export function LandingNavbar() {
     const { isSignedIn } = useAuth();
     const [scrolled, setScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -15,129 +16,42 @@ export function LandingNavbar() {
     }, []);
 
     return (
-        <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                ? "bg-white/90 backdrop-blur-lg border-b border-slate-200 py-3"
-                : "bg-transparent py-5"
-                }`}
-        >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center">
-                    <Link href="/" className="flex items-center space-x-2 cursor-pointer">
-                        <div className="bg-slate-900 p-1.5 rounded-lg">
-                            <Layers className="h-5 w-5 text-white" />
-                        </div>
-                        <span className="text-xl font-lg tracking-tight text-slate-900 tracking-tight">
-                            Stacklyn
-                        </span>
-                    </Link>
-
-                    <div className="hidden md:flex items-center space-x-8">
-                        <a
-                            href="#features"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                        >
-                            Features
-                        </a>
-                        <a
-                            href="#platform"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                        >
-                            Platform
-                        </a>
-                        <a
-                            href="#docs"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                        >
-                            Docs
-                        </a>
-                        <a
-                            href="#pricing"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
-                        >
-                            Pricing
-                        </a>
-                    </div>
-
-                    <div className="hidden md:flex items-center space-x-4">
-                        <SignedOut>
-                            <Link
-                                href="/sign-in"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Sign in
-                            </Link>
-                        </SignedOut>
-
-                        <SignedIn>
-                            <UserButton />
-                        </SignedIn>
-
-                        <Link
-                            href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}
-                            className="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20"
-                        >
-                            Start Building
-                        </Link>
-                    </div>
-
-                    <div className="md:hidden">
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="p-2"
-                        >
-                            {mobileMenuOpen ? (
-                                <X className="h-6 w-6 text-slate-900" />
-                            ) : (
-                                <Menu className="h-6 w-6 text-slate-900" />
-                            )}
-                        </button>
-                    </div>
+        <nav className="relative z-50 max-w-7xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+                <div className="w-9 h-9 bg-gradient-to-tr from-zinc-100 to-zinc-400 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-105 transition-transform duration-300">
+                    <Layers className="h-5 w-5 text-black" />
                 </div>
+                <span className="text-xl font-bold tracking-tight text-white group-hover:text-zinc-300 transition-colors">Stacklyn.</span>
+            </Link>
 
-                {/* Mobile Menu */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden mt-4 pb-4 border-t border-slate-200 pt-4">
-                        <div className="flex flex-col space-y-4">
-                            <a
-                                href="#features"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Features
-                            </a>
-                            <a
-                                href="#platform"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Platform
-                            </a>
-                            <a
-                                href="#docs"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Docs
-                            </a>
-                            <a
-                                href="#pricing"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Pricing
-                            </a>
-                            <Link
-                                href="/login"
-                                className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                            >
-                                Sign in
-                            </Link>
-                            <Link
-                                href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}
-                                className="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-all text-center"
-                            >
-                                Start Building
-                            </Link>
-                        </div>
-                    </div>
-                )}
+            {/* Center Nav Container */}
+            <div className="hidden md:flex items-center px-1.5 py-1.5 bg-zinc-900/50 border border-white/10 rounded-full backdrop-blur-md shadow-2xl">
+                {['Home', 'About us', 'Features', 'Pricing', 'Resources'].map((item) => (
+                    <a key={item} href="#" className="px-5 py-2 text-xs font-medium text-zinc-400 hover:text-white transition-all rounded-full hover:bg-white/10">{item}</a>
+                ))}
+            </div>
+
+            <div className="flex items-center gap-4">
+                <SignedOut>
+                    <SignInButton mode="modal">
+                        <button className="text-xs font-medium text-zinc-400 hover:text-white transition-all">
+                            Sign in
+                        </button>
+                    </SignInButton>
+                </SignedOut>
+
+                <SignedIn>
+                    <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+
+                <Link href={isSignedIn ? "/workspace/dashboard" : "/sign-up"}>
+                    <button
+                        className="bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/30 text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 backdrop-blur-sm"
+                    >
+                        <Sparkles className="h-3 w-3 fill-current text-zinc-400" />
+                        {isSignedIn ? "Go to Dashboard" : "Try Now"}
+                    </button>
+                </Link>
             </div>
         </nav>
     );

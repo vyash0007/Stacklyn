@@ -10,7 +10,7 @@ import {
     Users,
     Settings,
     LogOut,
-    User
+    Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@clerk/nextjs";
@@ -55,21 +55,21 @@ export function Sidebar() {
     ];
 
     return (
-        <aside className="w-64 bg-[#0F172A] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50 transition-professional">
+        <aside className="w-64 bg-[#181818] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50 transition-all duration-300">
             <div className="p-6">
                 <Link
                     href="/"
-                    className="flex items-center space-x-3 text-white mb-10 cursor-pointer group"
+                    className="flex items-center gap-3 mb-10 group cursor-pointer"
                 >
-                    <div className="bg-slate-800 p-2 rounded-md border border-white/10 shadow-sm transition-professional group-hover:bg-slate-700">
-                        <Layers className="h-5 w-5 text-white/90" />
+                    <div className="w-8 h-8 bg-gradient-to-tr from-zinc-100 to-zinc-400 rounded-md flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform duration-300">
+                        <Layers className="h-4 w-4 text-black" />
                     </div>
-                    <span className="text-xl font-lg text-white tracking-tight">Stacklyn</span>
+                    <span className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-300 transition-colors">Stacklyn.</span>
                 </Link>
 
-                <div className="space-y-10">
+                <div className="space-y-8">
                     <div>
-                        <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
+                        <h3 className="text-[10px] uppercase font-bold text-zinc-500 mb-4 px-3 tracking-widest">
                             Platform
                         </h3>
                         <nav className="space-y-1">
@@ -78,22 +78,25 @@ export function Sidebar() {
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-professional border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 border border-transparent",
                                         route.active
-                                            ? "bg-white/10 text-white shadow-sm"
-                                            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                                            ? "bg-white/10 text-white shadow-inner shadow-white/5 border-white/10"
+                                            : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
                                     )}
                                 >
-                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#818CF8]" : "text-slate-500")} />
-                                    <span className="text-sm font-lg tracking-tight">{route.label}</span>
+                                    <route.icon className={cn("h-4 w-4", route.active ? "text-white" : "text-zinc-600")} />
+                                    <span className="text-xs font-medium">{route.label}</span>
+                                    {route.active && (
+                                        <div className="ml-auto w-1 h-1 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]"></div>
+                                    )}
                                 </Link>
                             ))}
                         </nav>
                     </div>
 
                     <div>
-                        <h3 className="text-[10px] font-lg tracking-tight text-slate-500 uppercase tracking-[0.2em] mb-4 px-2">
-                            Settings
+                        <h3 className="text-[10px] uppercase font-bold text-zinc-500 mb-4 px-3 tracking-widest">
+                            Configuration
                         </h3>
                         <nav className="space-y-1">
                             {settingsRoutes.map((route) => (
@@ -101,14 +104,17 @@ export function Sidebar() {
                                     key={route.href}
                                     href={route.href}
                                     className={cn(
-                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-professional border border-transparent",
+                                        "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 border border-transparent",
                                         route.active
-                                            ? "bg-white/10 text-white shadow-sm"
-                                            : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                                            ? "bg-white/10 text-white shadow-inner shadow-white/5 border-white/10"
+                                            : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
                                     )}
                                 >
-                                    <route.icon className={cn("h-4 w-4", route.active ? "text-[#818CF8]" : "text-slate-500")} />
-                                    <span className="text-sm font-lg tracking-tight">{route.label}</span>
+                                    <route.icon className={cn("h-4 w-4", route.active ? "text-white" : "text-zinc-600")} />
+                                    <span className="text-xs font-medium">{route.label}</span>
+                                    {route.active && (
+                                        <div className="ml-auto w-1 h-1 rounded-full bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]"></div>
+                                    )}
                                 </Link>
                             ))}
                         </nav>
@@ -116,11 +122,15 @@ export function Sidebar() {
                 </div>
             </div>
 
-            <div className="mt-auto p-4 border-t border-white/5">
+            <div className="mt-auto p-4 border-t border-white/5 space-y-2">
+                <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group">
+                    <Sparkles className="h-3.5 w-3.5 text-zinc-400 group-hover:text-white" />
+                    <span className="text-[11px] font-bold text-zinc-400 group-hover:text-white uppercase tracking-wider">Upgrade Plan</span>
+                </button>
                 <SignOutButton>
-                    <button className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5 transition-professional group">
-                        <LogOut className="h-4 w-4 text-slate-500 group-hover:text-white" />
-                        <span className="text-sm font-lg tracking-tight">Sign Out</span>
+                    <button className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-zinc-500 hover:text-white hover:bg-white/5 transition-all group">
+                        <LogOut className="h-4 w-4 text-zinc-600 group-hover:text-white" />
+                        <span className="text-xs font-medium">Log out</span>
                     </button>
                 </SignOutButton>
             </div>

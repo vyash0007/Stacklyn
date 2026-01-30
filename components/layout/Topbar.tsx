@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Sparkles } from "lucide-react";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -26,48 +26,61 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
     }, []);
 
     return (
-        <header className="h-14 bg-white border-b border-slate-100 flex items-center justify-between px-6 sticky top-0 z-40 transition-professional">
+        <header className="h-14 bg-[#181818]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 sticky top-0 z-40 transition-all duration-300">
             <div className="flex items-center space-x-2">
                 {breadcrumb && (
                     <>
-                        <span className="text-slate-400 text-[13px] font-lg tracking-tight">
+                        <span className="text-zinc-500 text-[11px] font-medium uppercase tracking-wider">
                             {breadcrumb}
                         </span>
-                        <span className="text-slate-300 text-sm">/</span>
+                        <span className="text-zinc-700 text-xs">/</span>
                     </>
                 )}
-                <h1 className="text-[13px] font-lg tracking-tight text-slate-900">{title}</h1>
+                <h1 className="text-xs font-bold text-white uppercase tracking-widest">{title}</h1>
             </div>
-            <div className="flex items-center space-x-4">
+
+            <div className="flex items-center space-x-5">
                 <div
                     className="relative hidden md:block group cursor-pointer"
                     onClick={() => setIsSearchOpen(true)}
                 >
-                    <div className="flex items-center bg-white border border-slate-200 rounded-md transition-professional h-9 px-3 group-hover:border-slate-300 group-hover:bg-slate-50 shadow-sm">
-                        <Search className="h-3.5 w-3.5 text-slate-400 mr-2.5 transition-colors group-hover:text-slate-600" />
-                        <div className="text-[13px] text-slate-400 w-48 font-lg tracking-tight">
-                            Search projects or prompts...
+                    <div className="flex items-center bg-white/[0.02] border border-white/5 rounded-md transition-all duration-300 h-8 px-4 group-hover:border-white/10 group-hover:bg-white/[0.04] shadow-inner">
+                        <Search className="h-3 w-3 text-zinc-500 mr-3 transition-colors group-hover:text-zinc-300" />
+                        <div className="text-[11px] text-zinc-500 w-40 font-medium tracking-wide">
+                            Search everything...
                         </div>
                         <div className="flex items-center gap-1.5 ml-2">
-                            <span className="text-[10px] text-slate-400 border border-slate-200 rounded-md px-1.5 py-0.5 bg-slate-50 font-lg tracking-tight">
+                            <span className="text-[9px] text-zinc-600 border border-white/10 rounded-md px-1.5 py-0.5 bg-white/5 font-mono">
                                 ⌘K
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <button className="text-slate-400 hover:text-slate-600 transition-professional p-1.5 rounded-md hover:bg-slate-50 relative">
-                    <Bell className="h-4 w-4" />
-                    <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-slate-400 rounded-full ring-2 ring-white"></span>
-                </button>
+                <div className="flex items-center space-x-1">
+                    <button className="text-zinc-500 hover:text-white transition-all p-2 rounded-md hover:bg-white/5 relative group">
+                        <Bell className="h-4 w-4" />
+                        <span className="absolute top-2 right-2 h-1.5 w-1.5 bg-white rounded-full ring-2 ring-[#0a0a0a] group-hover:ring-white/10"></span>
+                    </button>
+                </div>
+
+                <div className="h-6 w-[1px] bg-white/10 mx-1"></div>
 
                 <SignedIn>
-                    <UserButton />
+                    <div className="flex items-center gap-3">
+                        <UserButton
+                            appearance={{
+                                elements: {
+                                    userButtonAvatarBox: "h-7 w-7 border border-white/10"
+                                }
+                            }}
+                        />
+                    </div>
                 </SignedIn>
 
                 <SignedOut>
                     <Link href="/sign-in">
-                        <button className="px-4 py-1.5 bg-slate-900 text-white text-sm font-lg tracking-tight rounded-md hover:bg-slate-800 transition-colors">
+                        <button className="px-4 py-1.5 bg-white text-black text-[11px] font-bold uppercase tracking-wider rounded-md hover:bg-zinc-200 transition-all">
                             Sign In
                         </button>
                     </Link>

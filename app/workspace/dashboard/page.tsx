@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Folder, Zap, BarChart3, ChevronDown } from "lucide-react";
+import { Folder, Zap, BarChart3, ChevronDown, Sparkles, Plus, Activity as ActivityIcon } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { ActivityItem } from "@/components/dashboard/ActivityItem";
+import { ActivityItem } from "@/components/dashboard/ActivityItem"; // I might need to update this too
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
 import { Activity, Project } from "@/types";
 import { formatRelativeTime } from "@/lib/utils";
+import Link from "next/link";
 
 export default function Dashboard() {
     const api = useApi();
@@ -26,7 +27,7 @@ export default function Dashboard() {
                     api.getProjects(),
                     api.getRuns(),
                     api.getScores(),
-                    api.getActivities(5, 0),
+                    api.getActivities(10, 0),
                 ]);
 
                 let avg = 0;
@@ -82,7 +83,6 @@ export default function Dashboard() {
                     weekday: 'short',
                     day: 'numeric',
                     month: 'short',
-                    year: 'numeric'
                 });
             }
 
@@ -97,10 +97,7 @@ export default function Dashboard() {
 
     const formatActivityTime = (dateStr: string) => {
         const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-        }) + ' at ' + date.toLocaleTimeString('en-US', {
+        return date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
@@ -108,53 +105,79 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8">
+        <div className="p-8 max-w-[1600px] mx-auto space-y-12">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-white/5 bg-[#1F1F1F] text-[9px] font-bold text-zinc-400 mb-4 uppercase tracking-[0.2em]">
+                        <span className="w-1 h-1 rounded-full bg-zinc-400 animate-pulse"></span>
+                        System Operational
+                    </div>
+                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                        Good morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-500 text-glow-zinc-500/10">Engineer.</span>
+                    </h1>
+                    <p className="text-zinc-500 font-medium tracking-wide">Overview of your AI engineering workbench.</p>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-md text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                        <Plus className="h-3.5 w-3.5" />
+                        New Project
+                    </button>
+                </div>
+            </div>
+
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <StatCard
-                    title="Total Projects"
+                    title="Workspaces"
                     value={stats.projects}
-                    subtext="Active workspaces"
+                    subtext="active environments"
                     icon={Folder}
                 />
                 <StatCard
-                    title="Total Runs"
+                    title="Intelligence Runs"
                     value={stats.runs}
-                    subtext="LLM executions"
+                    subtext="total executions"
                     icon={Zap}
                 />
                 <StatCard
-                    title="Average Score"
-                    value={stats.avgScore.toFixed(2)}
-                    subtext="Human evaluation"
+                    title="Efficacy Score"
+                    value={stats.avgScore.toFixed(1) + "%"}
+                    subtext="avg performance"
                     icon={BarChart3}
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Projects Table */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-8 space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Active Projects</h2>
+                        <Link href="/workspace/projects" className="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">See all &rarr;</Link>
+                    </div>
                     <ProjectsTable projects={projects} />
                 </div>
 
-                {/* Recent Activity Feed - Timeline Style */}
-                <div className="bg-white rounded-md border border-slate-200 shadow-sm flex flex-col">
-                    <div className="px-4 py-3 border-b border-slate-100">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-sm font-semibold tracking-tight text-slate-900">Recent Activities</h2>
-                            <button className="flex items-center gap-1 text-xs text-[#4F46E5] hover:text-[#4338CA] font-medium">
-                                For This Month
-                                <ChevronDown className="h-3 w-3" />
-                            </button>
+                {/* Recent Activity Feed */}
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Timeline</h2>
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                            Latest
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto max-h-[350px] custom-scrollbar px-4 py-3">
+
+                    <div className="bg-[#1F1F1F] rounded-md border border-white/5 shadow-3xl p-6 h-auto min-h-[200px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
                         {Object.keys(groupedActivities).length > 0 ? (
                             Object.entries(groupedActivities).map(([dateGroup, groupActivities]) => (
-                                <div key={dateGroup} className="mb-3 last:mb-0">
-                                    <p className="text-xs font-medium text-slate-500 mb-0.5">{dateGroup}</p>
-                                    <div>
-                                        {groupActivities.map((activity) => (
+                                <div key={dateGroup} className="mb-8 last:mb-0 relative">
+                                    <div className="flex items-center gap-3 mb-2 px-2">
+                                        <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">{dateGroup}</p>
+                                        <div className="h-[1px] flex-1 bg-white/5"></div>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        {groupActivities.slice(0, 5).map((activity) => (
                                             <ActivityItem
                                                 key={activity.id}
                                                 title={activity.title}
@@ -170,8 +193,9 @@ export default function Dashboard() {
                                 </div>
                             ))
                         ) : (
-                            <div className="p-8 text-center text-slate-400 text-sm">
-                                No recent activity
+                            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
+                                <ActivityIcon className="h-8 w-8 text-zinc-800" />
+                                <p className="text-xs font-medium text-zinc-600 tracking-wide uppercase">No system logs yet</p>
                             </div>
                         )}
                     </div>
@@ -180,3 +204,5 @@ export default function Dashboard() {
         </div>
     );
 }
+
+// Custom CSS for scrollbar should be in globals.css ideally, but adding a note here.

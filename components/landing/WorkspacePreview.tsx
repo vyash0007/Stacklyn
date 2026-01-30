@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import {
     Terminal,
@@ -12,24 +14,17 @@ import {
 type TabId = 'dashboard' | 'prompts' | 'requests' | 'evaluations' | 'datasets';
 
 const WorkspacePreview = () => {
-    // State for the sidebar selection (updates instantly)
     const [activeTab, setActiveTab] = useState<TabId>('prompts');
-
-    // State for the content being displayed (updates after delay)
     const [displayedTab, setDisplayedTab] = useState<TabId>('prompts');
-
-    // State to control the fade animation
     const [isTransitioning, setIsTransitioning] = useState(false);
-
-    // State to pause auto-rotation on hover
     const [isPaused, setIsPaused] = useState(false);
 
-    const tabs: { id: TabId; label: string; icon: any }[] = [
-        { id: 'dashboard', label: 'Dashboard', icon: Layout },
-        { id: 'prompts', label: 'Prompts', icon: Terminal },
-        { id: 'requests', label: 'Requests', icon: Activity },
-        { id: 'evaluations', label: 'Evaluations', icon: CheckCircle2 },
-        { id: 'datasets', label: 'Datasets', icon: Database },
+    const tabs = [
+        { id: 'dashboard' as const, label: 'Dashboard', icon: Layout },
+        { id: 'prompts' as const, label: 'Prompts', icon: Terminal },
+        { id: 'requests' as const, label: 'Requests', icon: Activity },
+        { id: 'evaluations' as const, label: 'Evaluations', icon: CheckCircle2 },
+        { id: 'datasets' as const, label: 'Datasets', icon: Database },
     ];
 
     const contentMap = {
@@ -37,40 +32,46 @@ const WorkspacePreview = () => {
             file: 'analytics_overview.py',
             lang: 'python',
             lines: [
-                { num: 1, text: 'import promptlayer', color: 'text-purple-400' },
+                { num: 1, text: 'import stacklyn', color: 'text-purple-400' },
                 { num: 2, text: '', color: '' },
                 { num: 3, text: '# Fetch production metrics', color: 'text-slate-500' },
-                { num: 4, text: 'stats = promptlayer.get_stats(', color: 'text-blue-400' },
+                { num: 4, text: 'stats = stacklyn.get_stats(', color: 'text-blue-400' },
                 { num: 5, text: '    time_range="30d",', color: 'text-orange-300' },
                 { num: 6, text: '    tags=["production", "gpt-4"]', color: 'text-orange-300' },
                 { num: 7, text: ')', color: 'text-slate-300' },
                 { num: 8, text: '', color: '' },
-                { num: 9, text: 'print(f"Total Cost: ${stats.cost}")', color: 'text-yellow-200' },
-                { num: 10, text: 'print(f"Avg Latency: {stats.latency}ms")', color: 'text-yellow-200' },
+                { num: 9, text: 'print(f"Total Cost: ${stats.cost}")', color: 'text-emerald-400' },
+                { num: 10, text: 'print(f"Avg Latency: {stats.latency}ms")', color: 'text-emerald-400' },
             ]
         },
         prompts: {
-            file: 'onboarding_flow.py',
+            file: 'payment_flow.py',
             lang: 'python',
             lines: [
-                { num: 1, text: 'import stacklyn', color: 'text-purple-400' },
-                { num: 2, text: 'import openai', color: 'text-purple-400' },
+                { num: 1, text: 'import openai', color: 'text-purple-400' },
+                { num: 2, text: 'import stacklyn', color: 'text-purple-400' },
                 { num: 3, text: '', color: '' },
-                { num: 4, text: '# Swap standard OpenAI for Stacklyn', color: 'text-slate-500' },
-                { num: 5, text: 'openai.api_key = "sk-..."', color: 'text-slate-200' },
-                { num: 6, text: 'stacklyn.api_key = "st_..."', color: 'text-yellow-200' },
+                { num: 4, text: '# Get versioned template', color: 'text-slate-500' },
+                { num: 5, text: 'tpl = stacklyn.prompts.get("payment_issue")', color: 'text-blue-400' },
+                { num: 6, text: '', color: '' },
+                { num: 7, text: 'response = openai.ChatCompletion.create(', color: 'text-blue-400' },
+                { num: 8, text: '    **tpl.kwargs,', color: 'text-slate-300' },
+                { num: 9, text: '    messages=tpl.format(user="Alice")', color: 'text-orange-300' },
+                { num: 10, text: ')', color: 'text-slate-300' },
+                { num: 11, text: '', color: '' },
+                { num: 12, text: '# Template is now decoupled from code!', color: 'text-slate-500' },
             ]
         },
         requests: {
             file: 'middleware.py',
             lang: 'python',
             lines: [
-                { num: 1, text: '@promptlayer.track', color: 'text-yellow-200' },
-                { num: 2, text: 'def chat_endpoint(request):', color: 'text-blue-400' },
-                { num: 3, text: '    user_id = request.user.id', color: 'text-slate-300' },
+                { num: 1, text: '@stacklyn.track', color: 'text-yellow-300' },
+                { num: 2, text: 'def chat_endpoint(request):', color: 'text-purple-400' },
+                { num: 3, text: '    user_id = request.user.id', color: 'text-blue-300' },
                 { num: 4, text: '    ', color: '' },
                 { num: 5, text: '    # Metadata is automatically logged', color: 'text-slate-500' },
-                { num: 6, text: '    promptlayer.track.metadata(', color: 'text-blue-400' },
+                { num: 6, text: '    stacklyn.track.metadata(', color: 'text-blue-400' },
                 { num: 7, text: '        user_id=user_id,', color: 'text-orange-300' },
                 { num: 8, text: '        plan="enterprise"', color: 'text-orange-300' },
                 { num: 9, text: '    )', color: 'text-slate-300' },
@@ -82,10 +83,10 @@ const WorkspacePreview = () => {
             file: 'unit_tests.py',
             lang: 'python',
             lines: [
-                { num: 1, text: 'from promptlayer import evaluation', color: 'text-purple-400' },
+                { num: 1, text: 'from stacklyn import evaluation', color: 'text-purple-400' },
                 { num: 2, text: '', color: '' },
                 { num: 3, text: 'def score_helpfulness(output):', color: 'text-blue-400' },
-                { num: 4, text: '    return 100 if "solved" in output else 0', color: 'text-yellow-200' },
+                { num: 4, text: '    return 100 if "solved" in output else 0', color: 'text-yellow-300' },
                 { num: 5, text: '', color: '' },
                 { num: 6, text: '# Score a historical request', color: 'text-slate-500' },
                 { num: 7, text: 'evaluation.create_score(', color: 'text-blue-400' },
@@ -100,134 +101,88 @@ const WorkspacePreview = () => {
             lang: 'python',
             lines: [
                 { num: 1, text: '# Create dataset from production tags', color: 'text-slate-500' },
-                { num: 2, text: 'ds = promptlayer.datasets.create(', color: 'text-blue-400' },
+                { num: 2, text: 'ds = stacklyn.datasets.create(', color: 'text-blue-400' },
                 { num: 3, text: '    name="gold_standard_support",', color: 'text-orange-300' },
                 { num: 4, text: '    from_tags=["5_star_rating"]', color: 'text-orange-300' },
                 { num: 5, text: ')', color: 'text-slate-300' },
                 { num: 6, text: '', color: '' },
                 { num: 7, text: 'for row in ds.iterate():', color: 'text-purple-400' },
-                { num: 8, text: '    print(row["input"], row["output"])', color: 'text-yellow-200' },
+                { num: 8, text: '    print(row["input"], row["output"])', color: 'text-yellow-300' },
             ]
         }
     };
 
     const handleTabChange = (tabId: TabId) => {
         if (tabId === activeTab) return;
-
-        // 1. Update sidebar immediately
         setActiveTab(tabId);
-
-        // 2. Start transition (fade out old content)
         setIsTransitioning(true);
-
-        // 3. Wait for the delay (now 300ms for smoother feel), then swap content and fade in
         setTimeout(() => {
             setDisplayedTab(tabId);
             setIsTransitioning(false);
         }, 300);
     };
 
-    // Auto-cycle tabs
     useEffect(() => {
         if (isPaused) return;
-
         const interval = setInterval(() => {
             const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
             const nextIndex = (currentIndex + 1) % tabs.length;
             handleTabChange(tabs[nextIndex].id);
-        }, 4000); // 4 seconds per slide
-
+        }, 4000);
         return () => clearInterval(interval);
     }, [activeTab, isPaused]);
 
-    // Get content based on the *displayed* tab (not the active sidebar tab)
     const activeContent = contentMap[displayedTab];
 
     return (
         <div
-            className="relative max-w-6xl mx-auto text-left transform hover:scale-[1.01] transition-transform duration-500 shadow-2xl rounded-2xl"
+            className="flex h-[400px] w-full bg-[#09090b] overflow-hidden"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2rem] blur opacity-20 transition duration-1000"></div>
+            {/* Sidebar - Zinc 950 for slight contrast against the black main area */}
+            <div className="w-48 md:w-56 border-r border-white/[0.08] bg-[#0c0c0e] flex flex-col p-3">
+                <div className="space-y-1 mt-2">
+                    <div className="text-[10px] uppercase font-bold text-zinc-500 mb-2 px-3 tracking-widest">Platform</div>
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => handleTabChange(tab.id)}
+                            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 ${activeTab === tab.id
+                                    ? 'bg-white/10 text-white shadow-inner shadow-white/5 border border-white/10'
+                                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+                                }`}
+                        >
+                            <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-white' : 'text-zinc-600'}`} />
+                            <span className="text-xs font-medium">{tab.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
 
-            <div className="relative bg-[#0F1117] rounded-2xl border border-slate-800 shadow-2xl overflow-hidden ring-1 ring-white/10 flex flex-col md:flex-row h-[420px]">
-                <div className="w-full md:w-48 border-r border-slate-800 bg-[#0F1117] flex flex-col">
-                    <div className="p-4 border-b border-slate-800/50">
-                        <div className="flex items-center space-x-2">
-                            <div className="h-3 w-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
-                            <div className="h-3 w-3 rounded-full bg-amber-500/20 border border-amber-500/50"></div>
-                            <div className="h-3 w-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
-                        </div>
+            {/* Code Area - Deep Black for pop */}
+            <div className="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
+                <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08] bg-[#0a0a0a]">
+                    <div className="flex items-center space-x-3">
+                        <FileCode className="h-3 w-3 text-zinc-400" />
+                        <span className="text-xs text-zinc-400 font-mono transition-all duration-300">{activeContent.file}</span>
                     </div>
-
-                    <div className="p-2">
-                        <div className="text-[10px] uppercase font-lg tracking-tight text-slate-500 mb-2 px-3 tracking-widest mt-2">Workspace</div>
-                        <ul className="space-y-1">
-                            {tabs.map((tab) => {
-                                const Icon = tab.icon;
-                                const isActive = activeTab === tab.id;
-                                return (
-                                    <li
-                                        key={tab.id}
-                                        onClick={() => handleTabChange(tab.id)}
-                                        className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-300 border ${isActive
-                                            ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-sm shadow-indigo-900/20'
-                                            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border-transparent'
-                                            }`}
-                                    >
-                                        <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'opacity-70'}`} />
-                                        <span className="text-sm font-medium">{tab.label}</span>
-                                        {isActive && !isPaused && (
-                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.5)] animate-pulse"></div>
-                                        )}
-                                        {isActive && isPaused && (
-                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.5)]"></div>
-                                        )}
-                                    </li>
-                                );
-                            })}
-                        </ul>
+                    <div className="flex items-center space-x-2">
+                        <GitBranch className="h-3 w-3 text-zinc-600" />
+                        <span className="text-[10px] text-zinc-600">main</span>
                     </div>
-
-
                 </div>
 
-                {/* Content Area */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#0B0D13]">
-                    {/* File Header */}
-                    <div className={`flex items-center justify-between bg-[#0F1117] px-6 py-3 border-b border-slate-800 transition-opacity duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
-                        <div className="flex items-center space-x-3">
-                            <FileCode className="h-4 w-4 text-indigo-400" />
-                            <span className="text-sm text-slate-300 font-mono transition-all duration-300">{activeContent.file}</span>
+                <div className={`flex-1 p-6 overflow-hidden font-mono text-sm leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                    {activeContent.lines.map((line, idx) => (
+                        <div key={idx} className="flex">
+                            <span className="w-6 text-zinc-700 select-none text-right pr-4 text-xs font-light">{line.num}</span>
+                            <span className={`${line.color || 'text-zinc-400'} whitespace-pre`}>{line.text}</span>
                         </div>
-                        <div className="flex items-center space-x-3">
-                            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-indigo-500/10 border border-indigo-500/20">
-                                <GitBranch className="h-3 w-3 text-indigo-400" />
-                                <span className="text-xs text-indigo-400 font-medium">main</span>
-                            </div>
-                            <div className="flex items-center space-x-1.5 px-2 py-1 rounded bg-green-500/10 border border-green-500/20">
-                                <span className="text-xs text-green-400 font-medium">Active</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Code Editor */}
-                    <div className={`flex-1 p-6 overflow-y-auto font-mono text-sm leading-relaxed bg-[#0B0D13] selection:bg-indigo-500/30 transition-opacity duration-300 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                        <div className="space-y-1">
-                            {activeContent.lines.map((line, idx) => (
-                                <div key={`${displayedTab}-${idx}`} className="flex">
-                                    <span className="w-8 text-slate-700 select-none text-right pr-4 text-xs pt-1">{line.num}</span>
-                                    <span className={`${line.color || 'text-slate-200'} transition-colors duration-300 whitespace-pre`}>
-                                        {line.text}
-                                    </span>
-                                </div>
-                            ))}
-                            <div className="flex animate-pulse">
-                                <span className="w-8 text-slate-700 select-none text-right pr-4 text-xs pt-1"></span>
-                                <span className="w-2 h-4 bg-indigo-500/50 mt-1"></span>
-                            </div>
-                        </div>
+                    ))}
+                    <div className="flex mt-1">
+                        <span className="w-6 text-zinc-700 select-none text-right pr-4 text-xs"></span>
+                        <span className="w-1.5 h-4 bg-white animate-pulse"></span>
                     </div>
                 </div>
             </div>
