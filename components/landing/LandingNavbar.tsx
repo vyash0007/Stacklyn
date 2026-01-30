@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layers, Sparkles, Menu, X } from "lucide-react";
+import Image from "next/image";
 import { SignInButton, SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 
 export function LandingNavbar() {
@@ -19,8 +20,14 @@ export function LandingNavbar() {
     return (
         <nav className="relative z-50 max-w-7xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-                <div className="w-9 h-9 bg-gradient-to-tr from-zinc-100 to-zinc-400 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-105 transition-transform duration-300">
-                    <Layers className="h-5 w-5 text-black" />
+                <div className="w-14 h-14 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <Image
+                        src="/stacklyn-logo1.png"
+                        alt="Stacklyn Logo"
+                        width={56}
+                        height={56}
+                        className="object-contain"
+                    />
                 </div>
                 <span className="text-xl font-bold tracking-tight text-white group-hover:text-zinc-300 transition-colors">Stacklyn.</span>
             </Link>

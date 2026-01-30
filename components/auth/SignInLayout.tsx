@@ -1,4 +1,5 @@
-import { Layers, Terminal, LineChart, TestTube, Sparkles } from "lucide-react";
+import { Terminal, LineChart, TestTube, Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -36,8 +37,14 @@ export function SignInLayout({
             <div className="flex flex-col w-full lg:w-[45%] h-full bg-[#181818] px-8 md:px-16 py-6 lg:py-8 relative z-10 lg:pr-32 overflow-hidden justify-center shadow-[20px_0_50px_-10px_rgba(0,0,0,0.5)] border-r border-white/5">
                 <div className="flex items-center mb-6 lg:mb-10 2xl:mb-16 text-left justify-start px-2 lg:px-0">
                     <Link href="/" className="flex items-center space-x-3 group min-w-max">
-                        <div className="bg-zinc-100 p-2.5 rounded-md group-hover:bg-white transition-all duration-300 shadow-md transform group-hover:rotate-6">
-                            <Layers className="h-5.5 w-5.5 text-black" />
+                        <div className="w-14 h-14 flex items-center justify-center transition-all duration-300 transform group-hover:rotate-6">
+                            <Image
+                                src="/stacklyn-logo1.png"
+                                alt="Stacklyn Logo"
+                                width={56}
+                                height={56}
+                                className="object-contain"
+                            />
                         </div>
                         <span className="text-xl font-lg tracking-tight text-white group-hover:text-zinc-300 transition-colors whitespace-nowrap">
                             Stacklyn.

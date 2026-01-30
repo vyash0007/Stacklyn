@@ -14,6 +14,7 @@ import {
     Menu,
     X
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@clerk/nextjs";
 
@@ -89,8 +90,14 @@ export function Sidebar() {
                         href="/"
                         className="flex items-center gap-3 mb-10 group cursor-pointer"
                     >
-                        <div className="w-8 h-8 bg-gradient-to-tr from-zinc-100 to-zinc-400 rounded-md flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.1)] group-hover:scale-105 transition-transform duration-300">
-                            <Layers className="h-4 w-4 text-black" />
+                        <div className="w-12 h-12 rounded-md flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                            <Image
+                                src="/stacklyn-logo1.png"
+                                alt="Stacklyn Logo"
+                                width={48}
+                                height={48}
+                                className="object-contain"
+                            />
                         </div>
                         <span className="text-lg font-bold tracking-tight text-white group-hover:text-zinc-300 transition-colors">Stacklyn.</span>
                     </Link>

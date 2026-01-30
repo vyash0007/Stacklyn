@@ -34,7 +34,6 @@ import {
     Settings,
     CornerDownLeft,
     ChevronDown,
-    Layers,
     Zap,
     Trash2,
     X,

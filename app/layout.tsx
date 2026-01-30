@@ -11,6 +11,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Stacklyn",
   description: "Advanced Prompt Engineering with Version Control",
+  icons: {
+    icon: "/favicon-cropped.png",
+  },
 };
 
 export default function RootLayout({
