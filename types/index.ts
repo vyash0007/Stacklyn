@@ -166,3 +166,14 @@ export interface MessageReaction {
         image_url: string | null;
     }[];
 }
+
+// Model types
+export interface ModelInfo {
+    id: string;
+    name: string;
+    icon: string;
+}
+
+export type ModelProvider = 'groq' | 'openai' | 'anthropic' | 'gemini';
+
+export type AvailableModels = Record<ModelProvider, ModelInfo[]>;

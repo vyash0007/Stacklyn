@@ -17,7 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
-import { Prompt, Commit, Run, Score, Tag } from "@/types";
+import { Prompt, Commit, Run, Score, Tag, ModelInfo } from "@/types";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -54,6 +54,16 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
+// Helper function to get local icon path based on model ID
+const getModelIcon = (modelId: string): string => {
+    const id = modelId.toLowerCase();
+    if (id.includes('llama')) return '/icons/meta.svg';
+    if (id.includes('gpt') || id.includes('openai')) return '/icons/openai.svg';
+    if (id.includes('claude') || id.includes('anthropic')) return '/icons/anthropic.svg';
+    if (id.includes('gemini')) return '/icons/gemini.svg';
+    return '/icons/openai.svg'; // fallback
+};
+
 export default function PromptWorkspacePage() {
     const params = useParams();
     const api = useApi();
@@ -66,7 +76,7 @@ export default function PromptWorkspacePage() {
     const [runs, setRuns] = useState<Run[]>([]);
     const [scores, setScores] = useState<Score[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
-    const [availableModels, setAvailableModels] = useState<string[]>([]);
+    const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
@@ -204,9 +214,11 @@ export default function PromptWorkspacePage() {
             const allTags = await api.getTags();
             setTags(allTags);
 
-            // Load models
+            // Load models (limit to 2 per provider)
             const models = await api.getAvailableModels();
-            const flatModels = Object.values(models).flat();
+            const flatModels = Object.values(models).flatMap((providerModels: any) =>
+                (providerModels as ModelInfo[]).slice(0, 2)
+            ) as ModelInfo[];
             setAvailableModels(flatModels);
 
             if (promptCommits.length > 0) {
@@ -305,9 +317,9 @@ export default function PromptWorkspacePage() {
             } : undefined;
             // Run all models in parallel
             const promises = availableModels.map(model =>
-                api.executeCommit(selectedCommit.id, model, overridePrompts)
+                api.executeCommit(selectedCommit.id, model.id, overridePrompts)
                     .catch(e => {
-                        console.error(`Failed to run model ${model}`, e);
+                        console.error(`Failed to run model ${model.id}`, e);
                         return null;
                     })
             );
@@ -515,10 +527,11 @@ export default function PromptWorkspacePage() {
                                 <ChevronDown size={12} />
                             </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-zinc-300">
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-zinc-300 min-w-[200px]">
                             {availableModels.map(model => (
-                                <DropdownMenuItem key={model} onClick={() => handleRun(model)} className="hover:bg-zinc-100 dark:hover:bg-white/5 cursor-pointer">
-                                    <Zap size={12} className="mr-2 text-amber-500" /> {model}
+                                <DropdownMenuItem key={model.id} onClick={() => handleRun(model.id)} className="hover:bg-zinc-100 dark:hover:bg-white/5 cursor-pointer flex items-center gap-2">
+                                    <img src={getModelIcon(model.id)} alt="" className="w-4 h-4" />
+                                    <span>{model.name}</span>
                                 </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>

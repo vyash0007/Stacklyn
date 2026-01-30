@@ -13,6 +13,7 @@ import {
     X
 } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
+import { ModelInfo } from '@/types';
 
 interface TokenUsageRequest {
     id: string;
@@ -64,12 +65,23 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
 
 const ITEMS_PER_PAGE = 10;
 
+// Helper function to get local icon path based on model ID
+const getModelIcon = (modelId: string): string => {
+    const id = modelId.toLowerCase();
+    if (id.includes('llama')) return '/icons/meta.svg';
+    if (id.includes('gpt') || id.includes('openai')) return '/icons/openai.svg';
+    if (id.includes('claude') || id.includes('anthropic')) return '/icons/anthropic.svg';
+    if (id.includes('gemini')) return '/icons/gemini.svg';
+    return '/icons/openai.svg'; // fallback
+};
+
 const ActivityPage = () => {
     const api = useApi();
     const [requests, setRequests] = useState<TokenUsageRequest[]>([]);
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [summary, setSummary] = useState<Summary | null>(null);
     const [modelsUsed, setModelsUsed] = useState<string[]>([]);
+    const [modelInfoMap, setModelInfoMap] = useState<Record<string, ModelInfo>>({});
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
@@ -120,7 +132,27 @@ const ActivityPage = () => {
 
     useEffect(() => {
         fetchRequests(0, { period, model: selectedModel, status: selectedStatus }, true);
+
+        // Fetch available models to build the lookup map
+        const fetchModels = async () => {
+            try {
+                const models = await api.getAvailableModels();
+                const map: Record<string, ModelInfo> = {};
+                Object.values(models).flat().forEach((model: ModelInfo) => {
+                    map[model.id] = model;
+                });
+                setModelInfoMap(map);
+            } catch (error) {
+                console.error('Failed to fetch available models:', error);
+            }
+        };
+        fetchModels();
     }, [api]);
+
+    // Helper function to get model display info
+    const getModelInfo = (modelId: string): ModelInfo => {
+        return modelInfoMap[modelId] || { id: modelId, name: modelId, icon: '' };
+    };
 
     const applyFilters = () => {
         setShowFilterDropdown(false);
@@ -243,7 +275,10 @@ const ActivityPage = () => {
                                             onClick={() => setShowModelDropdown(!showModelDropdown)}
                                             className="w-full bg-zinc-100 dark:bg-[#181818] border border-zinc-200 dark:border-white/10 rounded-md px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300 text-left flex items-center justify-between hover:border-zinc-300 dark:hover:border-white/20 transition-colors"
                                         >
-                                            <span className="truncate">{selectedModel === 'all' ? 'All Models' : selectedModel}</span>
+                                            <span className="truncate flex items-center gap-1.5">
+                                                {selectedModel !== 'all' && <img src={getModelIcon(selectedModel)} alt="" className="w-3.5 h-3.5" />}
+                                                {selectedModel === 'all' ? 'All Models' : getModelInfo(selectedModel).name}
+                                            </span>
                                             <ChevronDown size={12} className="text-zinc-500 flex-shrink-0" />
                                         </button>
                                         {showModelDropdown && (
@@ -262,11 +297,12 @@ const ActivityPage = () => {
                                                         key={model}
                                                         onClick={() => { setSelectedModel(model); setShowModelDropdown(false); }}
                                                         className={cn(
-                                                            "w-full px-3 py-2 text-left text-xs transition-colors truncate",
+                                                            "w-full px-3 py-2 text-left text-xs transition-colors flex items-center gap-2",
                                                             selectedModel === model ? "bg-zinc-100 dark:bg-white/10 text-zinc-900 dark:text-white" : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
                                                         )}
                                                     >
-                                                        {model}
+                                                        <img src={getModelIcon(model)} alt="" className="w-3.5 h-3.5 flex-shrink-0" />
+                                                        <span className="truncate">{getModelInfo(model).name}</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -395,12 +431,18 @@ const ActivityPage = () => {
                                             </div>
                                             <div className="md:hidden flex flex-col">
                                                 <span className="text-zinc-500 font-mono text-[10px]">{formatTime(req.created_at)}</span>
-                                                <span className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[8px] tracking-wider w-fit mt-1">{req.model_name}</span>
+                                                <span className="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[8px] tracking-wider w-fit mt-1 flex items-center gap-1">
+                                                    <img src={getModelIcon(req.model_name)} alt="" className="w-3 h-3" />
+                                                    {getModelInfo(req.model_name).name}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="hidden md:block md:col-span-2 text-zinc-500 font-mono text-[10px]">{formatTime(req.created_at)}</div>
                                         <div className="hidden md:block md:col-span-2">
-                                            <span className="px-2 py-1 rounded bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[9px] tracking-wider">{req.model_name}</span>
+                                            <span className="px-2 py-1 rounded bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-500 dark:text-zinc-400 font-bold uppercase text-[9px] tracking-wider flex items-center gap-1.5 w-fit">
+                                                <img src={getModelIcon(req.model_name)} alt="" className="w-3.5 h-3.5" />
+                                                {getModelInfo(req.model_name).name}
+                                            </span>
                                         </div>
                                         <div className="md:col-span-3 text-zinc-700 dark:text-zinc-300 md:text-zinc-500 truncate font-mono italic opacity-80">
                                             "{req.system_prompt}"

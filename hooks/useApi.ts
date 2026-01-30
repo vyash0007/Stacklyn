@@ -155,7 +155,7 @@ export function useApi() {
             body: JSON.stringify(data),
         }),
         deleteRun: (id: string) => fetchWithAuth<void>(`/runs/${id}`, { method: "DELETE" }),
-        getAvailableModels: () => fetchWithAuth<Record<string, string[]>>("/runs/models"),
+        getAvailableModels: () => fetchWithAuth<Record<string, Array<{ id: string; name: string; icon: string }>>>("/runs/models"),
         executeCommit: (commitId: string, model?: string, overridePrompts?: { system_prompt?: string; user_query?: string }) =>
             fetchWithAuth<any>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId, model, ...overridePrompts }) }),
 
