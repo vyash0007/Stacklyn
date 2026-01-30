@@ -90,12 +90,12 @@ export function Sidebar() {
                         href="/"
                         className="flex items-center gap-3 mb-10 group cursor-pointer"
                     >
-                        <div className="w-12 h-12 rounded-md flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                        <div className="w-14 h-14 rounded-md flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                             <Image
                                 src="/stacklyn-logo1.png"
                                 alt="Stacklyn Logo"
-                                width={48}
-                                height={48}
+                                width={56}
+                                height={56}
                                 className="object-contain"
                             />
                         </div>

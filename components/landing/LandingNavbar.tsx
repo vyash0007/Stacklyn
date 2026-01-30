@@ -20,12 +20,12 @@ export function LandingNavbar() {
     return (
         <nav className="relative z-50 max-w-7xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-                <div className="w-14 h-14 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                <div className="w-16 h-16 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                     <Image
                         src="/stacklyn-logo1.png"
                         alt="Stacklyn Logo"
-                        width={56}
-                        height={56}
+                        width={64}
+                        height={64}
                         className="object-contain"
                     />
                 </div>
