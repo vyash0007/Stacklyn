@@ -138,3 +138,31 @@ export interface Comment {
     timestamp: string;
     replies?: Comment[];
 }
+
+export interface ChatMessage {
+    id: string;
+    project_id: string;
+    user_id: string | null;
+    content: string;
+    parent_message_id: string | null;
+    created_at: string;
+    updated_at: string | null;
+    user?: {
+        id: string;
+        name: string;
+        image_url?: string;
+    };
+    replies_count?: number;
+    reactions?: MessageReaction[];
+}
+
+export interface MessageReaction {
+    emoji: string;
+    count: number;
+    current_user_reacted: boolean;
+    users: {
+        id: string;
+        name: string | null;
+        image_url: string | null;
+    }[];
+}

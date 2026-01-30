@@ -189,6 +189,44 @@ export function useApi() {
         getActivities: (limit: number = 20, offset: number = 0) =>
             fetchWithAuth<any[]>(`/activities?limit=${limit}&offset=${offset}`),
 
+        // Chat
+        getProjectMessages: (projectId: string) =>
+            fetchWithAuth<any[]>(`/projects/${projectId}/chat`),
+        createMessage: (projectId: string, content: string) =>
+            fetchWithAuth<any>(`/projects/${projectId}/chat`, {
+                method: "POST",
+                body: JSON.stringify({ content }),
+            }),
+        getMessageReplies: (projectId: string, messageId: string) =>
+            fetchWithAuth<any[]>(`/projects/${projectId}/chat/${messageId}/replies`),
+        createReply: (projectId: string, messageId: string, content: string) =>
+            fetchWithAuth<any>(`/projects/${projectId}/chat/${messageId}/replies`, {
+                method: "POST",
+                body: JSON.stringify({ content }),
+            }),
+        updateMessage: (projectId: string, messageId: string, content: string) =>
+            fetchWithAuth<any>(`/projects/${projectId}/chat/${messageId}`, {
+                method: "PUT",
+                body: JSON.stringify({ content }),
+            }),
+        deleteMessage: (projectId: string, messageId: string) =>
+            fetchWithAuth<void>(`/projects/${projectId}/chat/${messageId}`, {
+                method: "DELETE",
+            }),
+
+        // Reactions
+        getMessageReactions: (projectId: string, messageId: string) =>
+            fetchWithAuth<any[]>(`/projects/${projectId}/chat/${messageId}/reactions`),
+        addReaction: (projectId: string, messageId: string, emoji: string) =>
+            fetchWithAuth<any>(`/projects/${projectId}/chat/${messageId}/reactions`, {
+                method: "POST",
+                body: JSON.stringify({ emoji }),
+            }),
+        removeReaction: (projectId: string, messageId: string, emoji: string) =>
+            fetchWithAuth<void>(`/projects/${projectId}/chat/${messageId}/reactions/${encodeURIComponent(emoji)}`, {
+                method: "DELETE",
+            }),
+
         // Mock Tasks
         getTasks: async () => {
             // Simulate API call
