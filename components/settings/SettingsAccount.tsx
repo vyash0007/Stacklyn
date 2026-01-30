@@ -80,24 +80,24 @@ export function SettingsAccount() {
 
     return (
         <div className="space-y-12">
-            <div className="p-8 rounded-2xl border border-red-100 bg-red-50/10 space-y-6">
+            <div className="p-8 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-6">
                 <div className="flex items-start gap-4">
-                    <div className="p-2 bg-red-100 rounded-lg text-red-600">
+                    <div className="p-2 bg-red-500/10 rounded-lg text-red-500">
                         <AlertTriangle className="h-5 w-5" />
                     </div>
                     <div>
-                        <h4 className="text-lg font-bold text-red-900">Danger Zone</h4>
-                        <p className="text-sm text-red-800/80 mt-1">
+                        <h4 className="text-lg font-bold text-white">Danger Zone</h4>
+                        <p className="text-sm text-zinc-500 mt-1">
                             Permanently delete your account and all associated data. This action cannot be undone.
                         </p>
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-red-100 flex items-center justify-end">
+                <div className="pt-6 border-t border-white/5 flex items-center justify-end">
                     <Button
                         variant="destructive"
                         onClick={openDeleteModal}
-                        className="h-11 px-8 font-bold rounded-lg"
+                        className="h-11 px-8 font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20"
                     >
                         Delete Account
                     </Button>
@@ -105,33 +105,33 @@ export function SettingsAccount() {
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+                <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border border-white/10 bg-[#1F1F1F] shadow-2xl">
                     {confirmationStep === 1 ? (
                         <>
-                            <div className="bg-slate-100 p-8 text-slate-900 relative">
-                                <div className="absolute top-2 right-2 opacity-5">
+                            <div className="bg-white/5 p-8 text-white relative border-b border-white/5">
+                                <div className="absolute top-2 right-2 opacity-10">
                                     <Trash2 className="h-24 w-24" />
                                 </div>
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black tracking-tight">
+                                    <DialogTitle className="text-2xl font-black tracking-tight text-white">
                                         Delete account
                                     </DialogTitle>
                                 </DialogHeader>
                             </div>
                             <div className="p-8 space-y-6 text-center">
                                 <div className="flex justify-center">
-                                    <div className="p-4 bg-red-50 rounded-full">
-                                        <AlertTriangle className="h-12 w-12 text-red-600" />
+                                    <div className="p-4 bg-red-500/10 rounded-full border border-red-500/20">
+                                        <AlertTriangle className="h-12 w-12 text-red-500" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-xl font-bold text-slate-900">Are you absolutely sure?</p>
-                                    <p className="text-sm text-slate-500 max-w-xs mx-auto">
+                                    <p className="text-xl font-bold text-white">Are you absolutely sure?</p>
+                                    <p className="text-sm text-zinc-400 max-w-xs mx-auto">
                                         This will permanently delete your account and all associated data.
                                     </p>
                                 </div>
                                 <Button
-                                    className="w-full h-14 bg-slate-50 hover:bg-slate-100 text-red-600 border border-slate-200 font-bold rounded-xl transition-all"
+                                    className="w-full h-14 bg-white/5 hover:bg-white/10 text-red-500 border border-white/10 font-bold rounded-xl transition-all"
                                     onClick={handleFirstConfirmation}
                                 >
                                     I want to delete my account
@@ -141,39 +141,39 @@ export function SettingsAccount() {
                     ) : (
                         <>
                             <div className="bg-red-600 p-8 text-white relative">
-                                <div className="absolute top-2 right-2 opacity-10">
+                                <div className="absolute top-2 right-2 opacity-20">
                                     <AlertTriangle className="h-24 w-24" />
                                 </div>
                                 <DialogHeader>
-                                    <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3">
+                                    <DialogTitle className="text-xl font-black tracking-tight flex items-center gap-3 text-white">
                                         Final Verification
                                     </DialogTitle>
                                 </DialogHeader>
                             </div>
 
-                            <div className="p-8 space-y-6">
+                            <div className="p-8 space-y-6 bg-[#1F1F1F]">
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <p className="text-sm font-semibold text-slate-700">
-                                            Type <span className="font-black italic">"{targetPhrase}"</span> to confirm:
+                                        <p className="text-sm font-semibold text-zinc-400">
+                                            Type <span className="font-bold text-white">"{targetPhrase}"</span> to confirm:
                                         </p>
                                         <Input
                                             placeholder="Type phrase here..."
                                             value={phraseInput}
                                             onChange={(e) => setPhraseInput(e.target.value)}
-                                            className="h-12 border-slate-200 focus:border-red-500 rounded-xl px-4 text-sm font-bold"
+                                            className="h-12 border-white/5 bg-black/40 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 rounded-xl px-4 text-sm font-bold text-white placeholder:text-zinc-600"
                                         />
                                     </div>
 
                                     <div className="space-y-2">
-                                        <p className="text-sm font-semibold text-slate-700">
+                                        <p className="text-sm font-semibold text-zinc-400">
                                             Confirm your email address:
                                         </p>
                                         <Input
                                             placeholder="your@email.com"
                                             value={emailInput}
                                             onChange={(e) => setEmailInput(e.target.value)}
-                                            className="h-12 border-slate-200 focus:border-red-500 rounded-xl px-4 text-sm font-bold"
+                                            className="h-12 border-white/5 bg-black/40 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 rounded-xl px-4 text-sm font-bold text-white placeholder:text-zinc-600"
                                         />
                                     </div>
                                 </div>
@@ -188,7 +188,7 @@ export function SettingsAccount() {
                                             isDeleting
                                         }
                                         onClick={handleDeleteAccount}
-                                        className="h-14 rounded-xl font-black text-lg shadow-xl shadow-red-100"
+                                        className="h-14 rounded-xl font-bold text-lg shadow-xl bg-red-600 hover:bg-red-700 text-white border-none disabled:opacity-50"
                                     >
                                         {isDeleting ? (
                                             <Loader2 className="h-6 w-6 animate-spin" />
@@ -198,13 +198,12 @@ export function SettingsAccount() {
                                             "Confirm Account Deletion"
                                         )}
                                     </Button>
-                                    <Button
-                                        variant="ghost"
+                                    <button
                                         onClick={() => setConfirmationStep(1)}
-                                        className="text-slate-500 font-bold hover:bg-slate-50"
+                                        className="text-zinc-500 font-bold hover:text-white transition-colors py-2 text-sm"
                                     >
                                         Back
-                                    </Button>
+                                    </button>
                                 </div>
                             </div>
                         </>
