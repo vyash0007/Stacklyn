@@ -51,7 +51,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
         <span>
             {parts.map((part, i) =>
                 part.toLowerCase() === query.toLowerCase() ? (
-                    <mark key={i} className="bg-white/20 text-white rounded-sm px-0.5 font-bold">
+                    <mark key={i} className="bg-zinc-300 dark:bg-white/20 text-zinc-900 dark:text-white rounded-sm px-0.5 font-bold">
                         {part}
                     </mark>
                 ) : (
@@ -198,17 +198,17 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border border-white/10 shadow-3xl bg-[#0c0c0e] rounded-md sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-white/5 backdrop-blur-3xl">
+            <DialogContent className="sm:max-w-2xl w-[90vw] p-0 gap-0 overflow-hidden border border-zinc-200 dark:border-white/10 shadow-3xl bg-white dark:bg-[#0c0c0e] rounded-md sm:top-[12%] translate-y-0 sm:translate-y-0 ring-1 ring-zinc-200 dark:ring-white/5 backdrop-blur-3xl">
 
                 {/* Header / Input Area - Fixed Height */}
-                <DialogHeader className="p-4 border-b border-white/5 bg-transparent sticky top-0 z-20">
+                <DialogHeader className="p-4 border-b border-zinc-200 dark:border-white/5 bg-transparent sticky top-0 z-20">
                     <DialogTitle className="sr-only">Search</DialogTitle>
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-white/5 border border-white/10 rounded-md transition-all focus-within:bg-white/10 focus-within:border-white/20 focus-within:shadow-2xl">
+                    <div className="flex items-center gap-2 px-3 py-2.5 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-md transition-all focus-within:bg-zinc-200 dark:focus-within:bg-white/10 focus-within:border-zinc-300 dark:focus-within:border-white/20 focus-within:shadow-2xl">
                         <div className="flex items-center justify-center w-5 h-5 shrink-0">
                             {isLoading ? (
-                                <Loader2 className="h-4 w-4 text-white animate-spin" />
+                                <Loader2 className="h-4 w-4 text-zinc-900 dark:text-white animate-spin" />
                             ) : (
-                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-white" : "text-zinc-600")} />
+                                <Search className={cn("h-4 w-4 transition-colors", query ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600")} />
                             )}
                         </div>
 
@@ -221,7 +221,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                             }}
                             onKeyDown={handleKeyDown}
                             placeholder="Type to search..."
-                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent placeholder:text-zinc-600 text-white font-medium"
+                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-zinc-900 dark:text-white font-medium"
                             autoComplete="off"
                             autoCorrect="off"
                             autoCapitalize="off"
@@ -230,15 +230,15 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                         {query && (
                             <button
                                 onClick={() => { setQuery(""); inputRef.current?.focus(); }}
-                                className="p-0.5 hover:bg-white/10 rounded-full text-zinc-500 hover:text-white transition-colors"
+                                className="p-0.5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded-full text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
                             >
                                 <span className="sr-only">Clear</span>
                                 <X className="h-4 w-4" />
                             </button>
                         )}
 
-                        <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-white/10 ml-1">
-                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded bg-white/5 px-1.5 font-mono text-[10px] font-bold text-zinc-500 opacity-100 border border-white/5 shadow-inner">
+                        <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-zinc-200 dark:border-white/10 ml-1">
+                            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded bg-zinc-200 dark:bg-white/5 px-1.5 font-mono text-[10px] font-bold text-zinc-500 opacity-100 border border-zinc-300 dark:border-white/5 shadow-inner">
                                 <span className="text-xs">ESC</span>
                             </kbd>
                         </div>
@@ -249,18 +249,18 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                 {/* 500px fixed height ensures stable UI */}
                 <div
                     ref={listRef}
-                    className="h-[500px] overflow-y-auto overflow-x-hidden bg-black/20 scroll-smooth"
+                    className="h-[500px] overflow-y-auto overflow-x-hidden bg-zinc-100/50 dark:bg-black/20 scroll-smooth"
                 >
                     {!query && (
                         /* Empty State / Initial View */
                         <div className="h-full flex flex-col items-center justify-center text-center p-8 text-zinc-500">
-                            <div className="w-16 h-16 bg-white/5 rounded-md shadow-2xl border border-white/10 flex items-center justify-center mb-8 bg-gradient-to-br from-white/5 to-transparent">
-                                <Command className="h-8 w-8 text-white" />
+                            <div className="w-16 h-16 bg-zinc-200 dark:bg-white/5 rounded-md shadow-2xl border border-zinc-300 dark:border-white/10 flex items-center justify-center mb-8 bg-gradient-to-br from-zinc-100 dark:from-white/5 to-transparent">
+                                <Command className="h-8 w-8 text-zinc-900 dark:text-white" />
                             </div>
-                            <h3 className="text-white font-bold uppercase tracking-[0.2em] mb-3 text-xs">Search Stacklyn</h3>
-                            <p className="max-w-xs mx-auto text-xs text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
+                            <h3 className="text-zinc-900 dark:text-white font-bold uppercase tracking-[0.2em] mb-3 text-xs">Search Stacklyn</h3>
+                            <p className="max-w-xs mx-auto text-xs text-zinc-500 dark:text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">
                                 Search for projects, prompts, and more.
-                                <br /> Use <kbd className="font-sans font-bold text-zinc-400">↑↓</kbd> to navigate, <kbd className="font-sans font-bold text-zinc-400">Enter</kbd> to select.
+                                <br /> Use <kbd className="font-sans font-bold text-zinc-700 dark:text-zinc-400">↑↓</kbd> to navigate, <kbd className="font-sans font-bold text-zinc-700 dark:text-zinc-400">Enter</kbd> to select.
                             </p>
                         </div>
                     )}
@@ -268,11 +268,11 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                     {query && !isLoading && results.length === 0 && (
                         /* No Results State */
                         <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                            <div className="w-16 h-16 bg-white/5 rounded-md flex items-center justify-center mb-4 border border-white/10">
-                                <SearchX className="h-8 w-8 text-zinc-800" />
+                            <div className="w-16 h-16 bg-zinc-200 dark:bg-white/5 rounded-md flex items-center justify-center mb-4 border border-zinc-300 dark:border-white/10">
+                                <SearchX className="h-8 w-8 text-zinc-400 dark:text-zinc-800" />
                             </div>
-                            <p className="text-white font-bold uppercase tracking-widest text-xs">No result protocols found</p>
-                            <p className="text-[10px] text-zinc-600 mt-2 font-bold uppercase tracking-[0.15em]">No matches detected for &quot;{query}&quot;</p>
+                            <p className="text-zinc-900 dark:text-white font-bold uppercase tracking-widest text-xs">No result protocols found</p>
+                            <p className="text-[10px] text-zinc-500 dark:text-zinc-600 mt-2 font-bold uppercase tracking-[0.15em]">No matches detected for &quot;{query}&quot;</p>
                         </div>
                     )}
 
@@ -292,16 +292,16 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         className={cn(
                                             "group cursor-pointer rounded-md px-5 py-4 flex items-center gap-5 transition-all duration-200 border border-transparent",
                                             isActive
-                                                ? "bg-white/5 shadow-3xl border-white/10 scale-[0.99]"
-                                                : "hover:bg-white/[0.02] hover:scale-[0.995]"
+                                                ? "bg-zinc-200 dark:bg-white/5 shadow-3xl border-zinc-300 dark:border-white/10 scale-[0.99]"
+                                                : "hover:bg-zinc-100 dark:hover:bg-white/[0.02] hover:scale-[0.995]"
                                         )}
                                     >
                                         {/* Icon Box */}
                                         <div className={cn(
                                             "w-12 h-12 rounded-md flex items-center justify-center shrink-0 border transition-all",
                                             isActive
-                                                ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                                                : "bg-white/5 border-white/5 text-zinc-600"
+                                                ? "bg-zinc-900 dark:bg-white text-white dark:text-black border-zinc-900 dark:border-white shadow-[0_0_20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                                : "bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/5 text-zinc-500 dark:text-zinc-600"
                                         )}>
                                             {item.type === 'project' ? <Folder className="h-5 w-5" /> :
                                                 item.type === 'prompt' ? <Zap className="h-5 w-5" /> :
@@ -311,28 +311,28 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         {/* Content */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-1">
-                                                <span className={cn("font-bold tracking-tight truncate uppercase text-sm", isActive ? "text-white" : "text-zinc-400")}>
+                                                <span className={cn("font-bold tracking-tight truncate uppercase text-sm", isActive ? "text-zinc-900 dark:text-white" : "text-zinc-500 dark:text-zinc-400")}>
                                                     <Highlight text={item.title} query={query} />
                                                 </span>
                                                 {item.type === 'prompt' && (
-                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black px-2 py-0.5 rounded-sm">
                                                         Prompt
                                                     </span>
                                                 )}
                                                 {item.type === 'project' && (
-                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black px-2 py-0.5 rounded-sm">
                                                         Project
                                                     </span>
                                                 )}
                                                 {item.type === 'commit' && (
-                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-white text-black px-2 py-0.5 rounded-sm">
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest bg-zinc-900 dark:bg-white text-white dark:text-black px-2 py-0.5 rounded-sm">
                                                         Commit
                                                     </span>
                                                 )}
                                             </div>
 
                                             {item.subtitle && (
-                                                <p className={cn("text-[11px] truncate font-medium", isActive ? "text-zinc-500" : "text-zinc-700")}>
+                                                <p className={cn("text-[11px] truncate font-medium", isActive ? "text-zinc-500" : "text-zinc-400 dark:text-zinc-700")}>
                                                     <Highlight text={item.subtitle} query={query} />
                                                 </p>
                                             )}
@@ -341,7 +341,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                                         {/* Arrow Hint */}
                                         <div className={cn(
                                             "text-zinc-500 transition-all duration-300",
-                                            isActive ? "translate-x-0 opacity-100 text-white" : "-translate-x-2 opacity-0"
+                                            isActive ? "translate-x-0 opacity-100 text-zinc-900 dark:text-white" : "-translate-x-2 opacity-0"
                                         )}>
                                             <ChevronRight className="h-5 w-5" />
                                         </div>
@@ -354,13 +354,13 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
 
                 {/* Footer */}
                 {/* Footer */}
-                <div className="bg-[#0c0c0e] border-t border-white/5 p-4 px-6 flex items-center justify-between text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+                <div className="bg-white dark:bg-[#0c0c0e] border-t border-zinc-200 dark:border-white/5 p-4 px-6 flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-600 font-bold uppercase tracking-widest">
                     <span className="flex items-center gap-6">
                         <span className="flex items-center gap-3">
-                            <span className="bg-white/5 border border-white/10 text-white rounded px-2 py-0.5 shadow-inner">↵</span> SELECT
+                            <span className="bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 text-zinc-900 dark:text-white rounded px-2 py-0.5 shadow-inner">↵</span> SELECT
                         </span>
                         <span className="flex items-center gap-3">
-                            <span className="bg-white/5 border border-white/10 text-white rounded px-2 py-0.5 shadow-inner">↑↓</span> NAVIGATE
+                            <span className="bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 text-zinc-900 dark:text-white rounded px-2 py-0.5 shadow-inner">↑↓</span> NAVIGATE
                         </span>
                     </span>
                     <span className="opacity-40">System Search</span>

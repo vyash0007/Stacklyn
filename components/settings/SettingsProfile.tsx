@@ -82,10 +82,10 @@ export function SettingsProfile() {
                 {/* Avatar Section */}
                 <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-10">
                     <div className="relative">
-                        <div className="h-24 w-24 rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-sm relative">
+                        <div className="h-24 w-24 rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-black/40 shadow-sm relative">
                             {isUploading ? (
-                                <div className="absolute inset-0 bg-[#181818]/80 flex items-center justify-center z-10">
-                                    <Loader2 className="h-6 w-6 text-white animate-spin" />
+                                <div className="absolute inset-0 bg-zinc-100/80 dark:bg-[#181818]/80 flex items-center justify-center z-10">
+                                    <Loader2 className="h-6 w-6 text-zinc-900 dark:text-white animate-spin" />
                                 </div>
                             ) : null}
                             <img
@@ -106,7 +106,7 @@ export function SettingsProfile() {
                         </label>
                     </div>
                     <div className="text-center sm:text-left">
-                        <h4 className="text-lg font-bold text-white">Avatar</h4>
+                        <h4 className="text-lg font-bold text-zinc-900 dark:text-white">Avatar</h4>
                         <p className="text-sm text-zinc-500 mt-1">
                             PNG or JPG. At least 400x400px recommended.
                         </p>
@@ -115,13 +115,13 @@ export function SettingsProfile() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                     <div className="space-y-2 group">
-                        <Label htmlFor="name" className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider group-focus-within:text-white transition-colors">Display Name</Label>
+                        <Label htmlFor="name" className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider group-focus-within:text-zinc-900 dark:group-focus-within:text-white transition-colors">Display Name</Label>
                         <Input
                             id="name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="John Doe"
-                            className="h-11 bg-black/40 border-white/5 text-white focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all rounded-lg"
+                            className="h-11 bg-zinc-100 dark:bg-black/40 border-zinc-200 dark:border-white/5 text-zinc-900 dark:text-white focus:ring-1 focus:ring-zinc-300 dark:focus:ring-white/10 focus:border-zinc-300 dark:focus:border-white/20 transition-all rounded-lg"
                         />
                     </div>
 
@@ -131,16 +131,16 @@ export function SettingsProfile() {
                             id="email"
                             value={email}
                             disabled
-                            className="h-11 bg-white/5 border-white/5 cursor-not-allowed rounded-lg text-zinc-600 disabled:opacity-100"
+                            className="h-11 bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/5 cursor-not-allowed rounded-lg text-zinc-400 dark:text-zinc-600 disabled:opacity-100"
                         />
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-white/5 flex justify-end">
+                <div className="pt-8 border-t border-zinc-200 dark:border-white/5 flex justify-end">
                     <Button
                         type="submit"
                         disabled={isSaving}
-                        className="h-11 px-8 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl transition-all shadow-lg"
+                        className="h-11 px-8 bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-black font-bold rounded-xl transition-all shadow-lg"
                     >
                         {isSaving ? (
                             <div className="flex items-center gap-2">

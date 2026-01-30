@@ -15,18 +15,18 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState("profile");
 
     return (
-        <div className="bg-[#181818]">
-            <div className="bg-[#181818] border-b border-white/5 pb-6 pt-8 md:pb-8 md:pt-12">
+        <div className="bg-zinc-50 dark:bg-[#181818]">
+            <div className="bg-zinc-50 dark:bg-[#181818] border-b border-zinc-200 dark:border-white/5 pb-6 pt-8 md:pb-8 md:pt-12">
                 <div className="max-w-4xl mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
                         <div>
-                            <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                            <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
                                 Settings
                             </h2>
                         </div>
 
                         {/* Top Navigation - Clean Pills */}
-                        <div className="flex p-1 bg-white/5 rounded-xl border border-white/5 overflow-x-auto no-scrollbar max-w-full">
+                        <div className="flex p-1 bg-zinc-200 dark:bg-white/5 rounded-xl border border-zinc-300 dark:border-white/5 overflow-x-auto no-scrollbar max-w-full">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
@@ -34,8 +34,8 @@ export default function SettingsPage() {
                                     className={cn(
                                         "flex items-center gap-2 px-4 md:px-6 py-2 rounded-lg transition-all duration-200 shrink-0",
                                         activeTab === tab.id
-                                            ? "bg-white text-black shadow-sm"
-                                            : "text-zinc-500 hover:text-zinc-300"
+                                            ? "bg-white dark:bg-white text-black shadow-sm"
+                                            : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                                     )}
                                 >
                                     <tab.icon className={cn(
