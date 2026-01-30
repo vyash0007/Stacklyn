@@ -95,6 +95,10 @@ export default function ProjectDetailsPage() {
     const [editProjectDescription, setEditProjectDescription] = useState("");
     const [editProjectLoading, setEditProjectLoading] = useState(false);
 
+    // Edit member role state
+    const [editingMemberRole, setEditingMemberRole] = useState<string | null>(null);
+    const [memberRoleLoading, setMemberRoleLoading] = useState<string | null>(null);
+
     useEffect(() => {
         if (projectId) {
             loadData();
@@ -248,9 +252,28 @@ export default function ProjectDetailsPage() {
         }
     };
 
+    const handleUpdateMemberRole = async (userId: string, newRole: string) => {
+        setMemberRoleLoading(userId);
+        try {
+            await api.updateProjectMemberRole(projectId, userId, newRole);
+            setMembers(members.map(m =>
+                m.user_id === userId ? { ...m, role: newRole } : m
+            ));
+        } catch (error) {
+            console.error("Failed to update member role", error);
+        } finally {
+            setMemberRoleLoading(null);
+            setEditingMemberRole(null);
+        }
+    };
+
     const filteredPrompts = prompts.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    // Check if current user is an admin
+    const currentUserMember = members.find(m => m.isCurrentUser);
+    const isCurrentUserAdmin = currentUserMember?.role === 'admin';
 
     if (!projectId) return <div>Invalid Project ID</div>;
 
@@ -470,10 +493,18 @@ export default function ProjectDetailsPage() {
                                     <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-[#252527] transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
-                                                "w-10 h-10 rounded-md flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105",
+                                                "w-10 h-10 rounded-full flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105 overflow-hidden",
                                                 member.role === 'admin' ? "bg-slate-200 text-slate-800 border border-slate-300" : "bg-slate-100 text-slate-600 border border-slate-200"
                                             )}>
-                                                {member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"}
+                                                {member.users?.image_url || member.users?.avatar_url ? (
+                                                    <img
+                                                        src={member.users?.image_url || member.users?.avatar_url}
+                                                        alt={member.users?.name || member.users?.email || "User"}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"
+                                                )}
                                             </div>
                                             <div>
                                                 <div className="text-sm font-bold text-white tracking-tight">
@@ -482,7 +513,47 @@ export default function ProjectDetailsPage() {
                                                         <span className="ml-1.5 text-[9px] text-zinc-600 font-bold uppercase tracking-widest">(You)</span>
                                                     )}
                                                 </div>
-                                                <div className="text-[9px] font-bold tracking-[0.15em] text-zinc-600 uppercase mt-0.5">{member.role}</div>
+                                                {/* Role dropdown - only admins can change roles, and not their own */}
+                                                <div className="relative">
+                                                    {isCurrentUserAdmin && !member.isCurrentUser ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => setEditingMemberRole(editingMemberRole === member.user_id ? null : member.user_id)}
+                                                                disabled={memberRoleLoading === member.user_id}
+                                                                className="text-[9px] font-bold tracking-[0.15em] text-zinc-500 uppercase mt-0.5 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                                                            >
+                                                                {memberRoleLoading === member.user_id ? (
+                                                                    <span className="animate-pulse">Updating...</span>
+                                                                ) : (
+                                                                    <>
+                                                                        {member.role}
+                                                                        <ChevronRight className={cn("h-3 w-3 transition-transform", editingMemberRole === member.user_id && "rotate-90")} />
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                            {editingMemberRole === member.user_id && (
+                                                                <div className="absolute left-0 top-full mt-1 bg-[#181818] border border-white/10 rounded-md shadow-xl z-30 min-w-[100px]">
+                                                                    {['admin', 'member', 'viewer'].map((role) => (
+                                                                        <button
+                                                                            key={role}
+                                                                            onClick={() => handleUpdateMemberRole(member.user_id, role)}
+                                                                            className={cn(
+                                                                                "w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors",
+                                                                                member.role === role ? "bg-white/10 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-white"
+                                                                            )}
+                                                                        >
+                                                                            {role}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-[9px] font-bold tracking-[0.15em] text-zinc-600 uppercase mt-0.5">
+                                                            {member.role}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <button
