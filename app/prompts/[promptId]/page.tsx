@@ -17,6 +17,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
+import { toast } from "sonner";
 import { Prompt, Commit, Run, Score, Tag, ModelInfo } from "@/types";
 import {
     DropdownMenu,
@@ -48,7 +49,9 @@ import {
     MessageSquare,
     Smile,
     Send,
-    Activity
+    Activity,
+    Rocket,
+    Loader2
 } from 'lucide-react';
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -77,16 +80,19 @@ export default function PromptWorkspacePage() {
     const [scores, setScores] = useState<Score[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
+    const [selectedModel, setSelectedModel] = useState<ModelInfo | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
     // Editor State
     const [systemPrompt, setSystemPrompt] = useState("");
     const [userQuery, setUserQuery] = useState("");
-    const [commitMessage, setCommitMessage] = useState("Update prompt");
+    const [commitMessage, setCommitMessage] = useState("");
 
     const [isSaving, setIsSaving] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
+    const [isPushingToProd, setIsPushingToProd] = useState(false);
+    const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
 
     // Scoring State
     const [scoreDialogOpen, setScoreDialogOpen] = useState(false);
@@ -109,6 +115,25 @@ export default function PromptWorkspacePage() {
         diff: Array<{ value: string; type: "added" | "removed" | "unchanged" }>;
     } | null>(null);
     const [isComparing, setIsComparing] = useState(false);
+
+    // Releases State
+    const [releasesDialogOpen, setReleasesDialogOpen] = useState(false);
+    const [releases, setReleases] = useState<Array<{
+        id: string;
+        commit_message: string;
+        created_at: string;
+        version: string;
+        is_current_prod: boolean;
+        tags: string[];
+    }>>([]);
+    const [releasesPagination, setReleasesPagination] = useState<{ limit: number; offset: number; total: number } | null>(null);
+    const [isLoadingReleases, setIsLoadingReleases] = useState(false);
+    const [isLoadingMoreReleases, setIsLoadingMoreReleases] = useState(false);
+
+    // Commits pagination state
+    const [commitsPagination, setCommitsPagination] = useState<{ limit: number; offset: number; total: number } | null>(null);
+    const [prodCommit, setProdCommit] = useState<Commit | null>(null);
+    const [isLoadingMoreCommits, setIsLoadingMoreCommits] = useState(false);
 
     // Delete state
     const [deleteDialog, setDeleteDialog] = useState<{
@@ -204,11 +229,15 @@ export default function PromptWorkspacePage() {
             setPrompt(p);
 
             // Fetch commits for this prompt (handles member access on backend)
-            const promptCommits = await api.getCommitsByPrompt(promptId);
+            const commitsResponse = await api.getCommitsByPrompt(promptId, { limit: 9, offset: 0 });
             // Sort by created_at descending (most recent first)
-            promptCommits.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            const sortedCommits = commitsResponse.commits.sort((a: Commit, b: Commit) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
 
-            setCommits(promptCommits);
+            setCommits(sortedCommits);
+            setCommitsPagination(commitsResponse.pagination);
+            setProdCommit(commitsResponse.prodCommit);
 
             // Load all tags for context
             const allTags = await api.getTags();
@@ -220,9 +249,13 @@ export default function PromptWorkspacePage() {
                 (providerModels as ModelInfo[]).slice(0, 2)
             ) as ModelInfo[];
             setAvailableModels(flatModels);
+            // Set default model (first one, usually GPT-4)
+            if (flatModels.length > 0) {
+                setSelectedModel(flatModels[0]);
+            }
 
-            if (promptCommits.length > 0) {
-                setSelectedCommit(promptCommits[0]);
+            if (sortedCommits.length > 0) {
+                setSelectedCommit(sortedCommits[0]);
             }
         } catch (e: any) {
             console.error("Failed to load workspace", e);
@@ -265,11 +298,113 @@ export default function PromptWorkspacePage() {
             });
             setCommits([newCommit, ...commits]);
             setSelectedCommit(newCommit);
-            setCommitMessage("Update prompt");
+            setCommitMessage("");
         } catch (e) {
             console.error("Failed to commit", e);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleGenerateCommitMessage = async () => {
+        if (isGeneratingMessage) return;
+
+        // Find the most recent commit (previous version) to compare against
+        const sortedCommits = [...commits].sort((a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+        const previousCommit = sortedCommits[0];
+        const oldSystemPrompt = previousCommit?.system_prompt || "";
+
+        setIsGeneratingMessage(true);
+        try {
+            const result = await api.generateCommitMessage(oldSystemPrompt, systemPrompt);
+            setCommitMessage(result.commit_message || "");
+        } catch (e: any) {
+            console.error("Failed to generate commit message", e);
+            toast.error(e.message || "Failed to generate commit message");
+        } finally {
+            setIsGeneratingMessage(false);
+        }
+    };
+
+    const handlePushToProd = async () => {
+        if (!selectedCommit) return;
+        setIsPushingToProd(true);
+        try {
+            const updatedCommit = await api.pushToProd(selectedCommit.id);
+            // Update the commit in local state to reflect new tags
+            setCommits(prev => prev.map(c => c.id === updatedCommit.id ? updatedCommit : c));
+            setSelectedCommit(updatedCommit);
+            // Update prodCommit to the newly pushed commit
+            setProdCommit(updatedCommit);
+            toast.success("Pushed to production!");
+        } catch (e: any) {
+            console.error("Failed to push to prod", e);
+            toast.error(e.message || "Failed to push to production");
+        } finally {
+            setIsPushingToProd(false);
+        }
+    };
+
+    const handleViewReleases = async () => {
+        setIsLoadingReleases(true);
+        setReleasesDialogOpen(true);
+        setReleases([]);
+        try {
+            const response = await api.getReleases(promptId, { limit: 9, offset: 0 });
+            setReleases(response.releases);
+            setReleasesPagination(response.pagination);
+        } catch (e: any) {
+            console.error("Failed to fetch releases", e);
+            toast.error(e.message || "Failed to fetch releases");
+        } finally {
+            setIsLoadingReleases(false);
+        }
+    };
+
+    const handleReleasesPageChange = async (direction: 'prev' | 'next') => {
+        if (!releasesPagination || isLoadingMoreReleases) return;
+
+        const newOffset = direction === 'next'
+            ? releasesPagination.offset + releasesPagination.limit
+            : releasesPagination.offset - releasesPagination.limit;
+
+        if (newOffset < 0 || newOffset >= releasesPagination.total) return;
+
+        setIsLoadingMoreReleases(true);
+        try {
+            const response = await api.getReleases(promptId, { limit: 9, offset: newOffset });
+            setReleases(response.releases);
+            setReleasesPagination(response.pagination);
+        } catch (e: any) {
+            console.error("Failed to load releases", e);
+            toast.error(e.message || "Failed to load releases");
+        } finally {
+            setIsLoadingMoreReleases(false);
+        }
+    };
+
+    const handleLoadMoreCommits = async () => {
+        if (!commitsPagination || isLoadingMoreCommits) return;
+
+        const newOffset = commitsPagination.offset + commitsPagination.limit;
+        if (newOffset >= commitsPagination.total) return;
+
+        setIsLoadingMoreCommits(true);
+        try {
+            const response = await api.getCommitsByPrompt(promptId, { limit: 9, offset: newOffset });
+            const sortedNewCommits = response.commits.sort((a: Commit, b: Commit) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            // Append new commits to existing ones
+            setCommits(prev => [...prev, ...sortedNewCommits]);
+            setCommitsPagination(response.pagination);
+        } catch (e: any) {
+            console.error("Failed to load more commits", e);
+            toast.error(e.message || "Failed to load more commits");
+        } finally {
+            setIsLoadingMoreCommits(false);
         }
     };
 
@@ -518,18 +653,40 @@ export default function PromptWorkspacePage() {
                         <GitCompare size={14} /> Compare
                     </button>
 
+                    <button
+                        onClick={handlePushToProd}
+                        disabled={!selectedCommit || isPushingToProd}
+                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 rounded-lg text-xs font-medium text-white transition-all disabled:opacity-50"
+                    >
+                        {isPushingToProd ? <Loader2 size={14} className="animate-spin" /> : <Rocket size={14} />}
+                        Push to Prod
+                    </button>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-lg text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-white/20 transition-all">
-                                <Cpu size={14} />
-                                <span className="hidden sm:inline">Model Selection</span>
-                                <span className="sm:hidden">Model</span>
+                                {selectedModel ? (
+                                    <>
+                                        <img src={getModelIcon(selectedModel.id)} alt="" className="w-4 h-4" />
+                                        <span className="hidden sm:inline">{selectedModel.name}</span>
+                                        <span className="sm:hidden">Model</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Cpu size={14} />
+                                        <span>Select Model</span>
+                                    </>
+                                )}
                                 <ChevronDown size={12} />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-zinc-300 min-w-[200px]">
                             {availableModels.map(model => (
-                                <DropdownMenuItem key={model.id} onClick={() => handleRun(model.id)} className="hover:bg-zinc-100 dark:hover:bg-white/5 cursor-pointer flex items-center gap-2">
+                                <DropdownMenuItem
+                                    key={model.id}
+                                    onClick={() => setSelectedModel(model)}
+                                    className={`hover:bg-zinc-100 dark:hover:bg-white/5 cursor-pointer flex items-center gap-2 ${selectedModel?.id === model.id ? 'bg-zinc-100 dark:bg-white/10' : ''}`}
+                                >
                                     <img src={getModelIcon(model.id)} alt="" className="w-4 h-4" />
                                     <span>{model.name}</span>
                                 </DropdownMenuItem>
@@ -576,9 +733,18 @@ export default function PromptWorkspacePage() {
                         <History size={12} className="text-zinc-400 dark:text-zinc-600" />
                     </div>
                     <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                        {commits.map((commit) => {
+                        {commits
+                            .filter(c => !c.commit_tags?.some(t => t.tag_name === 'PROD'))
+                            .sort((a, b) => {
+                                const aHasMain = a.commit_tags?.some(t => t.tag_name === 'main');
+                                const bHasMain = b.commit_tags?.some(t => t.tag_name === 'main');
+                                if (aHasMain && !bHasMain) return -1;
+                                if (!aHasMain && bHasMain) return 1;
+                                return 0; // Keep original order for non-main commits
+                            })
+                            .map((commit) => {
                             const isActive = selectedCommit?.id === commit.id;
-                            const commitTags = tags.filter(t => t.commit_id === commit.id);
+                            const commitTags = commit.commit_tags?.map(t => ({ commit_id: commit.id, tag_name: t.tag_name })) || [];
                             return (
                                 <div
                                     key={commit.id}
@@ -637,7 +803,103 @@ export default function PromptWorkspacePage() {
                                 </div>
                             );
                         })}
+                        {/* Load More Button */}
+                        {commitsPagination && commitsPagination.offset + commitsPagination.limit < commitsPagination.total && (
+                            <button
+                                onClick={handleLoadMoreCommits}
+                                disabled={isLoadingMoreCommits}
+                                className="w-full mt-2 py-2 text-[10px] font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 bg-zinc-200/50 dark:bg-white/[0.02] hover:bg-zinc-200 dark:hover:bg-white/[0.05] rounded-md transition-colors disabled:opacity-50"
+                            >
+                                {isLoadingMoreCommits ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <Loader2 size={12} className="animate-spin" />
+                                        Loading...
+                                    </span>
+                                ) : (
+                                    "Load More"
+                                )}
+                            </button>
+                        )}
                     </div>
+
+                    {/* Production Section */}
+                    {prodCommit && (
+                        <>
+                            <div className="px-4 py-3 border-t border-b border-zinc-200 dark:border-white/[0.05] flex items-center justify-between">
+                                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Production</span>
+                                <button onClick={handleViewReleases} className="text-[9px] text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 cursor-pointer transition-colors">View all →</button>
+                            </div>
+                            <div className="p-2 space-y-1">
+                                {(() => {
+                                    const commit = prodCommit;
+                                    const isActive = selectedCommit?.id === commit.id;
+                                    const commitTags = commit.commit_tags?.map((t: any) => ({ commit_id: commit.id, tag_name: t.tag_name })) || [];
+                                    return (
+                                        <div
+                                            key={commit.id}
+                                            onClick={() => setSelectedCommit(commit)}
+                                            className={cn(
+                                                "p-3 rounded-md border cursor-pointer transition-all group",
+                                                isActive
+                                                    ? "bg-zinc-200 dark:bg-white/10 border-zinc-300 dark:border-white/10 shadow-lg"
+                                                    : "hover:bg-zinc-200/50 dark:hover:bg-white/[0.02] border-transparent hover:border-zinc-200 dark:hover:border-white/[0.05]"
+                                            )}
+                                        >
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={cn(
+                                                        "text-[10px] font-mono px-1.5 py-0.5 rounded",
+                                                        isActive ? "text-zinc-900 dark:text-white bg-zinc-300 dark:bg-white/10 border border-zinc-400 dark:border-white/10" : "text-zinc-500 bg-zinc-200 dark:bg-white/5"
+                                                    )}>
+                                                        {commit.id.substring(0, 7)}
+                                                    </span>
+                                                    <button
+                                                        onClick={(e) => openTagDialog(commit, e)}
+                                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-300 dark:hover:bg-white/5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all"
+                                                    >
+                                                        <Settings size={10} />
+                                                    </button>
+                                                </div>
+                                                <span className="text-[10px] text-zinc-400 dark:text-zinc-600">
+                                                    {new Date(commit.created_at).toLocaleDateString() === new Date().toDateString() ? 'Today' : new Date(commit.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className={cn("text-xs font-medium truncate", isActive ? "text-zinc-900 dark:text-white" : "text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300")}>
+                                                {commit.commit_message}
+                                            </p>
+                                            {commitTags.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-2">
+                                                    {commitTags.map((tag: any) => (
+                                                        <Badge
+                                                            key={`${tag.commit_id}-${tag.tag_name}`}
+                                                            variant="secondary"
+                                                            className={cn(
+                                                                "group/tag inline-flex items-center gap-1 text-[8px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider hover:pr-4 relative transition-all",
+                                                                tag.tag_name === 'PROD'
+                                                                    ? "bg-emerald-500 dark:bg-emerald-600 text-white border border-emerald-600 dark:border-emerald-500"
+                                                                    : "bg-zinc-200 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-white/10"
+                                                            )}
+                                                        >
+                                                            {tag.tag_name}
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeleteTagClick(commit.id, tag.tag_name, e);
+                                                                }}
+                                                                className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
+                                                            >
+                                                                <X className="h-2 w-2" />
+                                                            </button>
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* 2. LEFT-INNER: Variable Config */}
@@ -763,13 +1025,27 @@ export default function PromptWorkspacePage() {
                             <div className="p-2 bg-zinc-200 dark:bg-white/5 rounded-lg text-zinc-500">
                                 <GitBranch size={16} />
                             </div>
-                            <input
-                                type="text"
-                                value={commitMessage}
-                                onChange={(e) => setCommitMessage(e.target.value)}
-                                placeholder="Describe changes..."
-                                className="flex-1 bg-white dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-300 dark:focus:border-white/20"
-                            />
+                            <div className="flex-1 relative">
+                                <input
+                                    type="text"
+                                    value={commitMessage || ""}
+                                    onChange={(e) => setCommitMessage(e.target.value)}
+                                    placeholder="Add a commit message..."
+                                    className="w-full bg-white dark:bg-black/30 border border-zinc-200 dark:border-white/10 rounded-lg px-3 pr-10 py-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-zinc-300 dark:focus:border-white/20"
+                                />
+                                <button
+                                    onClick={handleGenerateCommitMessage}
+                                    disabled={isGeneratingMessage}
+                                    title="Generate with AI"
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-purple-500 dark:hover:text-purple-400 transition-colors disabled:opacity-50"
+                                >
+                                    {isGeneratingMessage ? (
+                                        <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                        <Sparkles size={14} />
+                                    )}
+                                </button>
+                            </div>
                             <button
                                 onClick={handleCommit}
                                 disabled={isSaving}
@@ -792,8 +1068,8 @@ export default function PromptWorkspacePage() {
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Simulation History</span>
                         </div>
                         <button
-                            onClick={() => handleRun()}
-                            disabled={isRunning}
+                            onClick={() => handleRun(selectedModel?.id)}
+                            disabled={isRunning || !selectedModel}
                             className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-[10px] font-bold rounded flex items-center gap-1.5 transition-all disabled:opacity-50"
                         >
                             RUN
@@ -853,11 +1129,12 @@ export default function PromptWorkspacePage() {
                                 type="text"
                                 placeholder="Quick test message..."
                                 className="w-full bg-white dark:bg-[#181818] border border-zinc-200 dark:border-white/10 rounded-lg pl-4 pr-10 py-3 text-xs text-zinc-700 dark:text-zinc-300 focus:outline-none focus:border-zinc-300 dark:focus:border-white/20 transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-700"
-                                onKeyDown={(e) => e.key === 'Enter' && handleRun()}
+                                onKeyDown={(e) => e.key === 'Enter' && selectedModel && handleRun(selectedModel.id)}
                             />
                             <button
-                                onClick={() => handleRun()}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-zinc-900 dark:bg-white rounded text-white dark:text-black hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors"
+                                onClick={() => selectedModel && handleRun(selectedModel.id)}
+                                disabled={!selectedModel}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-zinc-900 dark:bg-white rounded text-white dark:text-black hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50"
                             >
                                 <ArrowUpRight size={12} />
                             </button>
@@ -1022,6 +1299,119 @@ export default function PromptWorkspacePage() {
                             </div>
                         </div>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Releases Modal */}
+            <Dialog open={releasesDialogOpen} onOpenChange={setReleasesDialogOpen}>
+                <DialogContent className="sm:max-w-[700px] max-h-[70vh] overflow-hidden flex flex-col bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
+                    <DialogHeader>
+                        <DialogTitle>Production Releases</DialogTitle>
+                        <DialogDescription className="text-zinc-500 dark:text-zinc-400">All versions that have been pushed to production.</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto py-2">
+                        {isLoadingReleases ? (
+                            <div className="flex items-center justify-center min-h-[280px]">
+                                <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+                            </div>
+                        ) : releases.length > 0 ? (
+                            <>
+                                <div className="grid grid-cols-3 gap-2 min-h-[280px] content-start">
+                                    {releases.map((release) => (
+                                        <div
+                                            key={release.id}
+                                            onClick={async () => {
+                                                try {
+                                                    const commit = await api.getCommit(release.id);
+                                                    if (commit) {
+                                                        setSelectedCommit(commit);
+                                                        setReleasesDialogOpen(false);
+                                                    }
+                                                } catch (e: any) {
+                                                    console.error("Failed to fetch commit", e);
+                                                    toast.error(e.message || "Failed to load commit");
+                                                }
+                                            }}
+                                            className={cn(
+                                                "p-3 rounded-md border cursor-pointer transition-all group",
+                                                release.is_current_prod
+                                                    ? "bg-zinc-200 dark:bg-white/10 border-zinc-300 dark:border-white/20 shadow-lg"
+                                                    : "bg-zinc-100 dark:bg-white/[0.03] border-zinc-200 dark:border-white/5 hover:bg-zinc-150 dark:hover:bg-white/[0.05] hover:border-zinc-300 dark:hover:border-white/10"
+                                            )}
+                                        >
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className={cn(
+                                                        "text-[10px] font-mono px-1.5 py-0.5 rounded",
+                                                        release.is_current_prod
+                                                            ? "text-zinc-900 dark:text-white bg-zinc-300 dark:bg-white/10 border border-zinc-400 dark:border-white/10"
+                                                            : "text-zinc-500 bg-zinc-200 dark:bg-white/5"
+                                                    )}>
+                                                        {release.id.substring(0, 7)}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[10px] text-zinc-400 dark:text-zinc-600">
+                                                    {new Date(release.created_at).toLocaleDateString() === new Date().toDateString() ? 'Today' : new Date(release.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className={cn(
+                                                "text-xs font-medium truncate",
+                                                release.is_current_prod
+                                                    ? "text-zinc-900 dark:text-white"
+                                                    : "text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300"
+                                            )}>
+                                                {release.commit_message}
+                                            </p>
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {release.tags.map(tag => (
+                                                    <Badge
+                                                        key={tag}
+                                                        variant="secondary"
+                                                        className={cn(
+                                                            "text-[8px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider",
+                                                            tag === 'PROD'
+                                                                ? "bg-emerald-500 dark:bg-emerald-600 text-white border border-emerald-600 dark:border-emerald-500"
+                                                                : "bg-zinc-200 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-white/10"
+                                                        )}
+                                                    >
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {/* Pagination */}
+                                {releasesPagination && releasesPagination.total > 9 && (
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <button
+                                            onClick={() => handleReleasesPageChange('prev')}
+                                            disabled={isLoadingMoreReleases || releasesPagination.offset === 0}
+                                            className="px-3 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+                                        >
+                                            <ChevronDown className="w-3 h-3 rotate-90" />
+                                            Previous
+                                        </button>
+                                        <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                                            {Math.floor(releasesPagination.offset / 9) + 1} / {Math.ceil(releasesPagination.total / 9)}
+                                        </span>
+                                        <button
+                                            onClick={() => handleReleasesPageChange('next')}
+                                            disabled={isLoadingMoreReleases || releasesPagination.offset + releasesPagination.limit >= releasesPagination.total}
+                                            className="px-3 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+                                        >
+                                            Next
+                                            <ChevronDown className="w-3 h-3 -rotate-90" />
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="text-center py-8 text-zinc-500 text-sm">
+                                No releases found.
+                            </div>
+                        )}
+                    </div>
                 </DialogContent>
             </Dialog>
 

@@ -50,6 +50,7 @@ export interface Commit {
     created_by: string;
     created_at: string;
     updated_at: string;
+    commit_tags?: Array<{ tag_name: string }>;
 }
 
 export interface Run {

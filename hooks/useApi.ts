@@ -138,13 +138,54 @@ export function useApi() {
 
         // Commits
         getCommits: () => fetchWithAuth<any[]>("/commits"),
-        getCommitsByPrompt: (promptId: string) => fetchWithAuth<any[]>(`/commits/prompt/${promptId}`),
+        getCommitsByPrompt: (promptId: string, options?: { limit?: number; offset?: number }) => {
+            const params = new URLSearchParams();
+            if (options?.limit) params.append('limit', options.limit.toString());
+            if (options?.offset) params.append('offset', options.offset.toString());
+            const queryString = params.toString();
+            return fetchWithAuth<{
+                commits: any[];
+                prodCommit: any | null;
+                pagination: {
+                    limit: number;
+                    offset: number;
+                    total: number;
+                };
+            }>(`/commits/prompt/${promptId}${queryString ? `?${queryString}` : ''}`);
+        },
         getCommit: (id: string) => fetchWithAuth<any>(`/commits/${id}`),
         createCommit: (data: any) => fetchWithAuth<any>("/commits", {
             method: "POST",
             body: JSON.stringify(data),
         }),
         deleteCommit: (id: string) => fetchWithAuth<void>(`/commits/${id}`, { method: "DELETE" }),
+        pushToProd: (commitId: string) => fetchWithAuth<any>(`/commits/${commitId}/push-to-prod`, { method: "POST" }),
+        generateCommitMessage: (oldSystemPrompt: string, newSystemPrompt: string) =>
+            fetchWithAuth<{ commit_message: string }>("/commits/generate-message", {
+                method: "POST",
+                body: JSON.stringify({ old_system_prompt: oldSystemPrompt, new_system_prompt: newSystemPrompt }),
+            }),
+        getReleases: (promptId: string, options?: { limit?: number; offset?: number }) => {
+            const params = new URLSearchParams();
+            if (options?.limit) params.append('limit', options.limit.toString());
+            if (options?.offset) params.append('offset', options.offset.toString());
+            const queryString = params.toString();
+            return fetchWithAuth<{
+                releases: Array<{
+                    id: string;
+                    commit_message: string;
+                    created_at: string;
+                    version: string;
+                    is_current_prod: boolean;
+                    tags: string[];
+                }>;
+                pagination: {
+                    limit: number;
+                    offset: number;
+                    total: number;
+                };
+            }>(`/commits/prompt/${promptId}/releases${queryString ? `?${queryString}` : ''}`);
+        },
 
         // Runs
         getRuns: () => fetchWithAuth<any[]>("/runs"),
