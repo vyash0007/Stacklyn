@@ -55,7 +55,7 @@ export function Sidebar() {
     ];
 
     return (
-        <aside className="w-64 bg-[#181818] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50 transition-all duration-300">
+        <aside className="w-64 bg-[#121212] border-r border-white/5 flex flex-col h-full fixed left-0 top-0 z-50 transition-all duration-300">
             <div className="p-6">
                 <Link
                     href="/"

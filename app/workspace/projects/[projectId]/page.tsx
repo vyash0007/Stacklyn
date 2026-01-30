@@ -285,15 +285,7 @@ export default function ProjectDetailsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#050505] font-sans text-white animate-in fade-in duration-500 overflow-x-hidden relative">
-            {/* Grid Pattern Overlay */}
-            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] pointer-events-none opacity-20"></div>
-
-            {/* Decorative Background - Subtle & Modern */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-white/[0.02] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
-                <div className="absolute bottom-0 left-0 w-[600px] h-[400px] bg-zinc-900/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4" />
-            </div>
+        <div className="min-h-screen font-sans text-white animate-in fade-in duration-500 overflow-x-hidden relative">
 
             <div className="max-w-7xl mx-auto p-8 relative z-10">
 
@@ -348,7 +340,7 @@ export default function ProjectDetailsPage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Input / Action Bar */}
-                        <div className="bg-white/[0.03] p-2 rounded-md border border-white/10 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-white/5 focus-within:border-white/20 transition-all backdrop-blur-md">
+                        <div className="bg-[#1F1F1F] p-2 rounded-md border border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-white/5 focus-within:border-white/20 transition-all backdrop-blur-md">
                             <input
                                 type="text"
                                 value={newPromptName}
@@ -390,7 +382,7 @@ export default function ProjectDetailsPage() {
                             {filteredPrompts.map((prompt) => (
                                 <div
                                     key={prompt.id}
-                                    className="group bg-white/[0.02] rounded-md border border-white/10 p-6 hover:bg-white/[0.04] hover:border-white/20 transition-all shadow-2xl relative overflow-hidden backdrop-blur-sm"
+                                    className="group bg-[#1F1F1F] rounded-md border border-white/5 p-6 hover:bg-[#252527] hover:border-white/10 transition-all shadow-2xl relative overflow-hidden backdrop-blur-sm"
                                 >
                                     {/* Accent line on hover */}
                                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -450,7 +442,7 @@ export default function ProjectDetailsPage() {
                                     const input = document.querySelector('input');
                                     if (input) input.focus();
                                 }}
-                                className="border-2 border-dashed border-white/5 rounded-md p-8 flex flex-col items-center justify-center text-zinc-500 hover:border-white/20 hover:bg-white/[0.02] transition-all group min-h-[140px]"
+                                className="border-2 border-dashed border-white/5 rounded-md p-8 flex flex-col items-center justify-center text-zinc-500 hover:border-white/10 hover:bg-[#1F1F1F] transition-all group min-h-[140px]"
                             >
                                 <div className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center mb-4 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-110 shadow-2xl transition-all text-zinc-400 group-hover:text-white">
                                     <Plus className="h-6 w-6" />
@@ -465,7 +457,7 @@ export default function ProjectDetailsPage() {
 
 
                         {/* Team Members Card */}
-                        <div className="bg-white/[0.02] rounded-md border border-white/10 p-8 shadow-2xl backdrop-blur-md">
+                        <div className="bg-[#1F1F1F] rounded-md border border-white/5 p-8 shadow-2xl backdrop-blur-md">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Team Members</h3>
                                 <span className="text-[10px] bg-white/5 text-zinc-500 font-bold tracking-widest px-2 py-0.5 rounded-md border border-white/5 shadow-inner">
@@ -475,7 +467,7 @@ export default function ProjectDetailsPage() {
 
                             <div className="space-y-4">
                                 {members.map((member) => (
-                                    <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-slate-50/50 transition-all">
+                                    <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-[#252527] transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
                                                 "w-10 h-10 rounded-md flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105",
@@ -537,7 +529,7 @@ export default function ProjectDetailsPage() {
 
             {/* Edit Prompt Dialog */}
             <Dialog open={editPromptDialog.open} onOpenChange={(open) => setEditPromptDialog({ ...editPromptDialog, open })}>
-                <DialogContent className="sm:max-w-md bg-[#0c0c0e] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Edit Prompt</DialogTitle>
                         <DialogDescription className="text-zinc-500 font-medium">Update the prompt identifier.</DialogDescription>
@@ -571,7 +563,7 @@ export default function ProjectDetailsPage() {
 
             {/* Edit Project Dialog */}
             <Dialog open={editProjectDialog} onOpenChange={setEditProjectDialog}>
-                <DialogContent className="sm:max-w-md bg-[#0c0c0e] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Project Settings</DialogTitle>
                         <DialogDescription className="text-zinc-500 font-medium">Update the workspace protocol.</DialogDescription>
@@ -617,7 +609,7 @@ export default function ProjectDetailsPage() {
 
             {/* Invitation Dialog */}
             <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-                <DialogContent className="sm:max-w-md bg-[#0c0c0e] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Invite Team Member</DialogTitle>
                         <DialogDescription className="text-zinc-500 font-medium font-medium">
