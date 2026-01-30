@@ -115,6 +115,11 @@ export function useApi() {
             fetchWithAuth(`/projects/${projectId}/members/email`, { method: "POST", body: JSON.stringify(data) }),
         removeProjectMember: (projectId: string, userId: string) =>
             fetchWithAuth(`/projects/${projectId}/members/${userId}`, { method: "DELETE" }),
+        updateProjectMemberRole: (projectId: string, userId: string, role: string) =>
+            fetchWithAuth<{ project_id: string; user_id: string; role: string; created_at: string }>(
+                `/projects/${projectId}/members/${userId}`,
+                { method: "PUT", body: JSON.stringify({ role }) }
+            ),
         getProjectMemberships: () => fetchWithAuth<any[]>("/projects/memberships"),
 
         // Prompts
