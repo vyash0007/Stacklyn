@@ -8,7 +8,10 @@ import {
     CheckCircle2,
     Database,
     FileCode,
-    GitBranch
+    GitBranch,
+    Menu,
+    X,
+    ChevronRight
 } from 'lucide-react';
 
 type TabId = 'dashboard' | 'prompts' | 'requests' | 'evaluations' | 'datasets';
@@ -18,6 +21,7 @@ const WorkspacePreview = () => {
     const [displayedTab, setDisplayedTab] = useState<TabId>('prompts');
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const tabs = [
         { id: 'dashboard' as const, label: 'Dashboard', icon: Layout },
@@ -136,12 +140,12 @@ const WorkspacePreview = () => {
 
     return (
         <div
-            className="flex h-[400px] w-full bg-[#09090b] overflow-hidden"
+            className="flex flex-col md:flex-row h-auto md:h-[400px] w-full bg-[#09090b] overflow-hidden relative"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
         >
-            {/* Sidebar - Zinc 950 for slight contrast against the black main area */}
-            <div className="w-48 md:w-56 border-r border-white/[0.08] bg-[#0c0c0e] flex flex-col p-3">
+            {/* Desktop Sidebar */}
+            <div className="hidden md:flex w-56 border-r border-white/[0.08] bg-[#0c0c0e] flex-col p-3">
                 <div className="space-y-1 mt-2">
                     <div className="text-[10px] uppercase font-bold text-zinc-500 mb-2 px-3 tracking-widest">Platform</div>
                     {tabs.map((tab) => (
@@ -149,8 +153,8 @@ const WorkspacePreview = () => {
                             key={tab.id}
                             onClick={() => handleTabChange(tab.id)}
                             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 ${activeTab === tab.id
-                                    ? 'bg-white/10 text-white shadow-inner shadow-white/5 border border-white/10'
-                                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
+                                ? 'bg-white/10 text-white shadow-inner shadow-white/5 border border-white/10'
+                                : 'text-zinc-500 hover:text-zinc-200 hover:bg-white/5 border border-transparent'
                                 }`}
                         >
                             <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-white' : 'text-zinc-600'}`} />
@@ -162,8 +166,15 @@ const WorkspacePreview = () => {
 
             {/* Code Area - Deep Black for pop */}
             <div className="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
-                <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08] bg-[#0a0a0a]">
+                <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-white/[0.08] bg-[#0a0a0a]">
                     <div className="flex items-center space-x-3">
+                        {/* Mobile Hamburger */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden p-1.5 hover:bg-white/5 rounded text-zinc-400 transition-colors"
+                        >
+                            {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+                        </button>
                         <FileCode className="h-3 w-3 text-zinc-400" />
                         <span className="text-xs text-zinc-400 font-mono transition-all duration-300">{activeContent.file}</span>
                     </div>
@@ -173,7 +184,35 @@ const WorkspacePreview = () => {
                     </div>
                 </div>
 
-                <div className={`flex-1 p-6 overflow-hidden font-mono text-sm leading-relaxed transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                {/* Mobile Navigation Menu Overlay */}
+                {isMobileMenuOpen && (
+                    <div className="absolute inset-x-1.5 bottom-1.5 top-[48px] z-50 bg-[#09090b]/98 backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-300 p-2 rounded-xl border border-white/5 shadow-2xl overflow-y-auto">
+                        <div className="text-[9px] uppercase font-bold text-zinc-600 mb-2 px-2 tracking-widest mt-1">Platform</div>
+                        <div className="space-y-0.5">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => {
+                                        handleTabChange(tab.id);
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-300 ${activeTab === tab.id
+                                        ? 'bg-white/10 text-white border border-white/10 shadow-sm'
+                                        : 'text-zinc-500 hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-2.5">
+                                        <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? 'text-white' : 'text-zinc-600'}`} />
+                                        <span className="text-xs font-medium">{tab.label}</span>
+                                    </div>
+                                    <ChevronRight size={12} className="text-zinc-700" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className={`flex-1 p-4 md:p-6 overflow-hidden font-mono text-[10px] xs:text-xs md:text-sm leading-relaxed transition-opacity duration-300 min-h-[250px] md:min-h-0 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                     {activeContent.lines.map((line, idx) => (
                         <div key={idx} className="flex">
                             <span className="w-6 text-zinc-700 select-none text-right pr-4 text-xs font-light">{line.num}</span>

@@ -287,7 +287,7 @@ export default function ProjectDetailsPage() {
     return (
         <div className="min-h-screen font-sans text-white animate-in fade-in duration-500 overflow-x-hidden relative">
 
-            <div className="max-w-7xl mx-auto p-8 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8 relative z-10">
 
                 {/* --- Top Navigation & Header --- */}
                 <div className="mb-10 space-y-6">
@@ -297,18 +297,18 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-start gap-5">
                             <Link href="/workspace/projects">
                                 <button
-                                    className="group mt-1 p-2.5 bg-white/5 border border-white/10 rounded-md text-zinc-500 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all shadow-2xl backdrop-blur-md"
+                                    className="group mt-1 p-2 bg-white/5 border border-white/10 rounded-md text-zinc-500 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all shadow-2xl backdrop-blur-md"
                                 >
-                                    <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                                    <ArrowLeft className="h-4 w-4 md:h-5 md:w-5 group-hover:-translate-x-1 transition-transform" />
                                 </button>
                             </Link>
                             <div>
-                                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white flex items-center gap-3">
+                                <h1 className="text-2xl md:text-5xl font-black tracking-tight text-white flex items-center gap-3">
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500">
                                         {project!.name}
                                     </span>
                                 </h1>
-                                <p className="text-zinc-500 mt-3 text-lg font-medium tracking-tight max-w-2xl">
+                                <p className="text-sm md:text-lg text-zinc-500 mt-2 md:mt-3 font-medium tracking-tight max-w-2xl">
                                     {project!.description || 'Orchestrate your prompt chains and manage versions.'}
                                 </p>
                             </div>
@@ -317,16 +317,16 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={handleEditProjectClick}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 text-zinc-400 font-bold text-xs uppercase tracking-widest rounded-md hover:bg-white/10 hover:text-white transition-all shadow-xl backdrop-blur-md"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white/5 border border-white/10 text-zinc-400 font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-white/10 hover:text-white transition-all shadow-xl backdrop-blur-md"
                             >
-                                <Settings className="h-3.5 w-3.5" />
+                                <Settings className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 <span>Settings</span>
                             </button>
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white text-black font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                             >
-                                <UserPlus className="h-3.5 w-3.5" />
+                                <UserPlus className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 <span>Invite</span>
                             </button>
                         </div>
@@ -340,7 +340,7 @@ export default function ProjectDetailsPage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Input / Action Bar */}
-                        <div className="bg-[#1F1F1F] p-2 rounded-md border border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-white/5 focus-within:border-white/20 transition-all backdrop-blur-md">
+                        <div className="bg-[#1F1F1F] p-1.5 md:p-2 rounded-md border border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-white/5 focus-within:border-white/20 transition-all backdrop-blur-md">
                             <input
                                 type="text"
                                 value={newPromptName}
@@ -354,15 +354,15 @@ export default function ProjectDetailsPage() {
                                     }
                                 }}
                                 placeholder="Create a new prompt chain..."
-                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-white placeholder-zinc-700 text-base py-3 ml-4 font-medium tracking-tight"
+                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-white placeholder-zinc-700 text-sm md:text-base py-2.5 md:py-3 ml-3 md:ml-4 font-medium tracking-tight"
                             />
-                            <div className="pr-2 flex items-center gap-2">
+                            <div className="pr-1 md:pr-2 flex items-center gap-2">
                                 <button
                                     onClick={handleCreatePrompt}
                                     disabled={isLoading || !newPromptName.trim()}
-                                    className="bg-white text-black p-2.5 rounded-md hover:bg-zinc-200 transition-colors shadow-lg disabled:opacity-30"
+                                    className="bg-white text-black p-2 md:p-2.5 rounded-md hover:bg-zinc-200 transition-colors shadow-lg disabled:opacity-30"
                                 >
-                                    {isLoading ? <Clock className="h-5 w-5 animate-spin" /> : <Plus className="h-5 w-5" />}
+                                    {isLoading ? <Clock className="h-4 w-4 md:h-5 md:w-5 animate-spin" /> : <Plus className="h-4 w-4 md:h-5 md:w-5" />}
                                 </button>
                             </div>
                         </div>
@@ -387,17 +387,17 @@ export default function ProjectDetailsPage() {
                                     {/* Accent line on hover */}
                                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-bold text-white text-lg group-hover:text-zinc-200 transition-colors tracking-tight uppercase">
+                                                    <h3 className="font-bold text-white text-base md:text-lg group-hover:text-zinc-200 transition-colors tracking-tight uppercase">
                                                         {prompt.name}
                                                     </h3>
                                                 </div>
-                                                <div className="flex items-center gap-4 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
+                                                <div className="flex items-center gap-4 text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
                                                     <span className="flex items-center gap-2">
-                                                        <Clock className="h-3.5 w-3.5" />
+                                                        <Clock className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                         {prompt.created_at ? formatRelativeTime(prompt.created_at) : "Never"}
                                                     </span>
                                                     <span className="text-zinc-800">•</span>
@@ -408,25 +408,25 @@ export default function ProjectDetailsPage() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                                            <Link href={`/prompts/${prompt.id}`}>
-                                                <button className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-xl">
-                                                    Open <ExternalLink className="h-3.5 w-3.5" />
+                                        <div className="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all">
+                                            <Link href={`/prompts/${prompt.id}`} className="flex-1 md:flex-none">
+                                                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-black text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-xl">
+                                                    Open <ExternalLink className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                 </button>
                                             </Link>
 
-                                            <div className="w-px h-6 bg-white/10 mx-1"></div>
+                                            <div className="hidden md:block w-px h-6 bg-white/10 mx-1"></div>
 
                                             <button
                                                 onClick={() => handleEditPromptClick(prompt.id, prompt.name)}
-                                                className="p-2.5 text-zinc-500 hover:text-white hover:bg-white/5 rounded-md transition-all"
+                                                className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-md transition-all"
                                                 title="Edit"
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeletePromptClick(prompt.id, prompt.name)}
-                                                className="p-2.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/5 rounded-md transition-all"
+                                                className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/5 rounded-md transition-all"
                                                 title="Delete"
                                             >
                                                 <Trash2 className="h-4 w-4" />

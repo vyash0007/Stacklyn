@@ -105,7 +105,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="p-8 max-w-[1600px] mx-auto space-y-12">
+        <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-8 md:space-y-12">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
@@ -113,14 +113,14 @@ export default function Dashboard() {
                         <span className="w-1 h-1 rounded-full bg-zinc-400 animate-pulse"></span>
                         System Operational
                     </div>
-                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                    <h1 className="text-xl md:text-2xl lg:text-4xl font-bold tracking-tight text-white mb-1 md:mb-2">
                         Good morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-500 text-glow-zinc-500/10">Engineer.</span>
                     </h1>
-                    <p className="text-zinc-500 font-medium tracking-wide">Overview of your AI engineering workbench.</p>
+                    <p className="text-xs md:text-sm lg:text-base text-zinc-500 font-medium tracking-wide">Overview of your AI engineering workbench.</p>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-md text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <button className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-black rounded-md text-xs font-bold uppercase tracking-wider hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                         <Plus className="h-3.5 w-3.5" />
                         New Project
                     </button>
@@ -128,7 +128,7 @@ export default function Dashboard() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                 <StatCard
                     title="Workspaces"
                     value={stats.projects}

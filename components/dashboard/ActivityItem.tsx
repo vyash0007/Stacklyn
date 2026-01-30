@@ -61,14 +61,14 @@ export function ActivityItem({
 
                 <div className="flex flex-col min-w-0">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-zinc-200 truncate max-w-[120px]">
+                        <span className="text-xs font-bold text-zinc-200 truncate max-w-[100px] xs:max-w-[150px] md:max-w-[120px]">
                             {user}
                         </span>
                         <div className="shrink-0 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all scale-75">
                             {getEntityIcon()}
                         </div>
                     </div>
-                    <p className="text-[10px] text-zinc-500 font-medium truncate max-w-[180px] group-hover:text-zinc-400 transition-colors">
+                    <p className="text-[10px] text-zinc-500 font-medium truncate max-w-[150px] xs:max-w-[200px] md:max-w-[180px] group-hover:text-zinc-400 transition-colors">
                         {title}
                     </p>
                 </div>

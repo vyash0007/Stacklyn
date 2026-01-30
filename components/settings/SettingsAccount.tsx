@@ -80,14 +80,14 @@ export function SettingsAccount() {
 
     return (
         <div className="space-y-12">
-            <div className="p-8 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-6">
-                <div className="flex items-start gap-4">
-                    <div className="p-2 bg-red-500/10 rounded-lg text-red-500">
-                        <AlertTriangle className="h-5 w-5" />
+            <div className="p-4 md:p-8 rounded-2xl border border-red-500/20 bg-red-500/5 space-y-6">
+                <div className="flex items-start gap-3 md:gap-4">
+                    <div className="p-2 bg-red-500/10 rounded-lg text-red-500 shrink-0">
+                        <AlertTriangle className="h-4 w-4 md:h-5 md:w-5" />
                     </div>
                     <div>
-                        <h4 className="text-lg font-bold text-white">Danger Zone</h4>
-                        <p className="text-sm text-zinc-500 mt-1">
+                        <h4 className="text-base md:text-lg font-bold text-white">Danger Zone</h4>
+                        <p className="text-xs md:text-sm text-zinc-500 mt-1">
                             Permanently delete your account and all associated data. This action cannot be undone.
                         </p>
                     </div>
@@ -97,7 +97,7 @@ export function SettingsAccount() {
                     <Button
                         variant="destructive"
                         onClick={openDeleteModal}
-                        className="h-11 px-8 font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20"
+                        className="h-10 md:h-11 px-6 md:px-8 text-sm md:text-base font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20"
                     >
                         Delete Account
                     </Button>

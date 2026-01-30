@@ -9,8 +9,10 @@ import {
     ChevronDown,
     ChevronUp,
     Reply,
-    ExternalLink
+    ExternalLink,
+    ListFilter
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { useApi } from '@/hooks/useApi';
 import { ChatMessage, Project, MessageReaction } from '@/types';
@@ -23,6 +25,7 @@ const TeamsPage = () => {
     const api = useApi();
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+    const [isProjectListOpen, setIsProjectListOpen] = useState(true);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -120,6 +123,7 @@ const TeamsPage = () => {
             }
         };
         loadMessages();
+        setIsProjectListOpen(false); // Close mobile project list on selection
     }, [selectedProjectId, api]);
 
     // Load project members when project changes (for @mentions)
@@ -386,18 +390,27 @@ const TeamsPage = () => {
     };
 
     return (
-        <div className="flex h-[calc(100vh-64px)] font-sans text-white animate-in fade-in duration-500 overflow-hidden">
+        <div className="flex flex-col lg:flex-row h-[calc(100vh-56px)] font-sans text-white animate-in fade-in duration-500 overflow-hidden relative">
 
-            {/* --- Left Sidebar: Projects List --- */}
-            <div className="w-64 border-r border-white/5 flex flex-col bg-[#121212] h-full">
-                <div className="p-5 flex items-center justify-between">
-                    <h2 className="text-sm font-lg tracking-tight text-white">Projects</h2>
-                    <span className="text-[10px] font-medium text-zinc-500">
-                        {messages.length} Messages
-                    </span>
+            {/* --- Project Selector Sidebar (Collapsible on mobile) --- */}
+            {isProjectListOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[65] lg:hidden"
+                    onClick={() => setIsProjectListOpen(false)}
+                />
+            )}
+            <div className={cn(
+                "fixed inset-y-0 left-0 w-64 bg-[#121212] border-r border-white/5 flex flex-col z-[70] transition-transform duration-300 lg:relative lg:translate-x-0 lg:z-auto lg:h-full",
+                isProjectListOpen ? "translate-x-0" : "-translate-x-full"
+            )}>
+                <div className="p-5 flex items-center justify-between border-b border-white/5">
+                    <h2 className="text-sm font-lg tracking-tight text-white">Project Channels</h2>
+                    <button onClick={() => setIsProjectListOpen(false)} className="lg:hidden text-zinc-500 hover:text-white">
+                        <ChevronDown className="h-4 w-4 rotate-90" />
+                    </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-3 space-y-1">
+                <div className="flex-1 overflow-y-auto p-3 space-y-1">
                     {projects.map((project) => (
                         <button
                             key={project.id}
@@ -427,12 +440,23 @@ const TeamsPage = () => {
             <div className="flex-1 flex flex-col min-w-0 h-full relative">
 
                 {/* Top Header (Breadcrumb & Title) */}
-                <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between shrink-0">
-                    <div>
-                        <div className="text-xs text-zinc-500 mb-1 font-lg tracking-tight">Home / Chat</div>
-                        <h1 className="text-2xl font-lg tracking-tight text-white">
-                            {projects.find(p => p.id === selectedProjectId)?.name || 'Select a Project'}
-                        </h1>
+                <div className="px-4 md:px-8 py-4 md:py-6 border-b border-white/5 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsProjectListOpen(true)}
+                            className="lg:hidden flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-zinc-100 transition-all active:scale-95"
+                        >
+                            <h1 className="text-sm font-lg tracking-tight truncate max-w-[120px]">
+                                {projects.find(p => p.id === selectedProjectId)?.name || 'Select Project'}
+                            </h1>
+                            <ChevronDown className={cn("h-3.5 w-3.5 text-zinc-500 transition-transform", isProjectListOpen && "rotate-180")} />
+                        </button>
+                        <div className="hidden lg:block">
+                            <div className="text-xs text-zinc-500 mb-1 font-lg tracking-tight">Home / Chat</div>
+                            <h1 className="text-2xl font-lg tracking-tight text-white">
+                                {projects.find(p => p.id === selectedProjectId)?.name || 'Select a Project'}
+                            </h1>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -452,15 +476,15 @@ const TeamsPage = () => {
                 </div>
 
                 {/* Feed Filters */}
-                <div className="px-8 py-4 flex items-center justify-between border-b border-white/5 shrink-0">
-                    <h2 className="text-sm font-lg tracking-tight text-zinc-300">Project Chat</h2>
-                    <div className="flex items-center gap-6 text-xs text-zinc-500 font-lg tracking-tight">
+                <div className="px-4 md:px-8 py-3 md:py-4 flex items-center justify-between border-b border-white/5 shrink-0">
+                    <h2 className="text-xs md:text-sm font-lg tracking-tight text-zinc-300">Project Chat</h2>
+                    <div className="flex items-center gap-6 text-[10px] md:text-xs text-zinc-500 font-lg tracking-tight">
                         <span>{messages.length} messages</span>
                     </div>
                 </div>
 
                 {/* Timeline Feed - SCROLLABLE AREA */}
-                <div className="flex-1 overflow-y-auto p-8 relative">
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
                             <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
@@ -478,7 +502,7 @@ const TeamsPage = () => {
                     ) : (
                         <div className="max-w-4xl">
                             {/* Vertical Timeline Line */}
-                            <div className="absolute left-[54px] top-8 bottom-0 w-px bg-white/10" />
+                            <div className="absolute left-[30px] md:left-[54px] top-8 bottom-0 w-px bg-white/10" />
 
                             <div className="space-y-8">
                                 {Object.entries(groupedMessages).map(([dateGroup, groupMessages]) => (
@@ -495,17 +519,17 @@ const TeamsPage = () => {
                                             const replyCount = message.replies_count || 0;
 
                                             return (
-                                                <div key={message.id} className="relative pl-16 group mb-8">
+                                                <div key={message.id} className="relative pl-10 md:pl-16 group mb-8">
                                                     {/* Avatar Marker */}
-                                                    <div className="absolute left-0 top-0 w-10 h-10">
+                                                    <div className="absolute left-0 top-0 w-8 h-8 md:w-10 md:h-10">
                                                         {message.user?.image_url ? (
                                                             <img
                                                                 src={message.user.image_url}
                                                                 alt={message.user.name || 'User'}
-                                                                className="w-10 h-10 rounded-full border-4 border-[#181818] bg-slate-100 object-cover relative z-10"
+                                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[3px] md:border-4 border-[#181818] bg-slate-100 object-cover relative z-10"
                                                             />
                                                         ) : (
-                                                            <div className="w-10 h-10 rounded-full border-4 border-[#181818] bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-sm relative z-10">
+                                                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[3px] md:border-4 border-[#181818] bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs md:text-sm relative z-10">
                                                                 {message.user?.name?.charAt(0).toUpperCase() || 'U'}
                                                             </div>
                                                         )}
@@ -536,19 +560,20 @@ const TeamsPage = () => {
                                                                 {/* Thread toggle button */}
                                                                 <button
                                                                     onClick={() => toggleThread(message.id)}
-                                                                    className="flex items-center gap-1.5 hover:text-white transition-professional"
+                                                                    className="flex items-center gap-1.5 hover:text-white transition-professional shrink-0"
                                                                 >
                                                                     {isExpanded ? (
-                                                                        <ChevronUp className="h-4 w-4" />
+                                                                        <ChevronUp className="h-3 w-3 md:h-4 md:w-4" />
                                                                     ) : (
-                                                                        <ChevronDown className="h-4 w-4" />
+                                                                        <ChevronDown className="h-3 w-3 md:h-4 md:w-4" />
                                                                     )}
-                                                                    <MessageSquare className="h-4 w-4" />
-                                                                    {replyCount > 0 ? `${replyCount} replies` : 'Reply'}
+                                                                    <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
+                                                                    <span className="hidden xs:inline">{replyCount > 0 ? `${replyCount} replies` : 'Reply'}</span>
+                                                                    <span className="xs:hidden">{replyCount > 0 ? replyCount : ''}</span>
                                                                 </button>
                                                                 {/* Last activity - show if there are replies */}
                                                                 {replyCount > 0 && (
-                                                                    <span className="text-zinc-600 ml-auto">
+                                                                    <span className="text-[10px] md:text-zinc-600 ml-auto hidden sm:inline">
                                                                         Last activity at {format(
                                                                             new Date(replies.length > 0 ? replies[replies.length - 1].created_at : message.created_at),
                                                                             'HH:mm'
@@ -658,7 +683,7 @@ const TeamsPage = () => {
                 </div>
 
                 {/* --- Bottom Chat Input - FIXED POSITIONED AT THE BOTTOM --- */}
-                <div className="px-8 py-4 border-t border-white/5 shrink-0">
+                <div className="px-4 md:px-8 py-3 md:py-4 border-t border-white/5 shrink-0 bg-[#181818]/80 backdrop-blur-xl">
                     <div className="max-w-4xl mx-auto relative">
                         {/* Mention Dropdown for main input */}
                         {showMentionDropdown && mentionInputType === 'main' && (

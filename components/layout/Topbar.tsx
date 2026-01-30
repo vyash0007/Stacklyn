@@ -26,7 +26,7 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
     }, []);
 
     return (
-        <header className="h-14 bg-[#181818]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 sticky top-0 z-40 transition-all duration-300">
+        <header className="h-14 bg-[#181818]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between pl-16 lg:px-6 sticky top-0 z-40 transition-all duration-300">
             <div className="flex items-center space-x-2">
                 {breadcrumb && (
                     <>

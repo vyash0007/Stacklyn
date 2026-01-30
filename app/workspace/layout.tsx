@@ -33,7 +33,7 @@ export default function WorkspaceLayout({
 
             <Sidebar />
 
-            <main className="flex-1 ml-64 flex flex-col min-h-screen relative z-10 transition-all duration-300">
+            <main className="flex-1 ml-0 lg:ml-64 flex flex-col min-h-screen relative z-10 transition-all duration-300">
                 <Topbar title={getTitle()} breadcrumb="Workspace" />
                 <div className="flex-1 overflow-y-auto relative">{children}</div>
             </main>

@@ -34,7 +34,7 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
     return (
         <div className="bg-[#1F1F1F] rounded-md border border-white/5 shadow-3xl overflow-hidden backdrop-blur-md">
             {/* Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-white/[0.02] border-b border-white/5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] items-center">
+            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-white/[0.02] border-b border-white/5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] items-center">
                 <div className="col-span-6">Project Name</div>
                 <div className="col-span-3">Created On</div>
                 <div className="col-span-3">Collaboration</div>
@@ -47,13 +47,13 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                         <Link
                             key={project.id}
                             href={`/workspace/projects/${project.id}`}
-                            className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-white/[0.04] transition-all duration-300 items-center group relative overflow-hidden"
+                            className="flex flex-col md:grid md:grid-cols-12 gap-4 px-6 py-5 hover:bg-white/[0.04] transition-all duration-300 md:items-center group relative overflow-hidden"
                         >
                             {/* Accent line on hover */}
                             <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                             {/* Project Info */}
-                            <div className="col-span-6 flex items-center gap-4">
+                            <div className="md:col-span-6 flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 group-hover:text-white transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                                     <Folder className="h-5 w-5" />
                                 </div>
@@ -71,14 +71,15 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                             </div>
 
                             {/* Created Date */}
-                            <div className="col-span-3">
+                            <div className="md:col-span-3 flex items-center gap-2 md:block">
+                                <span className="text-[10px] md:hidden font-bold text-zinc-600 uppercase tracking-widest">Created:</span>
                                 <p className="text-xs font-medium text-zinc-400">
                                     {formatDate(project.created_at)}
                                 </p>
                             </div>
 
                             {/* Shared With & Actions */}
-                            <div className="col-span-3 flex items-center justify-between">
+                            <div className="md:col-span-3 flex items-center justify-between mt-2 md:mt-0">
                                 <div className="flex items-center gap-2">
                                     {project.members && project.members.length > 0 ? (
                                         <>
@@ -138,14 +139,14 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
 
             {/* Footer / Pagination */}
             {showFooter && projects.length > 0 && !showPagination && (
-                <div className="px-6 py-4 bg-white/[0.01] border-t border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-500 font-medium">
-                    <div className="flex items-center gap-2">
+                <div className="px-6 py-4 bg-white/[0.01] border-t border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-500 font-medium">
+                    <div className="flex items-center gap-2 self-start sm:self-center">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         Showing {Math.min(projects.length, limit)} active workspaces
                     </div>
                     <Link
                         href="/workspace/projects"
-                        className="text-zinc-400 hover:text-white font-bold flex items-center gap-2 transition-colors uppercase tracking-widest"
+                        className="text-zinc-400 hover:text-white font-bold flex items-center gap-2 transition-colors uppercase tracking-widest self-end sm:self-center"
                     >
                         Project Directory
                         <ArrowUpRight className="h-3 w-3" />

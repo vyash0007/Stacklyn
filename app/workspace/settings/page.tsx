@@ -16,33 +16,33 @@ export default function SettingsPage() {
 
     return (
         <div className="min-h-screen bg-[#181818]">
-            <div className="bg-[#181818] border-b border-white/5 pb-8 pt-12">
-                <div className="max-w-4xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="bg-[#181818] border-b border-white/5 pb-6 pt-8 md:pb-8 md:pt-12">
+                <div className="max-w-4xl mx-auto px-4 md:px-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
                         <div>
-                            <h2 className="text-3xl font-bold text-white tracking-tight">
+                            <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                                 Settings
                             </h2>
                         </div>
 
                         {/* Top Navigation - Clean Pills */}
-                        <div className="flex p-1 bg-white/5 rounded-xl border border-white/5">
+                        <div className="flex p-1 bg-white/5 rounded-xl border border-white/5 overflow-x-auto no-scrollbar max-w-full">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={cn(
-                                        "flex items-center gap-2 px-6 py-2 rounded-lg transition-all duration-200",
+                                        "flex items-center gap-2 px-4 md:px-6 py-2 rounded-lg transition-all duration-200 shrink-0",
                                         activeTab === tab.id
                                             ? "bg-white text-black shadow-sm"
                                             : "text-zinc-500 hover:text-zinc-300"
                                     )}
                                 >
                                     <tab.icon className={cn(
-                                        "h-4 w-4 transition-colors",
+                                        "h-3.5 w-3.5 md:h-4 md:w-4 transition-colors",
                                         activeTab === tab.id ? "text-black" : "text-zinc-500"
                                     )} />
-                                    <span className="text-sm font-bold tracking-tight">{tab.label}</span>
+                                    <span className="text-xs md:text-sm font-bold tracking-tight">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -51,7 +51,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-4xl mx-auto px-6 py-12">
+            <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
                 <main className="animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-both">
                     <div key={activeTab}>
                         {activeTab === "profile" && <SettingsProfile />}

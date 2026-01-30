@@ -80,7 +80,7 @@ export function SettingsProfile() {
         <div className="space-y-12">
             <form onSubmit={handleProfileUpdate} className="space-y-12">
                 {/* Avatar Section */}
-                <div className="flex flex-col sm:flex-row items-center gap-10">
+                <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-10">
                     <div className="relative">
                         <div className="h-24 w-24 rounded-2xl overflow-hidden border border-white/10 bg-black/40 shadow-sm relative">
                             {isUploading ? (
@@ -113,7 +113,7 @@ export function SettingsProfile() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                     <div className="space-y-2 group">
                         <Label htmlFor="name" className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider group-focus-within:text-white transition-colors">Display Name</Label>
                         <Input

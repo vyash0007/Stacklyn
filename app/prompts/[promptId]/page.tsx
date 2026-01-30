@@ -111,6 +111,7 @@ export default function PromptWorkspacePage() {
     }>({ open: false, type: null, id: "", name: "" });
 
     const [activeTab, setActiveTab] = useState<'system' | 'user'>('system');
+    const [mobileTab, setMobileTab] = useState<'editor' | 'history' | 'variables' | 'runs'>('editor');
     const [variables, setVariables] = useState(
         JSON.stringify({
             user_name: "Alice",
@@ -410,26 +411,26 @@ export default function PromptWorkspacePage() {
                         </button>
                     </Link>
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/5 rounded-lg text-white border border-white/10">
+                        <div className="p-2 bg-white/5 rounded-lg text-white border border-white/10 shrink-0">
                             <Terminal size={16} />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <h1 className="text-sm font-bold text-white tracking-tight">{prompt.name}</h1>
-                                <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-[9px] text-zinc-400 border border-white/5 font-mono">DRAFT</span>
+                                <h1 className="text-sm font-bold text-white tracking-tight truncate max-w-[120px] sm:max-w-none">{prompt.name}</h1>
+                                <span className="px-1.5 py-0.5 rounded bg-zinc-800 text-[9px] text-zinc-400 border border-white/5 font-mono hidden xs:inline">DRAFT</span>
                             </div>
-                            <p className="text-[10px] text-zinc-500 font-mono">
-                                Version: {selectedCommit?.id.substring(0, 7) || 'latest'} • {commits.length} iterations
+                            <p className="text-[10px] text-zinc-500 font-mono truncate">
+                                v{selectedCommit?.id.substring(0, 7) || 'latest'} • {commits.length} iters
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 md:gap-3">
                     <button
                         onClick={openCompareDialog}
                         disabled={commits.length < 2 || !selectedCommit}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:border-white/20 transition-all disabled:opacity-30"
+                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:border-white/20 transition-all disabled:opacity-30"
                     >
                         <GitCompare size={14} /> Compare
                     </button>
@@ -437,7 +438,10 @@ export default function PromptWorkspacePage() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:border-white/20 transition-all">
-                                <Cpu size={14} /> Model Selection <ChevronDown size={12} />
+                                <Cpu size={14} />
+                                <span className="hidden sm:inline">Model Selection</span>
+                                <span className="sm:hidden">Model</span>
+                                <ChevronDown size={12} />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-[#1F1F1F] border-white/10 text-zinc-300">
@@ -452,19 +456,47 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={handleCommit}
                         disabled={isSaving}
-                        className="flex items-center gap-2 px-4 py-1.5 bg-white hover:bg-zinc-200 text-black text-xs font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
+                        className="flex items-center gap-2 px-3 md:px-4 py-1.5 bg-white hover:bg-zinc-200 text-black text-[10px] md:text-xs font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
                     >
                         {isSaving ? <Layers size={14} className="animate-spin" /> : <Save size={14} />}
-                        Save & Deploy
+                        <span className="hidden xs:inline">Save & Deploy</span>
+                        <span className="xs:hidden">Save</span>
                     </button>
                 </div>
             </header>
+
+            {/* --- Mobile Tab Navigation --- */}
+            <div className="lg:hidden flex border-b border-white/5 bg-[#121212] overflow-x-auto no-scrollbar shrink-0">
+                {[
+                    { id: 'editor', label: 'Editor', icon: Code },
+                    { id: 'runs', label: 'Simulation', icon: Play },
+                    { id: 'history', label: 'History', icon: History },
+                    { id: 'variables', label: 'Config', icon: Zap },
+                ].map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setMobileTab(tab.id as any)}
+                        className={cn(
+                            "flex-1 flex items-center justify-center gap-2 py-3 px-4 transition-all border-b-2 shrink-0",
+                            mobileTab === tab.id
+                                ? "text-white border-white bg-white/5"
+                                : "text-zinc-500 border-transparent hover:text-zinc-300"
+                        )}
+                    >
+                        <tab.icon size={14} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{tab.label}</span>
+                    </button>
+                ))}
+            </div>
 
             {/* --- Main Workspace Layout --- */}
             <div className="flex-1 flex min-h-0 relative z-10">
 
                 {/* 1. LEFT: Version Sidebar */}
-                <div className="w-64 border-r border-white/5 bg-[#121212] flex flex-col shrink-0">
+                <div className={cn(
+                    "w-full lg:w-64 border-r border-white/5 bg-[#121212] flex flex-col shrink-0",
+                    mobileTab === 'history' ? "flex" : "hidden lg:flex"
+                )}>
                     <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Version History</span>
                         <History size={12} className="text-zinc-600" />
@@ -535,7 +567,10 @@ export default function PromptWorkspacePage() {
                 </div>
 
                 {/* 2. LEFT-INNER: Variable Config */}
-                <div className="w-72 border-r border-white/5 bg-[#121212] flex flex-col shrink-0">
+                <div className={cn(
+                    "w-full lg:w-72 border-r border-white/5 bg-[#121212] flex flex-col shrink-0",
+                    mobileTab === 'variables' ? "flex" : "hidden lg:flex"
+                )}>
                     <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
                         <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Test Variables</span>
                         <Code size={12} className="text-zinc-600" />
@@ -554,7 +589,10 @@ export default function PromptWorkspacePage() {
                 </div>
 
                 {/* 3. CENTER: Prompt Editor */}
-                <div className="flex-1 flex flex-col bg-[#181818] relative min-w-0">
+                <div className={cn(
+                    "flex-1 flex flex-col bg-[#181818] relative min-w-0",
+                    mobileTab === 'editor' ? "flex" : "hidden lg:flex"
+                )}>
                     <div className="h-10 border-b border-white/[0.05] flex items-center px-4 gap-4 bg-[#121212] shrink-0">
                         <button
                             onClick={() => setActiveTab('system')}
@@ -611,7 +649,10 @@ export default function PromptWorkspacePage() {
                 </div>
 
                 {/* 4. RIGHT: Simulation / Run History */}
-                <div className="w-96 border-l border-white/5 bg-[#121212] flex flex-col shrink-0">
+                <div className={cn(
+                    "w-full lg:w-96 border-l border-white/5 bg-[#121212] flex flex-col shrink-0",
+                    mobileTab === 'runs' ? "flex" : "hidden lg:flex"
+                )}>
                     <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Play size={12} className="text-emerald-500" />

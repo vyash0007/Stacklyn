@@ -73,11 +73,11 @@ export default function ProjectsPage() {
     };
 
     return (
-        <div className="p-8 max-w-[1600px] mx-auto space-y-12">
+        <div className="p-4 lg:p-8 max-w-[1600px] mx-auto space-y-12">
             {/* Header and Controls */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                    <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-white mb-2">
                         Project <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-100 to-zinc-500">Directory.</span>
                     </h1>
                     <p className="text-zinc-500 font-medium tracking-wide">Orchestrate and version your AI workspaces.</p>
