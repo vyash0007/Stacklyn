@@ -3,9 +3,7 @@ import CustomSignIn from "@/components/auth/CustomSignIn";
 
 export default function SignInPage() {
     return (
-        <SignInLayout
-            title={<>Resume your AI engineering</>}
-        >
+        <SignInLayout>
             <CustomSignIn />
         </SignInLayout>
     );

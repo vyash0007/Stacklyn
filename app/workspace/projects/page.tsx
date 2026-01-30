@@ -99,12 +99,12 @@ export default function ProjectsPage() {
                         </button>
                     </div>
 
-                    <div className="hidden sm:flex items-center bg-white/[0.03] border border-white/[0.08] rounded-md px-4 h-10 group focus-within:border-white/20 transition-all">
+                    <div className="hidden sm:flex items-center bg-white/[0.03] border border-white/[0.08] rounded-md px-4 h-10 group transition-all">
                         <Search className="h-3.5 w-3.5 text-zinc-600 group-focus-within:text-zinc-400" />
                         <input
                             type="text"
                             placeholder="Filter projects..."
-                            className="bg-transparent border-none text-[11px] text-white focus:ring-0 placeholder-zinc-700 w-32 md:w-48 ml-2"
+                            className="bg-transparent border-none text-[11px] text-white focus:ring-0 focus:outline-none placeholder-zinc-700 w-32 md:w-48 ml-2"
                         />
                     </div>
                 </div>

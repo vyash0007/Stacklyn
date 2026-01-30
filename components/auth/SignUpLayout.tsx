@@ -11,7 +11,7 @@ interface SignUpLayoutProps {
 
 export function SignUpLayout({
     children,
-    title = "Ship AI agents without friction",
+    title = "Stop managing prompts in spreadsheets",
     subtitle = "The unified platform for prompt engineering, evaluation, and production monitoring.",
 }: SignUpLayoutProps) {
     return (
@@ -36,10 +36,10 @@ export function SignUpLayout({
             <div className="flex flex-col w-full lg:w-[45%] h-full bg-[#181818] px-8 md:px-16 py-6 lg:py-8 relative z-10 lg:pr-32 overflow-hidden justify-center shadow-[20px_0_50px_-10px_rgba(0,0,0,0.5)] border-r border-white/5">
                 <div className="flex items-center mb-6 lg:mb-10 2xl:mb-16 text-left justify-start px-2 lg:px-0">
                     <Link href="/" className="flex items-center space-x-3 group min-w-max">
-                        <div className="bg-zinc-100 p-2.5 rounded-xl group-hover:bg-white transition-all duration-300 shadow-md transform group-hover:rotate-6">
+                        <div className="bg-zinc-100 p-2.5 rounded-md group-hover:bg-white transition-all duration-300 shadow-md transform group-hover:rotate-6">
                             <Layers className="h-5.5 w-5.5 text-black" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-white group-hover:text-zinc-300 transition-colors whitespace-nowrap">
+                        <span className="text-xl font-lg tracking-tight text-white group-hover:text-zinc-300 transition-colors whitespace-nowrap">
                             Stacklyn.
                         </span>
                     </Link>
@@ -50,7 +50,7 @@ export function SignUpLayout({
                 </div>
 
                 <div className="mt-6 2xl:mt-12 text-center">
-                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em]">
+                    <p className="text-[10px] text-zinc-600 font-lg uppercase tracking-tight opacity-50">
                         Frictionless Agent Infrastructure
                     </p>
                 </div>
@@ -62,41 +62,41 @@ export function SignUpLayout({
 
                 <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
                     <div className="text-center self-center max-w-xl mb-4 lg:mb-6 2xl:mb-12 px-6">
-                        <h2 className="text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight text-white mb-2 lg:mb-4 leading-[0.95]">
+                        <h2 className="text-4xl lg:text-5xl xl:text-6xl font-lg tracking-tight text-white mb-2 lg:mb-4 leading-[0.95]">
                             {title}
                         </h2>
                     </div>
 
                     <div className="relative w-full h-[450px] lg:h-[480px] xl:h-[540px] flex items-center justify-center">
                         {/* Prompt Management Card */}
-                        <div className="absolute top-4 right-[2%] w-[340px] bg-[#1F1F1F]/60 backdrop-blur-xl rounded-[40px] shadow-[0_48px_96px_-24px_rgba(0,0,0,0.4)] p-10 z-30 transition-all border border-white/10">
+                        <div className="absolute top-4 right-[2%] w-[340px] bg-[#1F1F1F]/60 backdrop-blur-xl rounded-2xl shadow-[0_48px_96px_-24px_rgba(0,0,0,0.4)] p-10 z-30 transition-all border border-white/10 text-left">
                             <div className="flex justify-between items-center mb-6">
-                                <div className="space-y-1.5 text-left">
-                                    <div className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Core Product</div>
-                                    <div className="text-xl font-black text-white tracking-tight">Prompt Management</div>
+                                <div className="space-y-1.5">
+                                    <div className="text-[10px] font-lg text-zinc-500 uppercase tracking-tight">Core Product</div>
+                                    <div className="text-xl font-lg text-white tracking-tight">Prompt Manager</div>
                                 </div>
-                                <div className="h-14 w-14 bg-white p-2 text-black rounded-[22px] flex items-center justify-center shadow-lg">
-                                    <Terminal className="h-7 w-7" />
+                                <div className="h-14 w-14 bg-white p-2 text-black rounded-xl flex items-center justify-center shadow-lg">
+                                    <Layers className="h-7 w-7" />
                                 </div>
                             </div>
-                            <p className="text-sm text-zinc-400 font-medium leading-relaxed mb-8 text-left">
-                                Visually edit, A/B test, and deploy prompts. Compare usage and latency. Avoid waiting for eng redeploys.
+                            <p className="text-sm text-zinc-400 font-lg tracking-tight leading-relaxed mb-8">
+                                Visually edit, A/B test, and deploy prompts. Compare performance. Avoid waiting for engineering redeploys.
                             </p>
                         </div>
 
                         {/* Collaboration Experts Card */}
-                        <div className="absolute bottom-6 left-0 w-[400px] bg-[#1F1F1F]/60 backdrop-blur-xl rounded-[44px] shadow-[0_56px_110px_-28px_rgba(0,0,0,0.3)] p-10 z-20 border border-white/10 group">
-                            <div className="flex items-center space-x-5 mb-6 text-left">
-                                <div className="h-12 w-12 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center">
+                        <div className="absolute bottom-6 left-0 w-[400px] bg-[#1F1F1F]/60 backdrop-blur-xl rounded-2xl shadow-[0_56px_110px_-28px_rgba(0,0,0,0.3)] p-10 z-20 border border-white/10 group text-left">
+                            <div className="flex items-center space-x-5 mb-6">
+                                <div className="h-12 w-12 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center">
                                     <Users className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-white tracking-tight leading-tight">Collaboration with experts</h3>
-                                    <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mt-0.5">Non-technical Stakeholders</p>
+                                    <h3 className="text-lg font-lg text-white tracking-tight leading-tight">Stakeholder Access</h3>
+                                    <p className="text-[10px] text-zinc-600 font-lg uppercase tracking-tight mt-0.5 opacity-50">Collaboration</p>
                                 </div>
                             </div>
-                            <p className="text-sm text-zinc-400 font-medium leading-relaxed mb-6 text-left">
-                                Open up prompt iteration to non-technical stakeholders. Our LLM observability allows you to find edge-cases and improve prompts.
+                            <p className="text-sm text-zinc-400 font-lg tracking-tight leading-relaxed mb-6">
+                                Empower non-technical stakeholders to iterate on prompts safely. Use our LLM observability to find and fix edge-cases.
                             </p>
                         </div>
                     </div>

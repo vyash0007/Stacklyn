@@ -79,22 +79,22 @@ export default function CustomSignIn() {
 
     return (
         <div className="w-full max-w-sm mx-auto">
-            <div className="mb-8 2xl:mb-10 text-center lg:text-left">
-                <h1 className="text-3xl 2xl:text-4xl font-lg tracking-tight text-white mb-2 2xl:mb-3">Hi! Welcome back</h1>
-                <p className="text-zinc-500 font-light text-[15px] 2xl:text-[17px]">We're glad to see you again. Please log in to continue.</p>
+            <div className="mb-6 2xl:mb-10 text-center lg:text-left">
+                <h1 className="text-3xl 2xl:text-4xl font-lg tracking-tight text-white mb-2 2xl:mb-3">Welcome back</h1>
+                <p className="text-zinc-500 font-light text-[15px] 2xl:text-[17px]">Please enter your details to sign in to your account.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-6 2xl:mb-8 w-full">
+            <div className="grid grid-cols-2 gap-4 mb-6 2xl:mb-8">
                 <button
                     onClick={() => handleSocialLogin("oauth_google")}
-                    className="flex items-center justify-center space-x-3 bg-[#1F1F1F] border border-white/5 py-2.5 2xl:py-3 rounded-xl hover:bg-zinc-800 transition-all font-lg tracking-tight text-white shadow-sm"
+                    className="flex items-center justify-center space-x-3 bg-[#1F1F1F] border border-white/5 py-2.5 2xl:py-3 rounded-md hover:bg-zinc-800 transition-all font-lg tracking-tight text-white shadow-sm"
                 >
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
                     <span>Google</span>
                 </button>
                 <button
                     onClick={() => handleSocialLogin("oauth_github")}
-                    className="flex items-center justify-center space-x-3 bg-[#1F1F1F] border border-white/5 py-2.5 2xl:py-3 rounded-xl hover:bg-zinc-800 transition-all font-lg tracking-tight text-white shadow-sm"
+                    className="flex items-center justify-center space-x-3 bg-[#1F1F1F] border border-white/5 py-2.5 2xl:py-3 rounded-md hover:bg-zinc-800 transition-all font-lg tracking-tight text-white shadow-sm"
                 >
                     <Github className="h-5 w-5 text-white" />
                     <span>GitHub</span>
@@ -106,18 +106,19 @@ export default function CustomSignIn() {
                     <span className="w-full border-t border-white/5"></span>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#181818] px-4 text-zinc-500 font-bold tracking-[0.2em]">OR LOGIN WITH EMAIL</span>
+                    <span className="bg-[#181818] px-4 text-zinc-500 font-lg tracking-tight">OR CONTINUE WITH EMAIL</span>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 2xl:space-y-5 w-full">
+            <form onSubmit={handleSubmit} className="space-y-3 2xl:space-y-4 w-full">
                 {error && (
-                    <div className="p-3 2xl:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[13px] 2xl:text-sm font-medium">
+                    <div className="p-3 2xl:p-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-[13px] 2xl:text-sm font-lg tracking-tight">
                         {error}
                     </div>
                 )}
-                <div className="space-y-1.5 2xl:space-y-2 group">
-                    <label className="text-[11px] 2xl:text-xs font-bold text-zinc-500 ml-1 uppercase tracking-wider group-focus-within:text-white transition-colors">Email address</label>
+
+                <div className="space-y-1 group text-left">
+                    <label className="text-[11px] 2xl:text-xs font-lg text-zinc-500 ml-1 uppercase tracking-wider group-focus-within:text-white transition-colors">Email address</label>
                     <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
                         <input
@@ -125,22 +126,27 @@ export default function CustomSignIn() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@company.com"
-                            className="flex h-11 2xl:h-12 w-full rounded-xl border border-white/5 bg-black/40 pl-12 pr-4 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all shadow-sm"
+                            className="flex h-11 2xl:h-12 w-full rounded-md border border-white/5 bg-black/40 pl-12 pr-4 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all shadow-sm"
                             required
                         />
                     </div>
                 </div>
 
-                <div className="space-y-1.5 2xl:space-y-2 group">
-                    <label className="text-[11px] 2xl:text-xs font-bold text-zinc-500 ml-1 uppercase tracking-wider group-focus-within:text-white transition-colors">Password</label>
+                <div className="space-y-1 group text-left">
+                    <div className="flex justify-between items-center px-1">
+                        <label className="text-[11px] 2xl:text-xs font-lg text-zinc-500 uppercase tracking-wider group-focus-within:text-white transition-colors">Password</label>
+                        <Link href="/sign-up" className="text-[11px] 2xl:text-xs font-lg text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+                            Forgot password?
+                        </Link>
+                    </div>
                     <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500" />
                         <input
                             type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="flex h-11 2xl:h-12 w-full rounded-xl border border-white/5 bg-black/40 pl-12 pr-12 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all shadow-sm"
+                            placeholder="Enter password"
+                            className="flex h-11 2xl:h-12 w-full rounded-md border border-white/5 bg-black/40 pl-12 pr-12 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-white/10 focus:border-white/20 transition-all shadow-sm"
                             required
                         />
                         {password.length > 0 && (
@@ -159,26 +165,28 @@ export default function CustomSignIn() {
                     </div>
                 </div>
 
+                <div id="clerk-captcha" className="mt-2" />
+
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-white hover:bg-zinc-200 text-black font-bold tracking-tight py-3 2xl:py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center group disabled:opacity-70 mt-4"
+                    className="w-full bg-white hover:bg-zinc-200 text-black font-lg tracking-tight py-3 2xl:py-3.5 rounded-md shadow-lg transition-all flex items-center justify-center group disabled:opacity-70 mt-4"
                 >
                     {loading ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                         <>
-                            <span>Sign in to account</span>
+                            <span>Log in to Account</span>
                             <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         </>
                     )}
                 </button>
             </form>
 
-            <p className="mt-6 2xl:mt-10 text-center text-zinc-500 font-medium tracking-tight">
-                New to Stacklyn?{" "}
-                <Link href="/sign-up" className="text-white hover:text-zinc-300 font-bold decoration-dotted underline underline-offset-4 decoration-white/30">
-                    Create account
+            <p className="mt-6 2xl:mt-10 text-center text-zinc-500 font-lg tracking-tight">
+                Don't have an account?{" "}
+                <Link href="/sign-up" className="text-white hover:text-zinc-300 font-lg tracking-tight decoration-dotted underline underline-offset-4 decoration-white/30">
+                    Sign up
                 </Link>
             </p>
         </div>
