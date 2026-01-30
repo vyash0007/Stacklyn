@@ -285,7 +285,7 @@ export default function ProjectDetailsPage() {
     }
 
     return (
-        <div className="min-h-screen font-sans text-white animate-in fade-in duration-500 overflow-x-hidden relative">
+        <div className="min-h-screen font-sans text-zinc-900 dark:text-white animate-in fade-in duration-500 overflow-x-hidden relative">
 
             <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8 relative z-10">
 
@@ -297,14 +297,14 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-start gap-5">
                             <Link href="/workspace/projects">
                                 <button
-                                    className="group mt-1 p-2 bg-white/5 border border-white/10 rounded-md text-zinc-500 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all shadow-2xl backdrop-blur-md"
+                                    className="group mt-1 p-2 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-white/20 hover:bg-zinc-200 dark:hover:bg-white/10 transition-all shadow-2xl backdrop-blur-md"
                                 >
                                     <ArrowLeft className="h-4 w-4 md:h-5 md:w-5 group-hover:-translate-x-1 transition-transform" />
                                 </button>
                             </Link>
                             <div>
-                                <h1 className="text-2xl md:text-5xl font-black tracking-tight text-white flex items-center gap-3">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500">
+                                <h1 className="text-2xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-600 to-zinc-400 dark:from-white dark:to-zinc-500">
                                         {project!.name}
                                     </span>
                                 </h1>
@@ -317,14 +317,14 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={handleEditProjectClick}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white/5 border border-white/10 text-zinc-400 font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-white/10 hover:text-white transition-all shadow-xl backdrop-blur-md"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-500 dark:text-zinc-400 font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-white transition-all shadow-xl backdrop-blur-md"
                             >
                                 <Settings className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 <span>Settings</span>
                             </button>
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white text-black font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-all shadow-lg"
                             >
                                 <UserPlus className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 <span>Invite</span>
@@ -340,7 +340,7 @@ export default function ProjectDetailsPage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Input / Action Bar */}
-                        <div className="bg-[#1F1F1F] p-1.5 md:p-2 rounded-md border border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-white/5 focus-within:border-white/20 transition-all backdrop-blur-md">
+                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] p-1.5 md:p-2 rounded-md border border-zinc-200 dark:border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-zinc-200 dark:focus-within:ring-white/5 focus-within:border-zinc-300 dark:focus-within:border-white/20 transition-all backdrop-blur-md">
                             <input
                                 type="text"
                                 value={newPromptName}
@@ -354,13 +354,13 @@ export default function ProjectDetailsPage() {
                                     }
                                 }}
                                 placeholder="Create a new prompt chain..."
-                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-white placeholder-zinc-700 text-sm md:text-base py-2.5 md:py-3 ml-3 md:ml-4 font-medium tracking-tight"
+                                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-700 text-sm md:text-base py-2.5 md:py-3 ml-3 md:ml-4 font-medium tracking-tight"
                             />
                             <div className="pr-1 md:pr-2 flex items-center gap-2">
                                 <button
                                     onClick={handleCreatePrompt}
                                     disabled={isLoading || !newPromptName.trim()}
-                                    className="bg-white text-black p-2 md:p-2.5 rounded-md hover:bg-zinc-200 transition-colors shadow-lg disabled:opacity-30"
+                                    className="bg-zinc-900 dark:bg-white text-white dark:text-black p-2 md:p-2.5 rounded-md hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors shadow-lg disabled:opacity-30"
                                 >
                                     {isLoading ? <Clock className="h-4 w-4 md:h-5 md:w-5 animate-spin" /> : <Plus className="h-4 w-4 md:h-5 md:w-5" />}
                                 </button>
@@ -370,8 +370,8 @@ export default function ProjectDetailsPage() {
                         {/* List Header */}
                         <div className="flex items-center justify-between px-2">
                             <div className="flex items-center gap-2">
-                                <h2 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Prompts</h2>
-                                <span className="bg-white/5 border border-white/10 text-zinc-500 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
+                                <h2 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Prompts</h2>
+                                <span className="bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 text-zinc-500 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm">
                                     {filteredPrompts.length}
                                 </span>
                             </div>
@@ -382,16 +382,16 @@ export default function ProjectDetailsPage() {
                             {filteredPrompts.map((prompt) => (
                                 <div
                                     key={prompt.id}
-                                    className="group bg-[#1F1F1F] rounded-md border border-white/5 p-6 hover:bg-[#252527] hover:border-white/10 transition-all shadow-2xl relative overflow-hidden backdrop-blur-sm"
+                                    className="group bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-6 hover:bg-zinc-200 dark:hover:bg-[#252527] hover:border-zinc-300 dark:hover:border-white/10 transition-all shadow-2xl relative overflow-hidden backdrop-blur-sm"
                                 >
                                     {/* Accent line on hover */}
-                                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-zinc-900 dark:bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div className="flex items-center gap-4">
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-bold text-white text-base md:text-lg group-hover:text-zinc-200 transition-colors tracking-tight uppercase">
+                                                    <h3 className="font-bold text-zinc-900 dark:text-white text-base md:text-lg group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition-colors tracking-tight uppercase">
                                                         {prompt.name}
                                                     </h3>
                                                 </div>
@@ -400,8 +400,8 @@ export default function ProjectDetailsPage() {
                                                         <Clock className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                         {prompt.created_at ? formatRelativeTime(prompt.created_at) : "Never"}
                                                     </span>
-                                                    <span className="text-zinc-800">•</span>
-                                                    <span className="bg-white/5 px-2 py-0.5 rounded-md text-zinc-400 border border-white/5">
+                                                    <span className="text-zinc-300 dark:text-zinc-800">•</span>
+                                                    <span className="bg-zinc-200 dark:bg-white/5 px-2 py-0.5 rounded-md text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-white/5">
                                                         v1.0
                                                     </span>
                                                 </div>
@@ -410,23 +410,23 @@ export default function ProjectDetailsPage() {
 
                                         <div className="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all">
                                             <Link href={`/prompts/${prompt.id}`} className="flex-1 md:flex-none">
-                                                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-black text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-md hover:bg-zinc-200 transition-all shadow-xl">
+                                                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-white text-white dark:text-black text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-md hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-all shadow-xl">
                                                     Open <ExternalLink className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                                 </button>
                                             </Link>
 
-                                            <div className="hidden md:block w-px h-6 bg-white/10 mx-1"></div>
+                                            <div className="hidden md:block w-px h-6 bg-zinc-300 dark:bg-white/10 mx-1"></div>
 
                                             <button
                                                 onClick={() => handleEditPromptClick(prompt.id, prompt.name)}
-                                                className="p-2 text-zinc-500 hover:text-white hover:bg-white/5 rounded-md transition-all"
+                                                className="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/5 rounded-md transition-all"
                                                 title="Edit"
                                             >
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeletePromptClick(prompt.id, prompt.name)}
-                                                className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/5 rounded-md transition-all"
+                                                className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 dark:hover:bg-red-400/5 rounded-md transition-all"
                                                 title="Delete"
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -442,9 +442,9 @@ export default function ProjectDetailsPage() {
                                     const input = document.querySelector('input');
                                     if (input) input.focus();
                                 }}
-                                className="border-2 border-dashed border-white/5 rounded-md p-8 flex flex-col items-center justify-center text-zinc-500 hover:border-white/10 hover:bg-[#1F1F1F] transition-all group min-h-[140px]"
+                                className="border-2 border-dashed border-zinc-200 dark:border-white/5 rounded-md p-8 flex flex-col items-center justify-center text-zinc-500 hover:border-zinc-300 dark:hover:border-white/10 hover:bg-zinc-100 dark:hover:bg-[#1F1F1F] transition-all group min-h-[140px]"
                             >
-                                <div className="w-12 h-12 rounded-md bg-white/5 border border-white/10 flex items-center justify-center mb-4 group-hover:bg-white/10 group-hover:border-white/20 group-hover:scale-110 shadow-2xl transition-all text-zinc-400 group-hover:text-white">
+                                <div className="w-12 h-12 rounded-md bg-zinc-200 dark:bg-white/5 border border-zinc-300 dark:border-white/10 flex items-center justify-center mb-4 group-hover:bg-zinc-300 dark:group-hover:bg-white/10 group-hover:border-zinc-400 dark:group-hover:border-white/20 group-hover:scale-110 shadow-2xl transition-all text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white">
                                     <Plus className="h-6 w-6" />
                                 </div>
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Create another prompt</span>
@@ -457,17 +457,17 @@ export default function ProjectDetailsPage() {
 
 
                         {/* Team Members Card */}
-                        <div className="bg-[#1F1F1F] rounded-md border border-white/5 p-8 shadow-2xl backdrop-blur-md">
+                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-8 shadow-2xl backdrop-blur-md">
                             <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-xs font-bold text-white uppercase tracking-[0.2em]">Team Members</h3>
-                                <span className="text-[10px] bg-white/5 text-zinc-500 font-bold tracking-widest px-2 py-0.5 rounded-md border border-white/5 shadow-inner">
+                                <h3 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Team Members</h3>
+                                <span className="text-[10px] bg-zinc-200 dark:bg-white/5 text-zinc-500 font-bold tracking-widest px-2 py-0.5 rounded-md border border-zinc-300 dark:border-white/5 shadow-inner">
                                     {members.length}
                                 </span>
                             </div>
 
                             <div className="space-y-4">
                                 {members.map((member) => (
-                                    <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-[#252527] transition-all">
+                                    <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-[#252527] transition-all">
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
                                                 "w-10 h-10 rounded-md flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105",
@@ -476,31 +476,31 @@ export default function ProjectDetailsPage() {
                                                 {member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-white tracking-tight">
+                                                <div className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
                                                     {member.users?.name || member.users?.email || "Unknown"}
                                                     {member.isCurrentUser && (
-                                                        <span className="ml-1.5 text-[9px] text-zinc-600 font-bold uppercase tracking-widest">(You)</span>
+                                                        <span className="ml-1.5 text-[9px] text-zinc-400 dark:text-zinc-600 font-bold uppercase tracking-widest">(You)</span>
                                                     )}
                                                 </div>
-                                                <div className="text-[9px] font-bold tracking-[0.15em] text-zinc-600 uppercase mt-0.5">{member.role}</div>
+                                                <div className="text-[9px] font-bold tracking-[0.15em] text-zinc-500 dark:text-zinc-600 uppercase mt-0.5">{member.role}</div>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => handleDeleteMemberClick(member.user_id, member.users?.email || "Unknown")}
-                                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-white border-none rounded-md transition-all opacity-0 group-hover:opacity-100"
+                                            className="p-2 text-zinc-400 dark:text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-white border-none rounded-md transition-all opacity-0 group-hover:opacity-100"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </button>
                                     </div>
                                 ))}
                                 {members.length === 0 && (
-                                    <p className="text-xs text-slate-400 text-center py-6 font-medium italic">No members yet</p>
+                                    <p className="text-xs text-zinc-400 dark:text-slate-400 text-center py-6 font-medium italic">No members yet</p>
                                 )}
                             </div>
 
                             <button
                                 onClick={() => setInviteDialogOpen(true)}
-                                className="w-full mt-8 py-3.5 border border-white/10 rounded-md text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all flex items-center justify-center gap-3 group bg-black/20"
+                                className="w-full mt-8 py-3.5 border border-zinc-200 dark:border-white/10 rounded-md text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-white/20 hover:bg-zinc-200 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-3 group bg-white dark:bg-black/20"
                             >
                                 <UserPlus className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
                                 Invite Member
@@ -529,9 +529,9 @@ export default function ProjectDetailsPage() {
 
             {/* Edit Prompt Dialog */}
             <Dialog open={editPromptDialog.open} onOpenChange={(open) => setEditPromptDialog({ ...editPromptDialog, open })}>
-                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Edit Prompt</DialogTitle>
+                        <DialogTitle className="text-zinc-900 dark:text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Edit Prompt</DialogTitle>
                         <DialogDescription className="text-zinc-500 font-medium">Update the prompt identifier.</DialogDescription>
                     </DialogHeader>
                     <div className="py-8">
@@ -539,13 +539,13 @@ export default function ProjectDetailsPage() {
                             placeholder="Prompt name"
                             value={editPromptDialog.name}
                             onChange={(e) => setEditPromptDialog({ ...editPromptDialog, name: e.target.value })}
-                            className="h-12 bg-white/5 text-white border-white/10 rounded-md focus:ring-4 focus:ring-white/5 focus:border-white/20 transition-all font-medium tracking-tight"
+                            className="h-12 bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white border-zinc-200 dark:border-white/10 rounded-md focus:ring-4 focus:ring-zinc-200 dark:focus:ring-white/5 focus:border-zinc-300 dark:focus:border-white/20 transition-all font-medium tracking-tight"
                         />
                     </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-white/5">
                         <Button
                             variant="ghost"
-                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all"
                             onClick={() => setEditPromptDialog({ open: false, id: "", name: "" })}
                         >
                             Cancel
@@ -553,7 +553,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditPromptSave}
                             disabled={editPromptLoading || !editPromptDialog.name.trim()}
-                            className="bg-white hover:bg-zinc-200 text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
+                            className="bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
                         >
                             {editPromptLoading ? "Saving..." : "Save Changes"}
                         </Button>
@@ -563,35 +563,35 @@ export default function ProjectDetailsPage() {
 
             {/* Edit Project Dialog */}
             <Dialog open={editProjectDialog} onOpenChange={setEditProjectDialog}>
-                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Project Settings</DialogTitle>
+                        <DialogTitle className="text-zinc-900 dark:text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Project Settings</DialogTitle>
                         <DialogDescription className="text-zinc-500 font-medium">Update the workspace protocol.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6 py-8">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-600 uppercase ml-1">Workspace Name</label>
+                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 dark:text-zinc-600 uppercase ml-1">Workspace Name</label>
                             <Input
                                 placeholder="Project name"
                                 value={editProjectName}
                                 onChange={(e) => setEditProjectName(e.target.value)}
-                                className="h-12 bg-white/5 text-white border-white/10 rounded-md focus:ring-4 focus:ring-white/5 focus:border-white/20 transition-all font-medium tracking-tight"
+                                className="h-12 bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white border-zinc-200 dark:border-white/10 rounded-md focus:ring-4 focus:ring-zinc-200 dark:focus:ring-white/5 focus:border-zinc-300 dark:focus:border-white/20 transition-all font-medium tracking-tight"
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-600 uppercase ml-1">Description</label>
+                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 dark:text-zinc-600 uppercase ml-1">Description</label>
                             <Input
                                 placeholder="Project description (optional)"
                                 value={editProjectDescription}
                                 onChange={(e) => setEditProjectDescription(e.target.value)}
-                                className="h-12 bg-white/5 text-white border-white/10 rounded-md focus:ring-4 focus:ring-white/5 focus:border-white/20 transition-all font-medium tracking-tight"
+                                className="h-12 bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white border-zinc-200 dark:border-white/10 rounded-md focus:ring-4 focus:ring-zinc-200 dark:focus:ring-white/5 focus:border-zinc-300 dark:focus:border-white/20 transition-all font-medium tracking-tight"
                             />
                         </div>
                     </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-white/5">
                         <Button
                             variant="ghost"
-                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all"
                             onClick={() => setEditProjectDialog(false)}
                         >
                             Cancel
@@ -599,7 +599,7 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleEditProjectSave}
                             disabled={editProjectLoading || !editProjectName.trim()}
-                            className="bg-white hover:bg-zinc-200 text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
+                            className="bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
                         >
                             {editProjectLoading ? "Saving..." : "Save Settings"}
                         </Button>
@@ -609,30 +609,30 @@ export default function ProjectDetailsPage() {
 
             {/* Invitation Dialog */}
             <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-                <DialogContent className="sm:max-w-md bg-[#1F1F1F] border-white/10 rounded-md shadow-2xl">
+                <DialogContent className="sm:max-w-md bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 rounded-md shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Invite Team Member</DialogTitle>
-                        <DialogDescription className="text-zinc-500 font-medium font-medium">
+                        <DialogTitle className="text-zinc-900 dark:text-white font-bold tracking-tight text-xl uppercase tracking-[0.15em]">Invite Team Member</DialogTitle>
+                        <DialogDescription className="text-zinc-500 font-medium">
                             Add a collaborator to this workspace.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-6 py-8">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-600 uppercase ml-1">Email Address</label>
+                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 dark:text-zinc-600 uppercase ml-1">Email Address</label>
                             <Input
                                 placeholder="member@example.com"
                                 value={inviteEmail}
                                 onChange={(e) => setInviteEmail(e.target.value)}
-                                className="h-12 bg-white/5 text-white border-white/10 rounded-md focus:ring-4 focus:ring-white/5 focus:border-white/20 transition-all font-medium tracking-tight"
+                                className="h-12 bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white border-zinc-200 dark:border-white/10 rounded-md focus:ring-4 focus:ring-zinc-200 dark:focus:ring-white/5 focus:border-zinc-300 dark:focus:border-white/20 transition-all font-medium tracking-tight"
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-600 uppercase ml-1">Role Type</label>
+                            <label className="text-[10px] font-bold tracking-[0.2em] text-zinc-500 dark:text-zinc-600 uppercase ml-1">Role Type</label>
                             <Select value={inviteRole} onValueChange={setInviteRole}>
-                                <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-md focus:ring-white/5 transition-all">
+                                <SelectTrigger className="h-12 bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white rounded-md focus:ring-zinc-200 dark:focus:ring-white/5 transition-all">
                                     <SelectValue placeholder="Select a role" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-[#0c0c0e] border-white/10 text-white">
+                                <SelectContent className="bg-white dark:bg-[#0c0c0e] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
                                     <SelectItem value="admin">
                                         <div className="flex items-center gap-2">
                                             <Shield className="h-4 w-4 text-zinc-500" />
@@ -658,10 +658,10 @@ export default function ProjectDetailsPage() {
                             <p className="text-[10px] font-bold tracking-widest text-red-500 ml-1 uppercase">{inviteError}</p>
                         )}
                     </div>
-                    <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
+                    <div className="flex justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-white/5">
                         <Button
                             variant="ghost"
-                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                            className="rounded-md font-bold text-xs uppercase tracking-widest text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/5 transition-all"
                             onClick={() => setInviteDialogOpen(false)}
                         >
                             Cancel
@@ -669,13 +669,13 @@ export default function ProjectDetailsPage() {
                         <Button
                             onClick={handleInviteMember}
                             disabled={inviteLoading || !inviteEmail.trim()}
-                            className="bg-white hover:bg-zinc-200 text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
+                            className="bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-black rounded-md font-bold text-xs uppercase tracking-widest px-8 shadow-xl transition-all"
                         >
                             {inviteLoading ? "Inviting..." : "Send Invitation"}
                         </Button>
                     </div>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

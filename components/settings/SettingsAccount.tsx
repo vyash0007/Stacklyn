@@ -86,14 +86,14 @@ export function SettingsAccount() {
                         <AlertTriangle className="h-4 w-4 md:h-5 md:w-5" />
                     </div>
                     <div>
-                        <h4 className="text-base md:text-lg font-bold text-white">Danger Zone</h4>
+                        <h4 className="text-base md:text-lg font-bold text-zinc-900 dark:text-white">Danger Zone</h4>
                         <p className="text-xs md:text-sm text-zinc-500 mt-1">
                             Permanently delete your account and all associated data. This action cannot be undone.
                         </p>
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/5 flex items-center justify-end">
+                <div className="pt-6 border-t border-zinc-200 dark:border-white/5 flex items-center justify-end">
                     <Button
                         variant="destructive"
                         onClick={openDeleteModal}
@@ -105,15 +105,15 @@ export function SettingsAccount() {
             </div>
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border border-white/10 bg-[#1F1F1F] shadow-2xl">
+                <DialogContent className="sm:max-w-[480px] rounded-3xl p-0 overflow-hidden border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#1F1F1F] shadow-2xl">
                     {confirmationStep === 1 ? (
                         <>
-                            <div className="bg-white/5 p-8 text-white relative border-b border-white/5">
+                            <div className="bg-zinc-100 dark:bg-white/5 p-8 text-zinc-900 dark:text-white relative border-b border-zinc-200 dark:border-white/5">
                                 <div className="absolute top-2 right-2 opacity-10">
                                     <Trash2 className="h-24 w-24" />
                                 </div>
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black tracking-tight text-white">
+                                    <DialogTitle className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
                                         Delete account
                                     </DialogTitle>
                                 </DialogHeader>
@@ -125,13 +125,13 @@ export function SettingsAccount() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-xl font-bold text-white">Are you absolutely sure?</p>
-                                    <p className="text-sm text-zinc-400 max-w-xs mx-auto">
+                                    <p className="text-xl font-bold text-zinc-900 dark:text-white">Are you absolutely sure?</p>
+                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xs mx-auto">
                                         This will permanently delete your account and all associated data.
                                     </p>
                                 </div>
                                 <Button
-                                    className="w-full h-14 bg-white/5 hover:bg-white/10 text-red-500 border border-white/10 font-bold rounded-xl transition-all"
+                                    className="w-full h-14 bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-red-500 border border-zinc-200 dark:border-white/10 font-bold rounded-xl transition-all"
                                     onClick={handleFirstConfirmation}
                                 >
                                     I want to delete my account
