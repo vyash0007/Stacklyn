@@ -189,6 +189,67 @@ export function useApi() {
         getActivities: (limit: number = 20, offset: number = 0) =>
             fetchWithAuth<any[]>(`/activities?limit=${limit}&offset=${offset}`),
 
+        // Token Usage Stats
+        getTokenUsageStats: () => fetchWithAuth<{
+            total_input_tokens: number;
+            total_output_tokens: number;
+            total_requests: number;
+            by_model: Array<{
+                model_name: string;
+                _sum: { input_tokens: number; output_tokens: number };
+                _count: number;
+            }>;
+        }>("/token-usage/stats/all"),
+        getTokenUsageHistory: (options?: {
+            limit?: number;
+            offset?: number;
+            period?: '1h' | '6h' | '24h' | '7d' | '30d';
+            from?: string;
+            to?: string;
+            model?: string;
+            status?: 'success' | 'failed';
+        }) => {
+            const params = new URLSearchParams();
+            if (options?.limit) params.append('limit', options.limit.toString());
+            if (options?.offset) params.append('offset', options.offset.toString());
+            if (options?.period) params.append('period', options.period);
+            if (options?.from) params.append('from', options.from);
+            if (options?.to) params.append('to', options.to);
+            if (options?.model) params.append('model', options.model);
+            if (options?.status) params.append('status', options.status);
+            const queryString = params.toString();
+            return fetchWithAuth<{
+                data: Array<{
+                    id: string;
+                    user_id: string;
+                    model_name: string;
+                    input_tokens: number;
+                    output_tokens: number;
+                    cost: number;
+                    latency_ms: number;
+                    system_prompt: string;
+                    user_query: string;
+                    response: string;
+                    status: string;
+                    created_at: string;
+                }>;
+                pagination: {
+                    limit: number;
+                    offset: number;
+                    total: number;
+                };
+                summary: {
+                    total_input_tokens: number;
+                    total_output_tokens: number;
+                    total_tokens: number;
+                    total_cost: number;
+                    total_latency_ms: number;
+                    avg_latency_ms: number;
+                };
+                models_used: string[];
+            }>(`/token-usage/me${queryString ? `?${queryString}` : ''}`);
+        },
+
         // Chat
         getProjectMessages: (projectId: string) =>
             fetchWithAuth<any[]>(`/projects/${projectId}/chat`),

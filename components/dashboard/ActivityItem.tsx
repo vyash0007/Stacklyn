@@ -6,6 +6,7 @@ import Link from "next/link";
 interface ActivityItemProps {
     title: string;
     user: string;
+    userImage?: string;
     time: string;
     fullTime?: string;
     entityType?: string;
@@ -16,6 +17,7 @@ interface ActivityItemProps {
 export function ActivityItem({
     title,
     user,
+    userImage,
     time,
     fullTime,
     entityType,
@@ -55,7 +57,11 @@ export function ActivityItem({
                 {/* User Avatar */}
                 <div className="shrink-0">
                     <div className="w-8 h-8 rounded-full border border-white/10 overflow-hidden bg-zinc-900 flex items-center justify-center text-[10px] font-bold text-zinc-500 uppercase shadow-inner">
-                        {user.charAt(0)}
+                        {userImage ? (
+                            <img src={userImage} alt={user} className="w-full h-full object-cover" />
+                        ) : (
+                            user.charAt(0)
+                        )}
                     </div>
                 </div>
 

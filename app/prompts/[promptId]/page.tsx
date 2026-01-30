@@ -802,12 +802,14 @@ export default function PromptWorkspacePage() {
                                         <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-zinc-100 to-zinc-400 flex items-center justify-center text-[10px] font-bold text-black shadow-lg shadow-white/10 shrink-0">
                                             <Sparkles size={10} fill="currentColor" />
                                         </div>
-                                        <div className="space-y-2 max-w-[90%]">
+                                        <div className="space-y-2 max-w-[90%] min-w-0">
                                             <div className={cn(
-                                                "p-4 rounded-lg rounded-tl-none text-xs leading-relaxed shadow-sm border",
+                                                "p-4 rounded-lg rounded-tl-none text-xs leading-relaxed shadow-sm border break-words overflow-hidden",
                                                 run.status === 'success' ? "bg-[#1F1F1F] border-white/10 text-zinc-200" : "bg-red-500/5 border-red-500/20 text-red-200"
                                             )}>
-                                                {run.response}
+                                                <div className="whitespace-pre-wrap break-all">
+                                                    {run.response}
+                                                </div>
                                             </div>
                                             <div className="flex items-center gap-3 pl-1">
                                                 <span className="text-[9px] text-zinc-600 font-mono">{run.latency_ms}ms</span>

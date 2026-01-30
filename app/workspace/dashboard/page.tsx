@@ -182,6 +182,7 @@ export default function Dashboard() {
                                                 key={activity.id}
                                                 title={activity.title}
                                                 user={activity.users?.name || activity.users?.email || "Unknown"}
+                                                userImage={activity.users?.image_url || activity.users?.avatar_url}
                                                 time={formatRelativeTime(activity.created_at)}
                                                 fullTime={formatActivityTime(activity.created_at)}
                                                 entityType={activity.entity_type}

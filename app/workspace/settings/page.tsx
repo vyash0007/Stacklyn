@@ -15,7 +15,7 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState("profile");
 
     return (
-        <div className="min-h-screen bg-[#181818]">
+        <div className="bg-[#181818]">
             <div className="bg-[#181818] border-b border-white/5 pb-6 pt-8 md:pb-8 md:pt-12">
                 <div className="max-w-4xl mx-auto px-4 md:px-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
