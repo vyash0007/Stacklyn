@@ -8,6 +8,7 @@ import { Project } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatRelativeTime } from "@/lib/utils";
+import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
 
 export default function ProjectsPage() {
     const api = useApi();
@@ -139,67 +140,25 @@ export default function ProjectsPage() {
                 </div>
             )}
 
-            {/* Grid of Projects */}
+            {/* Table of Projects */}
             {isFetching ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-64 bg-white/[0.02] rounded-2xl border border-white/[0.05] animate-pulse" />
+                <div className="space-y-4">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="h-16 bg-[#1F1F1F] rounded-md border border-white/5 animate-pulse" />
                     ))}
                 </div>
             ) : projects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {projects.map((p) => (
-                        <Link
-                            key={p.id}
-                            href={`/workspace/projects/${p.id}`}
-                            className="group block bg-[#1F1F1F] rounded-md border border-white/5 p-8 hover:bg-[#252527] hover:border-white/10 transition-all duration-300 relative overflow-hidden shadow-3xl"
-                        >
-                            {/* Hover Backdrop Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                            <div className="relative z-10">
-                                <div className="flex justify-between items-start mb-8">
-                                    <div className="p-3 bg-white/5 rounded-md border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-500 text-zinc-400 group-hover:text-white">
-                                        <Folder className="h-5 w-5" />
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {projectType === 'self' && (
-                                            <button
-                                                className="h-8 w-8 flex items-center justify-center rounded-md text-zinc-700 hover:text-red-400 hover:bg-red-400/10 transition-all"
-                                                onClick={(e) => handleDeleteClick(p.id, p.name, e)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                        <div className="h-8 w-8 flex items-center justify-center rounded-md text-zinc-700 group-hover:text-white transition-all">
-                                            <ArrowUpRight className="h-4 w-4" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <h3 className="text-xl font-bold tracking-tight text-white mb-2 group-hover:text-zinc-200 transition-colors uppercase">{p.name}</h3>
-                                <p className="text-zinc-500 text-xs font-medium leading-relaxed mb-8 line-clamp-2 h-9">
-                                    {p.description || "Operational AI environment ready for deployment and monitoring."}
-                                </p>
-
-                                <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">
-                                            {projectType === 'self' ? 'Independent' : 'Collaborative'}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center text-[10px] font-bold text-zinc-700 uppercase tracking-widest">
-                                        <Clock className="h-3 w-3 mr-1.5" />
-                                        {p.created_at ? formatRelativeTime(p.created_at) : "Legacy"}
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <ProjectsTable
+                        projects={projects}
+                        limit={Infinity}
+                        showFooter={false}
+                        onDelete={handleDeleteClick}
+                        showPagination={true}
+                    />
                 </div>
             ) : (
-                <div className="text-center py-32 bg-white/[0.01] border-2 border-dashed border-white/[0.05] rounded-3xl flex flex-col items-center justify-center space-y-6">
+                <div className="text-center py-32 bg-[#1F1F1F] border-2 border-dashed border-white/5 rounded-md flex flex-col items-center justify-center space-y-6">
                     <div className="p-5 bg-white/5 rounded-full border border-white/10 opacity-20">
                         <Folder className="h-10 w-10 text-white" />
                     </div>

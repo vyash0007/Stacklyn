@@ -1,14 +1,28 @@
 "use client";
 
-import { MoreHorizontal, Folder, GitBranch, ArrowUpRight } from "lucide-react";
+import { MoreHorizontal, Folder, GitBranch, ArrowUpRight, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types";
 
 interface ProjectsTableProps {
     projects: Project[];
+    limit?: number;
+    showFooter?: boolean;
+    onDelete?: (id: string, name: string, e: React.MouseEvent) => void;
+    showPagination?: boolean;
 }
 
-export function ProjectsTable({ projects }: ProjectsTableProps) {
+export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete, showPagination = false }: ProjectsTableProps) {
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const totalPages = Math.ceil(projects.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedProjects = showPagination
+        ? projects.slice(startIndex, startIndex + itemsPerPage)
+        : projects.slice(0, limit);
+
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-US', {
             month: 'long',
@@ -29,7 +43,7 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
             {/* Rows */}
             <div className="divide-y divide-white/[0.05] min-h-[320px]">
                 {projects.length > 0 ? (
-                    projects.slice(0, 5).map((project) => (
+                    paginatedProjects.map((project) => (
                         <Link
                             key={project.id}
                             href={`/workspace/projects/${project.id}`}
@@ -63,8 +77,8 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                                 </p>
                             </div>
 
-                            {/* Shared With */}
-                            <div className="col-span-3">
+                            {/* Shared With & Actions */}
+                            <div className="col-span-3 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     {project.members && project.members.length > 0 ? (
                                         <>
@@ -101,6 +115,16 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                                         </div>
                                     )}
                                 </div>
+
+                                {onDelete && (
+                                    <button
+                                        onClick={(e) => onDelete(project.id, project.name, e)}
+                                        className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-md transition-all opacity-0 group-hover:opacity-100 mr-2"
+                                        title="Delete Project"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
                         </Link>
                     ))
@@ -112,12 +136,12 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                 )}
             </div>
 
-            {/* Footer */}
-            {projects.length > 0 && (
+            {/* Footer / Pagination */}
+            {showFooter && projects.length > 0 && !showPagination && (
                 <div className="px-6 py-4 bg-white/[0.01] border-t border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-500 font-medium">
                     <div className="flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Showing {Math.min(projects.length, 5)} active workspaces
+                        Showing {Math.min(projects.length, limit)} active workspaces
                     </div>
                     <Link
                         href="/workspace/projects"
@@ -126,6 +150,36 @@ export function ProjectsTable({ projects }: ProjectsTableProps) {
                         Project Directory
                         <ArrowUpRight className="h-3 w-3" />
                     </Link>
+                </div>
+            )}
+
+            {showPagination && totalPages > 1 && (
+                <div className="px-6 py-4 bg-white/[0.01] border-t border-white/[0.08] flex items-center justify-between">
+                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(prev => Math.max(1, prev - 1));
+                            }}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-md border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                            }}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-md border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
