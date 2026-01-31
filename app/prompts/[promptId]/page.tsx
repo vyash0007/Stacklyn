@@ -319,7 +319,8 @@ export default function PromptWorkspacePage() {
         setIsGeneratingMessage(true);
         try {
             const result = await api.generateCommitMessage(oldSystemPrompt, systemPrompt);
-            setCommitMessage(result.commit_message || "");
+            console.log("=== Generate Commit Message API Response ===", result);
+            setCommitMessage(result.commitMessage || "");
         } catch (e: any) {
             console.error("Failed to generate commit message", e);
             toast.error(e.message || "Failed to generate commit message");
@@ -332,13 +333,10 @@ export default function PromptWorkspacePage() {
         if (!selectedCommit) return;
         setIsPushingToProd(true);
         try {
-            const updatedCommit = await api.pushToProd(selectedCommit.id);
-            // Update the commit in local state to reflect new tags
-            setCommits(prev => prev.map(c => c.id === updatedCommit.id ? updatedCommit : c));
-            setSelectedCommit(updatedCommit);
-            // Update prodCommit to the newly pushed commit
-            setProdCommit(updatedCommit);
+            await api.pushToProd(selectedCommit.id);
             toast.success("Pushed to production!");
+            // Re-fetch all data to align UI with backend state
+            await loadData();
         } catch (e: any) {
             console.error("Failed to push to prod", e);
             toast.error(e.message || "Failed to push to production");

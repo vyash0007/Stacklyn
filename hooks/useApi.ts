@@ -161,7 +161,7 @@ export function useApi() {
         deleteCommit: (id: string) => fetchWithAuth<void>(`/commits/${id}`, { method: "DELETE" }),
         pushToProd: (commitId: string) => fetchWithAuth<any>(`/commits/${commitId}/push-to-prod`, { method: "POST" }),
         generateCommitMessage: (oldSystemPrompt: string, newSystemPrompt: string) =>
-            fetchWithAuth<{ commit_message: string }>("/commits/generate-message", {
+            fetchWithAuth<{ commitMessage: string }>("/commits/generate-message", {
                 method: "POST",
                 body: JSON.stringify({ old_system_prompt: oldSystemPrompt, new_system_prompt: newSystemPrompt }),
             }),
