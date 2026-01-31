@@ -17,7 +17,7 @@ export function StatCard({
     icon: Icon,
 }: StatCardProps) {
     return (
-        <div className="bg-white dark:bg-[#1F1F1F] p-4 md:p-6 rounded-md border border-zinc-200 dark:border-white/5 shadow-lg dark:shadow-3xl hover:bg-zinc-50 dark:hover:bg-[#252527] hover:border-zinc-300 dark:hover:border-white/10 transition-all duration-300 group relative overflow-hidden backdrop-blur-md">
+        <div className="bg-white dark:bg-[#1F1F1F] p-4 md:p-6 rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl hover:bg-zinc-50 dark:hover:bg-[#252527] hover:border-zinc-300 dark:hover:border-white/10 transition-all duration-300 group relative overflow-hidden backdrop-blur-md">
             {/* Subtle Gradient Glow */}
             <div className="absolute -top-12 -right-12 w-24 h-24 bg-zinc-200/50 dark:bg-white/5 blur-2xl rounded-full group-hover:bg-zinc-300/50 dark:group-hover:bg-white/10 transition-all duration-500"></div>
 

@@ -235,7 +235,7 @@ const ActivityPage = () => {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2">
-                        Neural <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-700 to-zinc-400 dark:from-zinc-100 dark:to-zinc-500">Stream.</span>
+                        Prompt <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-zinc-100 dark:to-zinc-500">Activity.</span>
                     </h1>
                     <p className="text-xs md:text-sm text-zinc-500 font-medium">Real-time observability of your AI traffic.</p>
                 </div>
@@ -254,7 +254,7 @@ const ActivityPage = () => {
                             <Filter size={12} /> Filter {hasActiveFilters && `(${(selectedModel !== 'all' ? 1 : 0) + (selectedStatus !== 'all' ? 1 : 0)})`}
                         </button>
                         {showFilterDropdown && (
-                            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/10 rounded-lg shadow-xl z-20 p-4">
+                            <div className="absolute left-0 md:left-auto md:right-0 mt-2 w-[calc(100vw-2rem)] md:w-64 max-w-64 bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/10 rounded-lg shadow-xl z-20 p-4">
                                 <div className="flex items-center justify-between mb-4">
                                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Filters</span>
                                     {hasActiveFilters && (
@@ -395,7 +395,7 @@ const ActivityPage = () => {
                             { label: 'Avg Latency', value: formatLatency(summary?.avg_latency_ms ?? 0), color: 'text-zinc-900 dark:text-white' },
                             { label: 'Total Cost', value: formatCost(summary?.total_cost ?? 0), color: 'text-emerald-600 dark:text-emerald-400' }
                         ].map((stat, i) => (
-                            <div key={i} className="bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/5 p-6 rounded-xl shadow-2xl backdrop-blur-md">
+                            <div key={i} className="bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/5 p-6 rounded-xl dark:shadow-2xl backdrop-blur-md">
                                 <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mb-3">{stat.label}</div>
                                 <div className={cn("text-2xl lg:text-3xl font-bold tracking-tight", stat.color)}>
                                     {stat.value}
@@ -405,7 +405,7 @@ const ActivityPage = () => {
                     </div>
 
                     {/* Requests Table */}
-                    <div className="w-full border border-zinc-200 dark:border-white/5 rounded-xl overflow-hidden bg-white dark:bg-[#1F1F1F]/30 backdrop-blur-md shadow-3xl">
+                    <div className="w-full border border-zinc-200 dark:border-white/5 rounded-xl overflow-hidden bg-white dark:bg-[#1F1F1F]/30 backdrop-blur-md dark:shadow-3xl">
                         <div className="hidden md:grid grid-cols-12 gap-4 px-8 py-4 border-b border-zinc-200 dark:border-white/5 text-[9px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-[0.2em] bg-zinc-100 dark:bg-[#1F1F1F]/80">
                             <div className="col-span-1">Status</div>
                             <div className="col-span-2">Time</div>

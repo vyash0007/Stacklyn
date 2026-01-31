@@ -116,16 +116,18 @@ export default function Dashboard() {
                         System Operational
                     </div>
                     <h1 className="text-xl md:text-2xl lg:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white mb-1 md:mb-2">
-                        Good morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-700 to-zinc-400 dark:from-zinc-100 dark:to-zinc-500">Engineer.</span>
+                        Welcome to, <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-zinc-100 dark:to-zinc-500">Dashboard.</span>
                     </h1>
                     <p className="text-xs md:text-sm lg:text-base text-zinc-500 dark:text-zinc-500 font-medium tracking-wide">Overview of your AI engineering workbench.</p>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <button className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-md text-xs font-bold uppercase tracking-wider hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                        <Plus className="h-3.5 w-3.5" />
-                        New Project
-                    </button>
+                    <Link href="/workspace/projects">
+                        <button className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-md text-xs font-bold uppercase tracking-wider hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-all dark:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                            <Plus className="h-3.5 w-3.5" />
+                            New Project
+                        </button>
+                    </Link>
                 </div>
             </div>
 
@@ -170,7 +172,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 shadow-lg dark:shadow-3xl p-6 h-auto min-h-[200px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
+                    <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl p-6 h-auto min-h-[200px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
                         {Object.keys(groupedActivities).length > 0 ? (
                             Object.entries(groupedActivities).map(([dateGroup, groupActivities]) => (
                                 <div key={dateGroup} className="mb-8 last:mb-0 relative">

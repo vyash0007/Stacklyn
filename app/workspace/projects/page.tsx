@@ -95,7 +95,7 @@ export default function ProjectsPage() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
                 <div>
                     <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-zinc-900 dark:text-white mb-2">
-                        Project <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 to-zinc-600 dark:from-zinc-100 dark:to-zinc-500">Directory.</span>
+                        Project <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-zinc-100 dark:to-zinc-500">Directory.</span>
                     </h1>
                     <p className="text-zinc-500 font-medium tracking-wide">Orchestrate and version your AI workspaces.</p>
                 </div>

@@ -326,8 +326,8 @@ export default function ProjectDetailsPage() {
                                 </button>
                             </Link>
                             <div>
-                                <h1 className="text-2xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-600 to-zinc-400 dark:from-white dark:to-zinc-500">
+                                <h1 className="text-2xl md:text-5xl font-light tracking-tight text-zinc-900 dark:text-white flex items-center gap-3">
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-500">
                                         {project!.name}
                                     </span>
                                 </h1>
@@ -363,7 +363,7 @@ export default function ProjectDetailsPage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Input / Action Bar */}
-                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] p-1.5 md:p-2 rounded-md border border-zinc-200 dark:border-white/5 shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-zinc-200 dark:focus-within:ring-white/5 focus-within:border-zinc-300 dark:focus-within:border-white/20 transition-all backdrop-blur-md">
+                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] p-1.5 md:p-2 rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-2xl flex items-center gap-2 focus-within:ring-4 focus-within:ring-zinc-200 dark:focus-within:ring-white/5 focus-within:border-zinc-300 dark:focus-within:border-white/20 transition-all backdrop-blur-md">
                             <input
                                 type="text"
                                 value={newPromptName}
@@ -405,7 +405,7 @@ export default function ProjectDetailsPage() {
                             {filteredPrompts.map((prompt) => (
                                 <div
                                     key={prompt.id}
-                                    className="group bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-6 hover:bg-zinc-200 dark:hover:bg-[#252527] hover:border-zinc-300 dark:hover:border-white/10 transition-all shadow-2xl relative overflow-hidden backdrop-blur-sm"
+                                    className="group bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-6 hover:bg-zinc-200 dark:hover:bg-[#252527] hover:border-zinc-300 dark:hover:border-white/10 transition-all dark:shadow-2xl relative overflow-hidden backdrop-blur-sm"
                                 >
                                     {/* Accent line on hover */}
                                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-zinc-900 dark:bg-white opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -480,7 +480,7 @@ export default function ProjectDetailsPage() {
 
 
                         {/* Team Members Card */}
-                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-8 shadow-2xl backdrop-blur-md">
+                        <div className="bg-zinc-100 dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 p-8 dark:shadow-2xl backdrop-blur-md">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Team Members</h3>
                                 <span className="text-[10px] bg-zinc-200 dark:bg-white/5 text-zinc-500 font-bold tracking-widest px-2 py-0.5 rounded-md border border-zinc-300 dark:border-white/5 shadow-inner">

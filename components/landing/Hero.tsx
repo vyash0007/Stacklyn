@@ -13,14 +13,14 @@ export function Hero() {
             <div className="max-w-5xl mx-auto text-center">
 
                 {/* Pill Label */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 backdrop-blur-md text-[10px] font-bold text-zinc-600 dark:text-zinc-300 mb-8 uppercase tracking-[0.2em] shadow-lg">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-zinc-200 dark:border-white/10 bg-zinc-100 dark:bg-zinc-900/50 backdrop-blur-md text-[10px] font-bold text-zinc-600 dark:text-zinc-300 mb-8 uppercase tracking-[0.2em] shadow-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-white animate-pulse"></span>
                     Smarter Workflow. Better Words
                 </div>
 
                 {/* Headline - High Contrast Gradient */}
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.05] animate-in fade-in slide-in-from-bottom-6 duration-700">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-zinc-900 via-zinc-700 to-zinc-400 dark:from-white dark:via-zinc-200 dark:to-zinc-600 drop-shadow-sm">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-b from-zinc-950 via-zinc-800 to-zinc-600 dark:from-white dark:via-zinc-200 dark:to-zinc-600 drop-shadow-sm">
                         Stop managing prompts<br />
                         in spreadsheets.
                     </span>

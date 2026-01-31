@@ -9,6 +9,16 @@ export default {
     ],
     theme: {
         extend: {
+            boxShadow: {
+                // Minimal shadows for light mode - almost flat
+                'sm': '0 1px 2px 0 rgb(0 0 0 / 0.01)',
+                'DEFAULT': '0 1px 2px 0 rgb(0 0 0 / 0.02)',
+                'md': '0 2px 4px -1px rgb(0 0 0 / 0.02)',
+                'lg': '0 4px 6px -2px rgb(0 0 0 / 0.02)',
+                'xl': '0 6px 10px -3px rgb(0 0 0 / 0.03)',
+                '2xl': '0 8px 15px -4px rgb(0 0 0 / 0.04)',
+                '3xl': '0 10px 20px -5px rgb(0 0 0 / 0.04)',
+            },
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",

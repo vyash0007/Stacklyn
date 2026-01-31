@@ -33,7 +33,7 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
     };
 
     return (
-        <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 shadow-lg dark:shadow-3xl overflow-hidden backdrop-blur-md">
+        <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl overflow-hidden backdrop-blur-md">
             {/* Header */}
             <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-zinc-50 dark:bg-white/[0.02] border-b border-zinc-200 dark:border-white/5 text-[10px] font-bold text-zinc-500 dark:text-zinc-500 uppercase tracking-[0.2em] items-center">
                 <div className="col-span-6">Project Name</div>
@@ -87,11 +87,10 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                                         const badgeType = (project as any).type || projectSource;
                                         if (!badgeType) return null;
                                         return (
-                                            <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                                                badgeType === 'personal'
+                                            <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${badgeType === 'personal'
                                                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
                                                     : 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20'
-                                            }`}>
+                                                }`}>
                                                 {badgeType === 'personal' ? 'Personal' : 'Shared'}
                                             </div>
                                         );

@@ -643,6 +643,16 @@ export default function PromptWorkspacePage() {
                 </div>
 
                 <div className="flex items-center gap-2 md:gap-3">
+                    {/* Mobile Compare Button (icon only) */}
+                    <button
+                        onClick={openCompareDialog}
+                        disabled={commits.length < 2 || !selectedCommit}
+                        className="sm:hidden flex items-center justify-center p-2 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-white/20 transition-all disabled:opacity-30"
+                    >
+                        <GitCompare size={16} />
+                    </button>
+
+                    {/* Desktop Compare Button */}
                     <button
                         onClick={openCompareDialog}
                         disabled={commits.length < 2 || !selectedCommit}
@@ -654,9 +664,9 @@ export default function PromptWorkspacePage() {
                     <button
                         onClick={handlePushToProd}
                         disabled={!selectedCommit || isPushingToProd}
-                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 rounded-lg text-xs font-medium text-white transition-all disabled:opacity-50"
+                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 border border-purple-500 rounded-lg text-xs font-medium text-white transition-all disabled:opacity-50"
                     >
-                        {isPushingToProd ? <Loader2 size={14} className="animate-spin" /> : <Rocket size={14} />}
+                        {isPushingToProd ? <Loader2 size={14} className="animate-spin" /> : null}
                         Push to Prod
                     </button>
 
@@ -741,66 +751,66 @@ export default function PromptWorkspacePage() {
                                 return 0; // Keep original order for non-main commits
                             })
                             .map((commit) => {
-                            const isActive = selectedCommit?.id === commit.id;
-                            const commitTags = commit.commit_tags?.map(t => ({ commit_id: commit.id, tag_name: t.tag_name })) || [];
-                            return (
-                                <div
-                                    key={commit.id}
-                                    onClick={() => setSelectedCommit(commit)}
-                                    className={cn(
-                                        "p-3 rounded-md border cursor-pointer transition-all group",
-                                        isActive
-                                            ? "bg-zinc-200 dark:bg-white/10 border-zinc-300 dark:border-white/10 shadow-lg"
-                                            : "hover:bg-zinc-200/50 dark:hover:bg-white/[0.02] border-transparent hover:border-zinc-200 dark:hover:border-white/[0.05]"
-                                    )}
-                                >
-                                    <div className="flex items-center justify-between mb-1">
-                                        <div className="flex items-center gap-1.5">
-                                            <span className={cn(
-                                                "text-[10px] font-mono px-1.5 py-0.5 rounded",
-                                                isActive ? "text-zinc-900 dark:text-white bg-zinc-300 dark:bg-white/10 border border-zinc-400 dark:border-white/10" : "text-zinc-500 bg-zinc-200 dark:bg-white/5"
-                                            )}>
-                                                {commit.id.substring(0, 7)}
-                                            </span>
-                                            <button
-                                                onClick={(e) => openTagDialog(commit, e)}
-                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-300 dark:hover:bg-white/5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all"
-                                            >
-                                                <Settings size={10} />
-                                            </button>
-                                        </div>
-                                        <span className="text-[10px] text-zinc-400 dark:text-zinc-600">
-                                            {new Date(commit.created_at).toLocaleDateString() === new Date().toDateString() ? 'Today' : new Date(commit.created_at).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                    <p className={cn("text-xs font-medium truncate", isActive ? "text-zinc-900 dark:text-white" : "text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300")}>
-                                        {commit.commit_message}
-                                    </p>
-                                    {commitTags.length > 0 && (
-                                        <div className="flex flex-wrap gap-1 mt-2">
-                                            {commitTags.map(tag => (
-                                                <Badge
-                                                    key={`${tag.commit_id}-${tag.tag_name}`}
-                                                    variant="secondary"
-                                                    className="group/tag inline-flex items-center gap-1 text-[8px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-zinc-200 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-white/10 hover:pr-4 relative transition-all"
+                                const isActive = selectedCommit?.id === commit.id;
+                                const commitTags = commit.commit_tags?.map(t => ({ commit_id: commit.id, tag_name: t.tag_name })) || [];
+                                return (
+                                    <div
+                                        key={commit.id}
+                                        onClick={() => setSelectedCommit(commit)}
+                                        className={cn(
+                                            "p-3 rounded-md border cursor-pointer transition-all group",
+                                            isActive
+                                                ? "bg-zinc-200 dark:bg-white/10 border-zinc-300 dark:border-white/10 shadow-sm"
+                                                : "hover:bg-zinc-200/50 dark:hover:bg-white/[0.02] border-transparent hover:border-zinc-200 dark:hover:border-white/[0.05]"
+                                        )}
+                                    >
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className={cn(
+                                                    "text-[10px] font-mono px-1.5 py-0.5 rounded",
+                                                    isActive ? "text-zinc-900 dark:text-white bg-zinc-300 dark:bg-white/10 border border-zinc-400 dark:border-white/10" : "text-zinc-500 bg-zinc-200 dark:bg-white/5"
+                                                )}>
+                                                    {commit.id.substring(0, 7)}
+                                                </span>
+                                                <button
+                                                    onClick={(e) => openTagDialog(commit, e)}
+                                                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-zinc-300 dark:hover:bg-white/5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all"
                                                 >
-                                                    {tag.tag_name}
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteTagClick(commit.id, tag.tag_name, e);
-                                                        }}
-                                                        className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
-                                                    >
-                                                        <X className="h-2 w-2" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
+                                                    <Settings size={10} />
+                                                </button>
+                                            </div>
+                                            <span className="text-[10px] text-zinc-400 dark:text-zinc-600">
+                                                {new Date(commit.created_at).toLocaleDateString() === new Date().toDateString() ? 'Today' : new Date(commit.created_at).toLocaleDateString()}
+                                            </span>
                                         </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                        <p className={cn("text-xs font-medium truncate", isActive ? "text-zinc-900 dark:text-white" : "text-zinc-500 group-hover:text-zinc-700 dark:group-hover:text-zinc-300")}>
+                                            {commit.commit_message}
+                                        </p>
+                                        {commitTags.length > 0 && (
+                                            <div className="flex flex-wrap gap-1 mt-2">
+                                                {commitTags.map(tag => (
+                                                    <Badge
+                                                        key={`${tag.commit_id}-${tag.tag_name}`}
+                                                        variant="secondary"
+                                                        className="group/tag inline-flex items-center gap-1 text-[8px] px-1.5 py-0 h-3.5 font-bold uppercase tracking-wider bg-zinc-200 dark:bg-white/5 text-zinc-500 dark:text-zinc-400 border border-zinc-300 dark:border-white/10 hover:pr-4 relative transition-all"
+                                                    >
+                                                        {tag.tag_name}
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteTagClick(commit.id, tag.tag_name, e);
+                                                            }}
+                                                            className="absolute right-0.5 opacity-0 group-hover/tag:opacity-100 hover:text-red-600 transition-opacity p-0.5"
+                                                        >
+                                                            <X className="h-2 w-2" />
+                                                        </button>
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         {/* Load More Button */}
                         {commitsPagination && commitsPagination.offset + commitsPagination.limit < commitsPagination.total && (
                             <button
@@ -1202,7 +1212,7 @@ export default function PromptWorkspacePage() {
             </Dialog>
 
             <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
-                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col bg-white dark:bg-[#0A0A0A] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
+                <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col bg-white dark:bg-[#0A0A0A] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white p-4 sm:p-6">
                     <DialogHeader>
                         <DialogTitle>Compare Versions</DialogTitle>
                         <DialogDescription className="text-zinc-500">Compare version {commitToCompare?.id.substring(0, 7)} with another version</DialogDescription>
@@ -1243,21 +1253,22 @@ export default function PromptWorkspacePage() {
                         </div>
                     ) : (
                         <div className="flex-1 overflow-hidden flex flex-col">
-                            <div className="flex items-center justify-between mb-6 px-1">
-                                <div className="flex items-center gap-6">
-                                    <span className="flex items-center gap-2">
+                            <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 px-1">
+                                <div className="flex items-center gap-3 sm:gap-6">
+                                    <span className="flex items-center gap-1.5 sm:gap-2">
                                         <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Removed</span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Removed</span>
                                     </span>
-                                    <span className="flex items-center gap-2">
+                                    <span className="flex items-center gap-1.5 sm:gap-2">
                                         <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Added</span>
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Added</span>
                                     </span>
                                 </div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <button className="text-[10px] font-bold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 uppercase tracking-[0.2em] transition-all flex items-center gap-2">
-                                            COMPARE ANOTHER
+                                        <button className="text-[9px] sm:text-[10px] font-bold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all flex items-center gap-1">
+                                            <span className="hidden sm:inline">Compare Another</span>
+                                            <span className="sm:hidden">Another</span>
                                             <ChevronDown size={10} className="opacity-50" />
                                         </button>
                                     </DropdownMenuTrigger>
@@ -1279,8 +1290,8 @@ export default function PromptWorkspacePage() {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div className="flex-1 overflow-y-auto border border-zinc-200 dark:border-white/5 rounded-xl bg-zinc-50 dark:bg-black/40 backdrop-blur-sm custom-scrollbar">
-                                <div className="text-[13px] font-mono leading-[1.8] p-6">
+                            <div className="flex-1 overflow-y-auto border border-zinc-200 dark:border-white/5 rounded-lg sm:rounded-xl bg-zinc-50 dark:bg-black/40 backdrop-blur-sm custom-scrollbar">
+                                <div className="text-[11px] sm:text-[13px] font-mono leading-[1.6] sm:leading-[1.8] p-3 sm:p-6">
                                     {comparisonResult.diff.map((part, index) => (
                                         <div key={index} className={cn(
                                             "whitespace-pre-wrap px-4 py-1.5 rounded-lg transition-all",
@@ -1422,7 +1433,7 @@ export default function PromptWorkspacePage() {
                 confirmText={`Delete ${deleteDialog.type?.[0].toUpperCase()}${deleteDialog.type?.slice(1)}`}
                 variant="danger"
             />
-        </div>
+        </div >
     );
 
 }

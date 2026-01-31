@@ -35,7 +35,7 @@ export function LandingNavbar() {
             </Link>
 
             {/* Center Nav Container */}
-            <div className="hidden md:flex items-center px-1.5 py-1.5 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-full backdrop-blur-md shadow-2xl">
+            <div className="hidden md:flex items-center px-1.5 py-1.5 bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-white/10 rounded-full backdrop-blur-md shadow-sm">
                 {['Home', 'About us', 'Features', 'Pricing', 'Resources'].map((item) => (
                     <a key={item} href="#" className="px-5 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-all rounded-full hover:bg-zinc-200 dark:hover:bg-white/10">{item}</a>
                 ))}

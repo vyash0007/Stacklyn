@@ -203,7 +203,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                 {/* Header / Input Area - Fixed Height */}
                 <DialogHeader className="p-4 border-b border-zinc-200 dark:border-white/5 bg-transparent sticky top-0 z-20">
                     <DialogTitle className="sr-only">Search</DialogTitle>
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-md transition-all focus-within:bg-zinc-200 dark:focus-within:bg-white/10 focus-within:border-zinc-300 dark:focus-within:border-white/20 focus-within:shadow-2xl">
+                    <div className="flex items-center gap-2 px-3 py-2.5 bg-zinc-100 dark:bg-transparent border border-zinc-200 dark:border-white/10 rounded-md transition-all focus-within:bg-zinc-200 dark:focus-within:bg-white/5 focus-within:border-zinc-300 dark:focus-within:border-white/20 focus-within:shadow-2xl">
                         <div className="flex items-center justify-center w-5 h-5 shrink-0">
                             {isLoading ? (
                                 <Loader2 className="h-4 w-4 text-zinc-900 dark:text-white animate-spin" />
@@ -221,7 +221,7 @@ export function SearchDialog({ open, onOpenChange }: { open: boolean; onOpenChan
                             }}
                             onKeyDown={handleKeyDown}
                             placeholder="Type to search..."
-                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-zinc-900 dark:text-white font-medium"
+                            className="flex-1 h-auto border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 py-0 text-base bg-transparent dark:bg-transparent placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-zinc-900 dark:text-white font-medium"
                             autoComplete="off"
                             autoCorrect="off"
                             autoCapitalize="off"
