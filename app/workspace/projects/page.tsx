@@ -24,10 +24,27 @@ export default function ProjectsPage() {
     const loadProjects = useCallback(async () => {
         setIsFetching(true);
         try {
-            const data = projectType === 'self'
-                ? await api.getProjects()
-                : (await api.getProjectMemberships()).map((m: any) => m.projects).filter(Boolean);
-            setProjects(data);
+            if (projectType === 'self') {
+                const data = await api.getProjects();
+                setProjects(data);
+            } else {
+                // For shared projects, fetch the projects first then get members for each
+                const memberships = await api.getProjectMemberships();
+                const sharedProjects = memberships.map((m: any) => m.projects).filter(Boolean);
+
+                // Fetch members for each shared project
+                const projectsWithMembers = await Promise.all(
+                    sharedProjects.map(async (project: any) => {
+                        try {
+                            const members = await api.getProjectMembers(project.id);
+                            return { ...project, members };
+                        } catch {
+                            return { ...project, members: [] };
+                        }
+                    })
+                );
+                setProjects(projectsWithMembers);
+            }
         } catch (error) {
             console.error("Failed to load projects", error);
         } finally {
@@ -153,8 +170,9 @@ export default function ProjectsPage() {
                         projects={projects}
                         limit={Infinity}
                         showFooter={false}
-                        onDelete={handleDeleteClick}
+                        onDelete={projectType === 'self' ? handleDeleteClick : undefined}
                         showPagination={true}
+                        projectSource={projectType === 'self' ? 'personal' : 'shared'}
                     />
                 </div>
             ) : (

@@ -11,9 +11,10 @@ interface ProjectsTableProps {
     showFooter?: boolean;
     onDelete?: (id: string, name: string, e: React.MouseEvent) => void;
     showPagination?: boolean;
+    projectSource?: 'personal' | 'shared';
 }
 
-export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete, showPagination = false }: ProjectsTableProps) {
+export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete, showPagination = false, projectSource }: ProjectsTableProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
@@ -81,7 +82,22 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                             {/* Shared With & Actions */}
                             <div className="md:col-span-3 flex items-center justify-between mt-2 md:mt-0">
                                 <div className="flex items-center gap-2">
-                                    {project.members && project.members.length > 0 ? (
+                                    {/* Source Badge - use project.type if available, otherwise fall back to projectSource prop */}
+                                    {(() => {
+                                        const badgeType = (project as any).type || projectSource;
+                                        if (!badgeType) return null;
+                                        return (
+                                            <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                                                badgeType === 'personal'
+                                                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+                                                    : 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20'
+                                            }`}>
+                                                {badgeType === 'personal' ? 'Personal' : 'Shared'}
+                                            </div>
+                                        );
+                                    })()}
+                                    {/* Member avatars - only show when projectSource is 'shared' (on shared tab) */}
+                                    {projectSource === 'shared' && project.members && project.members.length > 0 && (
                                         <>
                                             <div className="flex -space-x-2">
                                                 {project.members.slice(0, 3).map((member, idx) => {
@@ -110,10 +126,6 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                                                 </span>
                                             )}
                                         </>
-                                    ) : (
-                                        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-500 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 px-2 py-0.5 rounded-md">
-                                            Private
-                                        </div>
                                     )}
                                 </div>
 

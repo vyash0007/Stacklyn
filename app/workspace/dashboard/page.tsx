@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Folder, Zap, BarChart3, ChevronDown, Sparkles, Plus, Activity as ActivityIcon } from "lucide-react";
+import { Folder, Zap, BarChart3, Plus, Activity as ActivityIcon } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityItem } from "@/components/dashboard/ActivityItem"; // I might need to update this too
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
-import { Activity, Project } from "@/types";
+import { Activity } from "@/types";
 import { formatRelativeTime } from "@/lib/utils";
 import Link from "next/link";
 
@@ -18,13 +18,15 @@ export default function Dashboard() {
         avgScore: 0,
     });
     const [activities, setActivities] = useState<Activity[]>([]);
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+    const [projectsPagination, setProjectsPagination] = useState<{ total: number; offset: number; limit: number } | null>(null);
+    const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
     useEffect(() => {
         async function loadData() {
             try {
-                const [projectsData, runs, scores, recentActivities] = await Promise.all([
-                    api.getProjects(),
+                const [allProjectsResponse, runs, scores, recentActivities] = await Promise.all([
+                    api.getAllProjects({ limit: 4, offset: 0 }),
                     api.getRuns(),
                     api.getScores(),
                     api.getActivities(10, 0),
@@ -37,24 +39,24 @@ export default function Dashboard() {
                 }
 
                 setStats({
-                    projects: projectsData.length,
+                    projects: allProjectsResponse.total,
                     runs: runs.length,
                     avgScore: avg,
                 });
 
-                // Fetch members for each project
-                const projectsWithMembers = await Promise.all(
-                    projectsData.map(async (project: Project) => {
-                        try {
-                            const members = await api.getProjectMembers(project.id);
-                            return { ...project, members };
-                        } catch {
-                            return { ...project, members: [] };
-                        }
-                    })
-                );
+                // Map project_users to members format expected by ProjectsTable
+                const projectsWithMembers = allProjectsResponse.projects.map((project) => ({
+                    ...project,
+                    members: project.project_users?.map(pu => ({
+                        user_id: pu.user_id,
+                        project_id: pu.project_id,
+                        role: pu.role,
+                        users: pu.users
+                    })) || []
+                }));
 
                 setProjects(projectsWithMembers);
+                setProjectsPagination({ total: allProjectsResponse.total, offset: 0, limit: 5 });
                 setActivities(recentActivities);
             } catch (e) {
                 console.error("Failed to load dashboard data", e);

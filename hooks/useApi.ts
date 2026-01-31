@@ -121,6 +121,36 @@ export function useApi() {
                 { method: "PUT", body: JSON.stringify({ role }) }
             ),
         getProjectMemberships: () => fetchWithAuth<any[]>("/projects/memberships"),
+        getAllProjects: (options?: { limit?: number; offset?: number }) => {
+            const params = new URLSearchParams();
+            if (options?.limit) params.append('limit', options.limit.toString());
+            if (options?.offset) params.append('offset', options.offset.toString());
+            const queryString = params.toString();
+            return fetchWithAuth<{
+                projects: Array<{
+                    id: string;
+                    name: string;
+                    description: string | null;
+                    created_by: string;
+                    created_at: string;
+                    updated_at: string;
+                    type: 'personal' | 'shared';
+                    project_users: Array<{
+                        project_id: string;
+                        user_id: string;
+                        role: string;
+                        users: {
+                            id: string;
+                            email: string;
+                            name: string | null;
+                            image_url: string | null;
+                        };
+                    }>;
+                    _count: { project_users: number };
+                }>;
+                total: number;
+            }>(`/projects/all${queryString ? `?${queryString}` : ''}`);
+        },
 
         // Prompts
         getPrompts: () => fetchWithAuth<any[]>("/prompts"),
