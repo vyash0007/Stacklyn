@@ -43,7 +43,8 @@ import {
     GitBranch,
     Shield,
     UserCircle,
-    Eye
+    Eye,
+    Copy
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn, formatRelativeTime } from "@/lib/utils";
@@ -58,6 +59,7 @@ export default function ProjectDetailsPage() {
         Array.isArray(params?.projectId) ? params.projectId[0] : "";
 
     const [project, setProject] = useState<Project | null>(null);
+    const [copied, setCopied] = useState(false);
     const [prompts, setPrompts] = useState<Prompt[]>([]);
     const [newPromptName, setNewPromptName] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -331,6 +333,24 @@ export default function ProjectDetailsPage() {
                                         {project!.name}
                                     </span>
                                 </h1>
+                                {/* Project ID display */}
+                                <div className="mt-2 flex items-center gap-2">
+                                    <span className="text-xs font-mono bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-1 rounded">Project ID: {project!.display_id || project!.id.split('-')[0]}</span>
+                                    <button
+                                        title="Copy Project ID"
+                                        className="ml-1 p-1 rounded hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(project!.display_id || project!.id.split('-')[0]);
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 1200);
+                                        }}
+                                    >
+                                        <Copy className="w-4 h-4 text-zinc-500 dark:text-zinc-300" />
+                                    </button>
+                                    {copied && (
+                                        <span className="text-xs text-green-600 dark:text-green-400 ml-2">Copied!</span>
+                                    )}
+                                </div>
                                 <p className="text-sm md:text-lg text-zinc-500 mt-2 md:mt-3 font-medium tracking-tight max-w-2xl">
                                     {project!.description || 'Orchestrate your prompt chains and manage versions.'}
                                 </p>

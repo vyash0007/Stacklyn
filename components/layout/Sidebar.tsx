@@ -12,11 +12,13 @@ import {
     Settings,
     LogOut,
     Menu,
-    X
+    X,
+    BookOpen
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@clerk/nextjs";
+import ApiKeysPanel from "@/components/settings/ApiKeysPanel";
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -45,6 +47,21 @@ export function Sidebar() {
             icon: Activity,
             href: "/workspace/activity",
             active: pathname === "/workspace/activity",
+        },
+    ];
+
+    const developerRoutes = [
+        {
+            label: "API Keys",
+            icon: Layers,
+            href: "/workspace/api-keys",
+            active: pathname === "/workspace/api-keys",
+        },
+        {
+            label: "Docs",
+            icon: BookOpen,
+            href: "/workspace/docs",
+            active: pathname === "/workspace/docs",
         },
     ];
 
@@ -109,6 +126,32 @@ export function Sidebar() {
                             </h3>
                             <nav className="space-y-1">
                                 {routes.map((route) => (
+                                    <Link
+                                        key={route.href}
+                                        href={route.href}
+                                        className={cn(
+                                            "w-full flex items-center space-x-3 px-3 py-2 rounded-md transition-all duration-300 border border-transparent",
+                                            route.active
+                                                ? "bg-zinc-200 dark:bg-white/10 text-zinc-900 dark:text-white shadow-inner shadow-zinc-300/50 dark:shadow-white/5 border-zinc-300 dark:border-white/10"
+                                                : "text-zinc-500 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/5"
+                                        )}
+                                    >
+                                        <route.icon className={cn("h-4 w-4", route.active ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600")} />
+                                        <span className="text-xs font-medium">{route.label}</span>
+                                        {route.active && (
+                                            <div className="ml-auto w-1 h-1 rounded-full bg-zinc-900 dark:bg-white shadow-[0_0_5px_rgba(0,0,0,0.3)] dark:shadow-[0_0_5px_rgba(255,255,255,0.5)]"></div>
+                                        )}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
+
+                        <div>
+                            <h3 className="text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500 mb-4 px-3 tracking-widest">
+                                Developer
+                            </h3>
+                            <nav className="space-y-1">
+                                {developerRoutes.map((route) => (
                                     <Link
                                         key={route.href}
                                         href={route.href}

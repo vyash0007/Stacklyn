@@ -438,6 +438,16 @@ export function useApi() {
         deleteTask: async (id: string) => {
             await new Promise(resolve => setTimeout(resolve, 500));
             return true;
-        }
+        },
+
+        // API Keys
+        getApiKeys: () => fetchWithAuth<any[]>("/api-keys"),
+        createApiKey: (data: { name: string }) => fetchWithAuth<any>("/api-keys", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
+        revokeApiKey: (id: string) => fetchWithAuth<void>(`/api-keys/${id}`, {
+            method: "DELETE",
+        })
     }), [fetchWithAuth]);
 }

@@ -24,6 +24,7 @@ export interface ProjectMember {
 
 export interface Project {
     id: string;
+    display_id?: string;
     name: string;
     description: string;
     created_by: string;
