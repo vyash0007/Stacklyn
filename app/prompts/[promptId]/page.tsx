@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useApi } from "@/hooks/useApi";
 import { toast } from "sonner";
-import { Prompt, Commit, Run, Score, Tag, ModelInfo } from "@/types";
+import { Prompt, Commit, Run, Tag, ModelInfo } from "@/types";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -77,8 +77,7 @@ export default function PromptWorkspacePage() {
     const [commits, setCommits] = useState<Commit[]>([]);
     const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
     const [runs, setRuns] = useState<Run[]>([]);
-    const [scores, setScores] = useState<Score[]>([]);
-    const [tags, setTags] = useState<Tag[]>([]);
+        const [tags, setTags] = useState<Tag[]>([]);
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
     const [selectedModel, setSelectedModel] = useState<ModelInfo | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -92,14 +91,10 @@ export default function PromptWorkspacePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isPushingToProd, setIsPushingToProd] = useState(false);
+    const [isPushingToMain, setIsPushingToMain] = useState(false);
     const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
 
-    // Scoring State
-    const [scoreDialogOpen, setScoreDialogOpen] = useState(false);
-    const [selectedRunForScore, setSelectedRunForScore] = useState<Run | null>(null);
-    const [scoreValue, setScoreValue] = useState("0.5");
-    const [scoreReasoning, setScoreReasoning] = useState("");
-
+    
     // Tagging State
     const [tagDialogOpen, setTagDialogOpen] = useState(false);
     const [tagName, setTagName] = useState("");
@@ -115,6 +110,7 @@ export default function PromptWorkspacePage() {
         diff: Array<{ value: string; type: "added" | "removed" | "unchanged" }>;
     } | null>(null);
     const [isComparing, setIsComparing] = useState(false);
+    const [isPushToMainMode, setIsPushToMainMode] = useState(false);
 
     // Releases State
     const [releasesDialogOpen, setReleasesDialogOpen] = useState(false);
@@ -138,7 +134,7 @@ export default function PromptWorkspacePage() {
     // Delete state
     const [deleteDialog, setDeleteDialog] = useState<{
         open: boolean;
-        type: 'commit' | 'run' | 'score' | 'tag' | null;
+        type: 'commit' | 'run' | 'tag' | null;
         id: string;
         name: string;
         metadata?: any;
@@ -190,14 +186,44 @@ export default function PromptWorkspacePage() {
         });
     }, [templateVariables]);
 
-    // Render text with colored {{variable}} patterns (just color, no background)
+    // Strip comment lines (starting with #) from text for API calls
+    const stripComments = useCallback((text: string): string => {
+        return text
+            .split('\n')
+            .filter(line => !line.trimStart().startsWith('#'))
+            .join('\n');
+    }, []);
+
+    // Render text with colored {{variable}} patterns and grey comment lines
     const renderColoredText = useCallback((text: string) => {
-        const parts = text.split(/(\{\{\w+\}\})/g);
-        return parts.map((part, index) => {
-            if (/^\{\{\w+\}\}$/.test(part)) {
-                return <span key={index} className="text-purple-600 dark:text-purple-400">{part}</span>;
+        // Split by lines first to handle comments
+        const lines = text.split('\n');
+        return lines.map((line, lineIndex) => {
+            const isComment = line.trimStart().startsWith('#');
+            const isLastLine = lineIndex === lines.length - 1;
+
+            if (isComment) {
+                return (
+                    <span key={lineIndex}>
+                        <span className="text-zinc-400 dark:text-zinc-600 italic">{line}</span>
+                        {!isLastLine && '\n'}
+                    </span>
+                );
             }
-            return <span key={index}>{part}</span>;
+
+            // For non-comment lines, handle {{variable}} patterns
+            const parts = line.split(/(\{\{\w+\}\})/g);
+            return (
+                <span key={lineIndex}>
+                    {parts.map((part, partIndex) => {
+                        if (/^\{\{\w+\}\}$/.test(part)) {
+                            return <span key={partIndex} className="text-purple-600 dark:text-purple-400">{part}</span>;
+                        }
+                        return <span key={partIndex}>{part}</span>;
+                    })}
+                    {!isLastLine && '\n'}
+                </span>
+            );
         });
     }, []);
 
@@ -210,7 +236,6 @@ export default function PromptWorkspacePage() {
             setSystemPrompt(selectedCommit.system_prompt);
             setUserQuery(selectedCommit.user_query);
             loadRuns(selectedCommit.id);
-            loadScores(selectedCommit.id);
         }
     }, [selectedCommit]);
 
@@ -275,23 +300,13 @@ export default function PromptWorkspacePage() {
         }
     };
 
-    const loadScores = async (commitId: string) => {
-        try {
-            const allScores = await api.getScores();
-            const commitScores = allScores.filter(s => s.commit_id === commitId);
-            setScores(commitScores);
-        } catch (e) {
-            console.error("Failed to load scores", e);
-        }
-    };
-
     const handleCommit = async () => {
         if (!prompt) return;
         setIsSaving(true);
         try {
             const newCommit = await api.createCommit({
                 prompt_id: prompt.id,
-                system_prompt: systemPrompt,
+                system_prompt: stripComments(systemPrompt),
                 user_query: userQuery,
                 commit_message: commitMessage,
                 created_by: prompt.created_by,
@@ -318,8 +333,8 @@ export default function PromptWorkspacePage() {
 
         setIsGeneratingMessage(true);
         try {
-            const result = await api.generateCommitMessage(oldSystemPrompt, systemPrompt);
-            console.log("=== Generate Commit Message API Response ===", result);
+            // Strip comments from both prompts for comparison
+            const result = await api.generateCommitMessage(oldSystemPrompt, stripComments(systemPrompt));
             setCommitMessage(result.commitMessage || "");
         } catch (e: any) {
             console.error("Failed to generate commit message", e);
@@ -342,6 +357,47 @@ export default function PromptWorkspacePage() {
             toast.error(e.message || "Failed to push to production");
         } finally {
             setIsPushingToProd(false);
+        }
+    };
+
+    const handlePushToMain = async () => {
+        if (!selectedCommit) return;
+
+        // Find the current main commit
+        const mainCommit = commits.find(c => c.commit_tags?.some(t => t.tag_name === 'main'));
+
+        if (!mainCommit) {
+            // No main commit exists, just push directly
+            await confirmPushToMain();
+            return;
+        }
+
+        // Open compare dialog in push-to-main mode
+        setIsPushToMainMode(true);
+        setCommitToCompare(selectedCommit);
+        setCompareTargetId(mainCommit.id);
+        setComparisonResult(null);
+        setCompareDialogOpen(true);
+
+        // Auto trigger compare - pass both IDs since state hasn't updated yet
+        handleCompare(mainCommit.id, selectedCommit.id);
+    };
+
+    const confirmPushToMain = async () => {
+        if (!selectedCommit) return;
+        setIsPushingToMain(true);
+        try {
+            await api.pushToMain(selectedCommit.id);
+            toast.success("Pushed to main!");
+            setCompareDialogOpen(false);
+            setIsPushToMainMode(false);
+            // Re-fetch all data to align UI with backend state
+            await loadData();
+        } catch (e: any) {
+            console.error("Failed to push to main", e);
+            toast.error(e.message || "Failed to push to main");
+        } finally {
+            setIsPushingToMain(false);
         }
     };
 
@@ -410,24 +466,14 @@ export default function PromptWorkspacePage() {
         if (!selectedCommit) return;
         setIsRunning(true);
         try {
-            // Inject template variables into current editor content (not saved commit)
+            // Strip comments and inject template variables into current editor content
+            const strippedSystemPrompt = stripComments(systemPrompt);
             const hasVariables = Object.keys(templateVariables).length > 0;
 
-            // Debug logs
-            console.log("=== DEBUG: handleRun ===");
-            console.log("templateVariables:", templateVariables);
-            console.log("hasVariables:", hasVariables);
-            console.log("systemPrompt (before inject):", systemPrompt);
-            console.log("userQuery (before inject):", userQuery);
-            console.log("systemPrompt (after inject):", injectVariables(systemPrompt));
-            console.log("userQuery (after inject):", injectVariables(userQuery));
-
-            const overridePrompts = hasVariables ? {
-                system_prompt: injectVariables(systemPrompt),
-                user_query: injectVariables(userQuery)
-            } : undefined;
-
-            console.log("overridePrompts being sent:", overridePrompts);
+            const overridePrompts = {
+                system_prompt: hasVariables ? injectVariables(strippedSystemPrompt) : strippedSystemPrompt,
+                user_query: hasVariables ? injectVariables(userQuery) : userQuery
+            };
 
             const newRun = await api.executeCommit(selectedCommit.id, model, overridePrompts);
             setRuns(prev => [newRun, ...prev]);
@@ -442,12 +488,13 @@ export default function PromptWorkspacePage() {
         if (!selectedCommit || availableModels.length === 0) return;
         setIsRunning(true);
         try {
-            // Inject template variables into current editor content (not saved commit)
+            // Strip comments and inject template variables into current editor content
+            const strippedSystemPrompt = stripComments(systemPrompt);
             const hasVariables = Object.keys(templateVariables).length > 0;
-            const overridePrompts = hasVariables ? {
-                system_prompt: injectVariables(systemPrompt),
-                user_query: injectVariables(userQuery)
-            } : undefined;
+            const overridePrompts = {
+                system_prompt: hasVariables ? injectVariables(strippedSystemPrompt) : strippedSystemPrompt,
+                user_query: hasVariables ? injectVariables(userQuery) : userQuery
+            };
             // Run all models in parallel
             const promises = availableModels.map(model =>
                 api.executeCommit(selectedCommit.id, model.id, overridePrompts)
@@ -465,29 +512,6 @@ export default function PromptWorkspacePage() {
             console.error("Failed to run all models", e);
         } finally {
             setIsRunning(false);
-        }
-    };
-
-    const openScoreDialog = (run: Run) => {
-        setSelectedRunForScore(run);
-        setScoreValue("0.5");
-        setScoreReasoning("");
-        setScoreDialogOpen(true);
-    };
-
-    const handleCreateScore = async () => {
-        if (!selectedCommit || !selectedRunForScore) return;
-        try {
-            const newScore = await api.createScore({
-                commit_id: selectedCommit.id,
-                score: parseFloat(scoreValue),
-                scorer: "human",
-                reasoning: scoreReasoning,
-            });
-            setScores([...scores, newScore]);
-            setScoreDialogOpen(false);
-        } catch (e) {
-            console.error("Failed to score", e);
         }
     };
 
@@ -520,10 +544,6 @@ export default function PromptWorkspacePage() {
         setDeleteDialog({ open: true, type: 'run', id: runId, name: "this run" });
     };
 
-    const handleDeleteScoreClick = (scoreId: string) => {
-        setDeleteDialog({ open: true, type: 'score', id: scoreId, name: "this score" });
-    };
-
     const handleDeleteConfirm = async () => {
         if (!deleteDialog.id) return;
         try {
@@ -531,10 +551,6 @@ export default function PromptWorkspacePage() {
                 case 'run':
                     await api.deleteRun(deleteDialog.id);
                     setRuns(runs.filter(r => r.id !== deleteDialog.id));
-                    break;
-                case 'score':
-                    await api.deleteScore(deleteDialog.id);
-                    setScores(scores.filter(s => s.id !== deleteDialog.id));
                     break;
                 case 'tag':
                     await api.deleteTag(deleteDialog.id, deleteDialog.metadata.tagName);
@@ -568,13 +584,14 @@ export default function PromptWorkspacePage() {
         handleCompare(nextCommit.id);
     };
 
-    const handleCompare = async (targetId?: string) => {
+    const handleCompare = async (targetId?: string, sourceCommitId?: string) => {
         const idToCompare = targetId || compareTargetId;
-        if (!commitToCompare || !idToCompare) return;
+        const sourceId = sourceCommitId || commitToCompare?.id;
+        if (!sourceId || !idToCompare) return;
 
         setIsComparing(true);
         try {
-            const result = await api.compareCommits(commitToCompare.id, idToCompare);
+            const result = await api.compareCommits(sourceId, idToCompare);
             setComparisonResult(result);
             setCompareTargetId(idToCompare);
         } catch (error) {
@@ -661,14 +678,25 @@ export default function PromptWorkspacePage() {
                         <GitCompare size={14} /> Compare
                     </button>
 
-                    <button
-                        onClick={handlePushToProd}
-                        disabled={!selectedCommit || isPushingToProd}
-                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 border border-purple-500 rounded-lg text-xs font-medium text-white transition-all disabled:opacity-50"
-                    >
-                        {isPushingToProd ? <Loader2 size={14} className="animate-spin" /> : null}
-                        Push to Prod
-                    </button>
+                    {selectedCommit?.commit_tags?.some(t => t.tag_name === 'main') ? (
+                        <button
+                            onClick={handlePushToProd}
+                            disabled={!selectedCommit || isPushingToProd}
+                            className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 border border-purple-500 rounded-lg text-xs font-medium text-white transition-all disabled:opacity-50"
+                        >
+                            {isPushingToProd ? <Loader2 size={14} className="animate-spin" /> : null}
+                            Push to Prod
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handlePushToMain}
+                            disabled={!selectedCommit || isPushingToMain}
+                            className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 border border-zinc-800 dark:border-white rounded-lg text-xs font-medium text-white dark:text-black transition-all disabled:opacity-50"
+                        >
+                            {isPushingToMain ? <Loader2 size={14} className="animate-spin" /> : null}
+                            Push to Main
+                        </button>
+                    )}
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -1113,7 +1141,6 @@ export default function PromptWorkspacePage() {
                                             <div className="flex items-center gap-3 pl-1">
                                                 <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono">{run.latency_ms}ms</span>
                                                 <span className="text-[9px] text-zinc-400 dark:text-zinc-600 font-mono italic capitalize">{run.status}</span>
-                                                <button onClick={() => openScoreDialog(run)} className="opacity-0 group-hover:opacity-100 text-[9px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-all">Score</button>
                                                 <button onClick={() => handleDeleteRunClick(run.id)} className="opacity-0 group-hover:opacity-100 text-[9px] text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 transition-all">
                                                     <Trash2 size={8} />
                                                 </button>
@@ -1153,41 +1180,6 @@ export default function PromptWorkspacePage() {
             </div>
 
             {/* --- Modals & Overlays --- */}
-            <Dialog open={scoreDialogOpen} onOpenChange={setScoreDialogOpen}>
-                <DialogContent className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
-                    <DialogHeader>
-                        <DialogTitle>Evaluate Result</DialogTitle>
-                        <DialogDescription className="text-zinc-500 dark:text-zinc-400">Score this execution result to track quality over time.</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-6 py-4">
-                        <div className="space-y-2">
-                            <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Score (0.0 - 1.0)</Label>
-                            <Input
-                                type="number"
-                                step="0.1"
-                                min="0"
-                                max="1"
-                                value={scoreValue}
-                                onChange={(e) => setScoreValue(e.target.value)}
-                                className="bg-zinc-100 dark:bg-black/50 border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Reasoning</Label>
-                            <Input
-                                placeholder="Why this score?"
-                                value={scoreReasoning}
-                                onChange={(e) => setScoreReasoning(e.target.value)}
-                                className="bg-zinc-100 dark:bg-black/50 border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button onClick={handleCreateScore} className="bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-700 dark:hover:bg-zinc-200 border-none">Save Score</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
             <Dialog open={tagDialogOpen} onOpenChange={setTagDialogOpen}>
                 <DialogContent className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
                     <DialogHeader>
@@ -1211,101 +1203,139 @@ export default function PromptWorkspacePage() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
+            <Dialog open={compareDialogOpen} onOpenChange={(open) => {
+                    setCompareDialogOpen(open);
+                    if (!open) setIsPushToMainMode(false);
+                }}>
                 <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col bg-white dark:bg-[#0A0A0A] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white p-4 sm:p-6">
                     <DialogHeader>
-                        <DialogTitle>Compare Versions</DialogTitle>
-                        <DialogDescription className="text-zinc-500">Compare version {commitToCompare?.id.substring(0, 7)} with another version</DialogDescription>
+                        <DialogTitle>{isPushToMainMode ? "Push to Main" : "Compare Versions"}</DialogTitle>
+                        <DialogDescription className="text-zinc-500">
+                            {isPushToMainMode
+                                ? `Review changes before pushing version ${commitToCompare?.id.substring(0, 7)} to main`
+                                : `Compare version ${commitToCompare?.id.substring(0, 7)} with another version`
+                            }
+                        </DialogDescription>
                     </DialogHeader>
 
                     {!comparisonResult ? (
-                        <div className="grid gap-4 py-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Compare With</Label>
-                                <Select value={compareTargetId} onValueChange={setCompareTargetId}>
-                                    <SelectTrigger className="bg-zinc-100 dark:bg-black/50 border-zinc-200 dark:border-white/10">
-                                        <SelectValue placeholder="Select a version..." />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
-                                        {commits
-                                            .filter(c => c.id !== commitToCompare?.id)
-                                            .map(c => (
-                                                <SelectItem key={c.id} value={c.id}>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-mono text-[10px] bg-zinc-100 dark:bg-white/5 px-1 rounded text-zinc-500">{c.id.substring(0, 7)}</span>
-                                                        <span className="truncate">{c.commit_message}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))
-                                        }
-                                    </SelectContent>
-                                </Select>
+                        isPushToMainMode || isComparing ? (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
                             </div>
-                            <DialogFooter>
-                                <Button
-                                    onClick={() => handleCompare()}
-                                    disabled={!compareTargetId || isComparing}
-                                    className="bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-700 dark:hover:bg-zinc-200 border-none"
-                                >
-                                    {isComparing ? "Comparing..." : "Compare"}
-                                </Button>
-                            </DialogFooter>
-                        </div>
+                        ) : (
+                            <div className="grid gap-4 py-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Compare With</Label>
+                                    <Select value={compareTargetId} onValueChange={setCompareTargetId}>
+                                        <SelectTrigger className="bg-zinc-100 dark:bg-black/50 border-zinc-200 dark:border-white/10">
+                                            <SelectValue placeholder="Select a version..." />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white">
+                                            {commits
+                                                .filter(c => c.id !== commitToCompare?.id)
+                                                .map(c => (
+                                                    <SelectItem key={c.id} value={c.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-mono text-[10px] bg-zinc-100 dark:bg-white/5 px-1 rounded text-zinc-500">{c.id.substring(0, 7)}</span>
+                                                            <span className="truncate">{c.commit_message}</span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))
+                                            }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        onClick={() => handleCompare()}
+                                        disabled={!compareTargetId || isComparing}
+                                        className="bg-zinc-900 dark:bg-white text-white dark:text-black hover:bg-zinc-700 dark:hover:bg-zinc-200 border-none"
+                                    >
+                                        {isComparing ? "Comparing..." : "Compare"}
+                                    </Button>
+                                </DialogFooter>
+                            </div>
+                        )
                     ) : (
                         <div className="flex-1 overflow-hidden flex flex-col">
-                            <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6 px-1">
-                                <div className="flex items-center gap-3 sm:gap-6">
-                                    <span className="flex items-center gap-1.5 sm:gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Removed</span>
+                            <div className="flex items-center justify-between gap-2 mb-4 px-1">
+                                <div className="flex items-center gap-4">
+                                    <span className="flex items-center gap-2">
+                                        <span className="w-5 h-5 rounded flex items-center justify-center bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 text-xs font-medium">−</span>
+                                        <span className="text-xs text-zinc-500">Removed</span>
                                     </span>
-                                    <span className="flex items-center gap-1.5 sm:gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                        <span className="text-[9px] sm:text-[10px] font-bold text-zinc-500 uppercase tracking-[0.15em]">Added</span>
+                                    <span className="flex items-center gap-2">
+                                        <span className="w-5 h-5 rounded flex items-center justify-center bg-green-100 dark:bg-green-950/50 text-green-600 dark:text-green-400 text-xs font-medium">+</span>
+                                        <span className="text-xs text-zinc-500">Added</span>
                                     </span>
                                 </div>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <button className="text-[9px] sm:text-[10px] font-bold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all flex items-center gap-1">
-                                            <span className="hidden sm:inline">Compare Another</span>
-                                            <span className="sm:hidden">Another</span>
-                                            <ChevronDown size={10} className="opacity-50" />
-                                        </button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white w-64 p-1">
-                                        <div className="px-2 py-1.5 text-[9px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-widest">Select Version</div>
-                                        {commits
-                                            .filter(c => c.id !== commitToCompare?.id)
-                                            .map(c => (
-                                                <DropdownMenuItem
-                                                    key={c.id}
-                                                    onClick={() => handleCompare(c.id)}
-                                                    className="flex items-center gap-3 cursor-pointer focus:bg-zinc-100 dark:focus:bg-white/5 focus:text-zinc-900 dark:focus:text-white py-2"
-                                                >
-                                                    <span className="font-mono text-[10px] text-zinc-500 bg-zinc-100 dark:bg-white/5 px-1 rounded">{c.id.substring(0, 7)}</span>
-                                                    <span className="truncate text-xs">{c.commit_message}</span>
-                                                </DropdownMenuItem>
-                                            ))
-                                        }
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                {!isPushToMainMode && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="text-[9px] sm:text-[10px] font-bold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all flex items-center gap-1">
+                                                <span className="hidden sm:inline">Compare Another</span>
+                                                <span className="sm:hidden">Another</span>
+                                                <ChevronDown size={10} className="opacity-50" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="bg-white dark:bg-[#1F1F1F] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white w-64 p-1">
+                                            <div className="px-2 py-1.5 text-[9px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-widest">Select Version</div>
+                                            {commits
+                                                .filter(c => c.id !== commitToCompare?.id)
+                                                .map(c => (
+                                                    <DropdownMenuItem
+                                                        key={c.id}
+                                                        onClick={() => handleCompare(c.id)}
+                                                        className="flex items-center gap-3 cursor-pointer focus:bg-zinc-100 dark:focus:bg-white/5 focus:text-zinc-900 dark:focus:text-white py-2"
+                                                    >
+                                                        <span className="font-mono text-[10px] text-zinc-500 bg-zinc-100 dark:bg-white/5 px-1 rounded">{c.id.substring(0, 7)}</span>
+                                                        <span className="truncate text-xs">{c.commit_message}</span>
+                                                    </DropdownMenuItem>
+                                                ))
+                                            }
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
                             </div>
-                            <div className="flex-1 overflow-y-auto border border-zinc-200 dark:border-white/5 rounded-lg sm:rounded-xl bg-zinc-50 dark:bg-black/40 backdrop-blur-sm custom-scrollbar">
-                                <div className="text-[11px] sm:text-[13px] font-mono leading-[1.6] sm:leading-[1.8] p-3 sm:p-6">
+                            <div className="flex-1 overflow-y-auto border border-zinc-200 dark:border-white/5 rounded-xl bg-white dark:bg-[#1a1a1a]">
+                                <div className="text-sm font-mono">
                                     {comparisonResult.diff.map((part, index) => (
                                         <div key={index} className={cn(
-                                            "whitespace-pre-wrap px-4 py-1.5 rounded-lg transition-all",
-                                            part.type === 'added' ? "bg-emerald-500/10 text-emerald-500 my-1 border-l-2 border-emerald-500 shadow-[inset_4px_0_12px_-4px_rgba(16,185,129,0.3)]" :
-                                                part.type === 'removed' ? "bg-red-500/10 text-red-500 my-1 border-l-2 border-red-500 shadow-[inset_4px_0_12px_-4px_rgba(239,68,68,0.3)]" : "text-zinc-600 opacity-60"
+                                            "flex",
+                                            part.type === 'added' ? "bg-green-100 dark:bg-green-950/50" :
+                                                part.type === 'removed' ? "bg-red-100 dark:bg-red-950/50" : ""
                                         )}>
-                                            <span className="inline-block w-6 shrink-0 opacity-40 font-bold">
-                                                {part.type === 'added' ? '+' : part.type === 'removed' ? '-' : ' '}
+                                            <span className={cn(
+                                                "w-8 shrink-0 flex items-start justify-center py-1 font-medium select-none",
+                                                part.type === 'added' ? "text-green-600 dark:text-green-400 bg-green-200/50 dark:bg-green-900/30" :
+                                                    part.type === 'removed' ? "text-red-600 dark:text-red-400 bg-red-200/50 dark:bg-red-900/30" : "text-zinc-400"
+                                            )}>
+                                                {part.type === 'added' ? '+' : part.type === 'removed' ? '−' : ''}
                                             </span>
-                                            {part.value}
+                                            <span className={cn(
+                                                "flex-1 py-1 px-3 whitespace-pre-wrap break-words",
+                                                part.type === 'added' ? "text-green-800 dark:text-green-200" :
+                                                    part.type === 'removed' ? "text-red-800 dark:text-red-200" : "text-zinc-600 dark:text-zinc-400"
+                                            )}>
+                                                {part.value}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
+                            {isPushToMainMode && (
+                                <div className="mt-4 flex justify-end">
+                                    <button
+                                        onClick={confirmPushToMain}
+                                        disabled={isPushingToMain}
+                                        className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 border border-zinc-800 dark:border-white rounded-lg text-sm font-medium text-white dark:text-black transition-all disabled:opacity-50"
+                                    >
+                                        {isPushingToMain ? <Loader2 size={14} className="animate-spin" /> : null}
+                                        Confirm Push to Main
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </DialogContent>

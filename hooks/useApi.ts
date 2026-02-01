@@ -21,9 +21,8 @@ export function useApi() {
             console.debug(`[API] Auth not ready for ${endpoint}, returning empty`);
             const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
                 endpoint.includes('/prompts') || endpoint.includes('/commits') ||
-                endpoint.includes('/runs') || endpoint.includes('/scores') ||
-                endpoint.includes('/tags/mappings') || endpoint.includes('/activities') ||
-                endpoint.includes('/memberships');
+                endpoint.includes('/runs') || endpoint.includes('/tags/mappings') ||
+                endpoint.includes('/activities') || endpoint.includes('/memberships');
             if (endpoint.includes('/search')) {
                 return { projects: [], prompts: [], commits: [] } as T;
             }
@@ -35,9 +34,8 @@ export function useApi() {
             console.debug(`[API] No token yet for ${endpoint}, returning empty`);
             const isList = endpoint.includes('/users') || endpoint.includes('/projects') ||
                 endpoint.includes('/prompts') || endpoint.includes('/commits') ||
-                endpoint.includes('/runs') || endpoint.includes('/scores') ||
-                endpoint.includes('/tags/mappings') || endpoint.includes('/activities') ||
-                endpoint.includes('/memberships');
+                endpoint.includes('/runs') || endpoint.includes('/tags/mappings') ||
+                endpoint.includes('/activities') || endpoint.includes('/memberships');
             if (endpoint.includes('/search')) {
                 return { projects: [], prompts: [], commits: [] } as T;
             }
@@ -190,6 +188,10 @@ export function useApi() {
         }),
         deleteCommit: (id: string) => fetchWithAuth<void>(`/commits/${id}`, { method: "DELETE" }),
         pushToProd: (commitId: string) => fetchWithAuth<any>(`/commits/${commitId}/push-to-prod`, { method: "POST" }),
+        pushToMain: (commitId: string) => fetchWithAuth<any>("/commits/push-to-main", {
+            method: "POST",
+            body: JSON.stringify({ commitId }),
+        }),
         generateCommitMessage: (oldSystemPrompt: string, newSystemPrompt: string) =>
             fetchWithAuth<{ commitMessage: string }>("/commits/generate-message", {
                 method: "POST",
@@ -230,15 +232,6 @@ export function useApi() {
         executeCommit: (commitId: string, model?: string, overridePrompts?: { system_prompt?: string; user_query?: string }) =>
             fetchWithAuth<any>("/runs/execute", { method: "POST", body: JSON.stringify({ commit_id: commitId, model, ...overridePrompts }) }),
 
-        // Scores
-        getScores: () => fetchWithAuth<any[]>("/scores"),
-        getScore: (id: string) => fetchWithAuth<any>(`/scores/${id}`),
-        createScore: (data: any) => fetchWithAuth<any>("/scores", {
-            method: "POST",
-            body: JSON.stringify(data),
-        }),
-        deleteScore: (id: string) => fetchWithAuth<void>(`/scores/${id}`, { method: "DELETE" }),
-
         // Tags
         getTags: () => fetchWithAuth<any[]>("/tags/mappings"),
         getTagsByCommitId: (commitId: string) => fetchWithAuth<any[]>(`/commits/${commitId}/tags`),
@@ -264,6 +257,24 @@ export function useApi() {
         // Activities
         getActivities: (limit: number = 20, offset: number = 0) =>
             fetchWithAuth<any[]>(`/activities?limit=${limit}&offset=${offset}`),
+
+        // Dashboard Stats
+        getDashboardStats: () => fetchWithAuth<{
+            tokens: {
+                total_tokens_this_month: number;
+                total_input_tokens: number;
+                total_output_tokens: number;
+                total_cost: number;
+                total_requests: number;
+                period: { start: string; end: string };
+            };
+            latency: { avg_latency_ms: number };
+            counts: {
+                total_projects: number;
+                total_prompts: number;
+                total_commits: number;
+            };
+        }>("/stats/dashboard"),
 
         // Token Usage Stats
         getTokenUsageStats: () => fetchWithAuth<{

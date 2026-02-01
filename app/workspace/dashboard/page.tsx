@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Folder, Zap, BarChart3, Plus, Activity as ActivityIcon } from "lucide-react";
+import { Folder, FileText, GitCommit, Plus, Activity as ActivityIcon } from "lucide-react";
 import { useApi } from "@/hooks/useApi";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ActivityItem } from "@/components/dashboard/ActivityItem"; // I might need to update this too
@@ -14,34 +14,25 @@ export default function Dashboard() {
     const api = useApi();
     const [stats, setStats] = useState({
         projects: 0,
-        runs: 0,
-        avgScore: 0,
+        prompts: 0,
+        commits: 0,
     });
     const [activities, setActivities] = useState<Activity[]>([]);
     const [projects, setProjects] = useState<any[]>([]);
-    const [projectsPagination, setProjectsPagination] = useState<{ total: number; offset: number; limit: number } | null>(null);
-    const [isLoadingProjects, setIsLoadingProjects] = useState(false);
 
     useEffect(() => {
         async function loadData() {
             try {
-                const [allProjectsResponse, runs, scores, recentActivities] = await Promise.all([
+                const [dashboardStats, allProjectsResponse, recentActivities] = await Promise.all([
+                    api.getDashboardStats(),
                     api.getAllProjects({ limit: 4, offset: 0 }),
-                    api.getRuns(),
-                    api.getScores(),
                     api.getActivities(10, 0),
                 ]);
 
-                let avg = 0;
-                if (scores.length > 0) {
-                    const total = scores.reduce((acc: number, s: any) => acc + s.score, 0);
-                    avg = total / scores.length;
-                }
-
                 setStats({
-                    projects: allProjectsResponse.total,
-                    runs: runs.length,
-                    avgScore: avg,
+                    projects: dashboardStats.counts.total_projects,
+                    prompts: dashboardStats.counts.total_prompts,
+                    commits: dashboardStats.counts.total_commits,
                 });
 
                 // Map project_users to members format expected by ProjectsTable
@@ -56,7 +47,6 @@ export default function Dashboard() {
                 }));
 
                 setProjects(projectsWithMembers);
-                setProjectsPagination({ total: allProjectsResponse.total, offset: 0, limit: 5 });
                 setActivities(recentActivities);
             } catch (e) {
                 console.error("Failed to load dashboard data", e);
@@ -132,24 +122,24 @@ export default function Dashboard() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
+            <div className="grid grid-cols-3 gap-4 md:gap-8">
                 <StatCard
-                    title="Workspaces"
+                    title="Projects"
                     value={stats.projects}
-                    subtext="active environments"
+                    subtext="active workspaces"
                     icon={Folder}
                 />
                 <StatCard
-                    title="Intelligence Runs"
-                    value={stats.runs}
-                    subtext="total executions"
-                    icon={Zap}
+                    title="Prompts"
+                    value={stats.prompts}
+                    subtext="total prompts"
+                    icon={FileText}
                 />
                 <StatCard
-                    title="Efficacy Score"
-                    value={stats.avgScore.toFixed(1) + "%"}
-                    subtext="avg performance"
-                    icon={BarChart3}
+                    title="Commits"
+                    value={stats.commits}
+                    subtext="version history"
+                    icon={GitCommit}
                 />
             </div>
 
@@ -172,7 +162,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl p-6 h-auto min-h-[200px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
+                    <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl p-6 min-h-[320px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
                         {Object.keys(groupedActivities).length > 0 ? (
                             Object.entries(groupedActivities).map(([dateGroup, groupActivities]) => (
                                 <div key={dateGroup} className="mb-8 last:mb-0 relative">
