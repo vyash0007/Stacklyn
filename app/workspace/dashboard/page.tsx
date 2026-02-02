@@ -12,6 +12,7 @@ import Link from "next/link";
 
 export default function Dashboard() {
     const api = useApi();
+    const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({
         projects: 0,
         prompts: 0,
@@ -22,6 +23,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function loadData() {
+            setIsLoading(true);
             try {
                 const [dashboardStats, allProjectsResponse, recentActivities] = await Promise.all([
                     api.getDashboardStats(),
@@ -50,6 +52,8 @@ export default function Dashboard() {
                 setActivities(recentActivities);
             } catch (e) {
                 console.error("Failed to load dashboard data", e);
+            } finally {
+                setIsLoading(false);
             }
         }
         loadData();
@@ -96,6 +100,44 @@ export default function Dashboard() {
         }).toLowerCase();
     };
 
+    // Skeleton Components
+    const StatCardSkeleton = () => (
+        <div className="p-4 md:p-6 rounded-xl bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/5 animate-pulse">
+            <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded mb-3"></div>
+            <div className="h-8 w-12 bg-zinc-200 dark:bg-zinc-800 rounded mb-2"></div>
+            <div className="h-2 w-20 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+        </div>
+    );
+
+    const ProjectRowSkeleton = () => (
+        <div className="flex items-center gap-4 p-4 border-b border-zinc-100 dark:border-white/5 last:border-0 animate-pulse">
+            <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-800 rounded-md"></div>
+            <div className="flex-1 space-y-2">
+                <div className="h-3 w-32 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                <div className="h-2 w-48 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+            </div>
+            <div className="h-2 w-16 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+        </div>
+    );
+
+    const ActivitySkeleton = () => (
+        <div className="space-y-4 animate-pulse">
+            <div className="flex items-center gap-3 mb-2 px-2">
+                <div className="h-2 w-12 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                <div className="h-[1px] flex-1 bg-zinc-200 dark:bg-white/5"></div>
+            </div>
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-3 p-2">
+                    <div className="w-6 h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
+                    <div className="flex-1 space-y-1.5">
+                        <div className="h-2.5 w-36 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                        <div className="h-2 w-20 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
     return (
         <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-8 md:space-y-12">
             {/* Header Area */}
@@ -123,24 +165,34 @@ export default function Dashboard() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-4 md:gap-8">
-                <StatCard
-                    title="Projects"
-                    value={stats.projects}
-                    subtext="active workspaces"
-                    icon={Folder}
-                />
-                <StatCard
-                    title="Prompts"
-                    value={stats.prompts}
-                    subtext="total prompts"
-                    icon={FileText}
-                />
-                <StatCard
-                    title="Commits"
-                    value={stats.commits}
-                    subtext="version history"
-                    icon={GitCommit}
-                />
+                {isLoading ? (
+                    <>
+                        <StatCardSkeleton />
+                        <StatCardSkeleton />
+                        <StatCardSkeleton />
+                    </>
+                ) : (
+                    <>
+                        <StatCard
+                            title="Projects"
+                            value={stats.projects}
+                            subtext="active workspaces"
+                            icon={Folder}
+                        />
+                        <StatCard
+                            title="Prompts"
+                            value={stats.prompts}
+                            subtext="total prompts"
+                            icon={FileText}
+                        />
+                        <StatCard
+                            title="Commits"
+                            value={stats.commits}
+                            subtext="version history"
+                            icon={GitCommit}
+                        />
+                    </>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -150,7 +202,16 @@ export default function Dashboard() {
                         <h2 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-[0.2em]">Active Projects</h2>
                         <Link href="/workspace/projects" className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors uppercase tracking-widest">See all &rarr;</Link>
                     </div>
-                    <ProjectsTable projects={projects} />
+                    {isLoading ? (
+                        <div className="bg-white dark:bg-[#1F1F1F] rounded-xl border border-zinc-200 dark:border-white/5">
+                            <ProjectRowSkeleton />
+                            <ProjectRowSkeleton />
+                            <ProjectRowSkeleton />
+                            <ProjectRowSkeleton />
+                        </div>
+                    ) : (
+                        <ProjectsTable projects={projects} />
+                    )}
                 </div>
 
                 {/* Recent Activity Feed */}
@@ -163,7 +224,9 @@ export default function Dashboard() {
                     </div>
 
                     <div className="bg-white dark:bg-[#1F1F1F] rounded-md border border-zinc-200 dark:border-white/5 dark:shadow-3xl p-6 min-h-[320px] overflow-y-auto custom-scrollbar flex flex-col backdrop-blur-md">
-                        {Object.keys(groupedActivities).length > 0 ? (
+                        {isLoading ? (
+                            <ActivitySkeleton />
+                        ) : Object.keys(groupedActivities).length > 0 ? (
                             Object.entries(groupedActivities).map(([dateGroup, groupActivities]) => (
                                 <div key={dateGroup} className="mb-8 last:mb-0 relative">
                                     <div className="flex items-center gap-3 mb-2 px-2">

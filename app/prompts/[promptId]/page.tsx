@@ -77,7 +77,7 @@ export default function PromptWorkspacePage() {
     const [commits, setCommits] = useState<Commit[]>([]);
     const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
     const [runs, setRuns] = useState<Run[]>([]);
-        const [tags, setTags] = useState<Tag[]>([]);
+    const [tags, setTags] = useState<Tag[]>([]);
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
     const [selectedModel, setSelectedModel] = useState<ModelInfo | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -94,7 +94,7 @@ export default function PromptWorkspacePage() {
     const [isPushingToMain, setIsPushingToMain] = useState(false);
     const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
 
-    
+
     // Tagging State
     const [tagDialogOpen, setTagDialogOpen] = useState(false);
     const [tagName, setTagName] = useState("");
@@ -1204,9 +1204,9 @@ export default function PromptWorkspacePage() {
             </Dialog>
 
             <Dialog open={compareDialogOpen} onOpenChange={(open) => {
-                    setCompareDialogOpen(open);
-                    if (!open) setIsPushToMainMode(false);
-                }}>
+                setCompareDialogOpen(open);
+                if (!open) setIsPushToMainMode(false);
+            }}>
                 <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col bg-white dark:bg-[#0A0A0A] border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white p-4 sm:p-6">
                     <DialogHeader>
                         <DialogTitle>{isPushToMainMode ? "Push to Main" : "Compare Versions"}</DialogTitle>

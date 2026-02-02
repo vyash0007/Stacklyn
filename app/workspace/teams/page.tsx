@@ -486,8 +486,42 @@ const TeamsPage = () => {
                 {/* Timeline Feed - SCROLLABLE AREA */}
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
                     {isLoading ? (
-                        <div className="flex items-center justify-center h-full">
-                            <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+                        <div className="max-w-4xl space-y-8">
+                            {/* Skeleton Date Label */}
+                            <div className="text-center relative z-10 mb-8">
+                                <div className="inline-block h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse"></div>
+                            </div>
+                            {/* Skeleton Message Cards */}
+                            {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="relative pl-10 md:pl-16 animate-pulse">
+                                    {/* Avatar Skeleton */}
+                                    <div className="absolute left-0 top-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 border-[3px] md:border-4 border-zinc-50 dark:border-[#181818]"></div>
+
+                                    {/* Content Skeleton */}
+                                    <div className="flex flex-col gap-1.5">
+                                        {/* Header Line Skeleton */}
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2.5 w-12 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                            <div className="h-2.5 w-20 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+                                        </div>
+
+                                        {/* Message Card Skeleton */}
+                                        <div className="bg-white dark:bg-[#1F1F1F] border border-zinc-200 dark:border-white/5 rounded-md p-4 mt-1">
+                                            <div className="space-y-2">
+                                                <div className="h-3 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                                <div className="h-3 w-3/4 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+                                            </div>
+
+                                            {/* Footer Skeleton */}
+                                            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-zinc-100 dark:border-white/5">
+                                                <div className="h-5 w-16 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+                                                <div className="h-5 w-20 bg-zinc-100 dark:bg-zinc-900 rounded"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : !selectedProjectId ? (
                         <div className="flex flex-col items-center justify-center h-full text-zinc-500">
