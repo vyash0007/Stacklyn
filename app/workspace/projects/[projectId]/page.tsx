@@ -360,7 +360,7 @@ export default function ProjectDetailsPage() {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={handleEditProjectClick}
-                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-500 dark:text-zinc-400 font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-white transition-all shadow-xl backdrop-blur-md"
+                                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-500 dark:text-zinc-400 font-bold text-[10px] md:text-xs uppercase tracking-widest rounded-md hover:bg-zinc-200 dark:hover:bg-white/10 hover:text-zinc-900 dark:hover:text-white transition-all shadow-sm backdrop-blur-md"
                             >
                                 <Settings className="h-3 w-3 md:h-3.5 md:w-3.5" />
                                 <span>Settings</span>
