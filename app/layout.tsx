@@ -23,10 +23,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_dummy";
-
   return (
-    <ClerkProvider publishableKey={publishableKey}>
+    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.className} min-h-screen bg-zinc-50 dark:bg-zinc-950`}>
           <ThemeProvider
