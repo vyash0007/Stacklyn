@@ -1,10 +1,11 @@
 "use client";
 
-import { Search, Bell, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { SearchDialog } from "@/components/search/SearchDialog";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
@@ -60,10 +61,7 @@ export function Topbar({ title, breadcrumb }: TopbarProps) {
                 </div>
 
                 <div className="flex items-center space-x-1">
-                    <button className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-white/5 relative group">
-                        <Bell className="h-4 w-4" />
-                        <span className="absolute top-2 right-2 h-1.5 w-1.5 bg-zinc-900 dark:bg-white rounded-full ring-2 ring-white dark:ring-[#0a0a0a] group-hover:ring-zinc-100 dark:group-hover:ring-white/10"></span>
-                    </button>
+                    <NotificationBell />
                 </div>
 
                 <div className="h-6 w-[1px] bg-zinc-200 dark:bg-white/10 mx-1"></div>

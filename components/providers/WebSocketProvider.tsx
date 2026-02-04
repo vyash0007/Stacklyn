@@ -9,11 +9,14 @@ import {
   WebSocketChatMessage,
   ReactionData,
   OnlineUser,
+  NotificationData,
 } from "@/types/websocket";
 
 interface WebSocketContextType {
   isConnected: boolean;
   onlineUsers: OnlineUser[];
+  notifications: NotificationData[];
+  notificationCount: number;
   joinProject: (projectId: string) => void;
   leaveProject: (projectId: string) => void;
   onNewMessage: (callback: (data: { projectId: string; message: WebSocketChatMessage }) => void) => () => void;
@@ -21,6 +24,8 @@ interface WebSocketContextType {
   onNewReaction: (callback: (data: { projectId: string; messageId: string; reaction: ReactionData }) => void) => () => void;
   onReactionRemoved: (callback: (data: { projectId: string; messageId: string; reactionId: string; emoji: string; userId: string }) => void) => () => void;
   isUserOnline: (userId: string) => boolean;
+  removeNotification: (notificationId: string) => void;
+  clearAllNotifications: () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
@@ -41,6 +46,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
   const joinedProjectsRef = useRef<Set<string>>(new Set());
 
@@ -118,6 +124,17 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         socket.on("user_offline", (data) => {
           console.log(`🔴 User went offline:`, data.userId);
           setOnlineUsers((prev) => prev.filter((u) => u.id !== data.userId));
+        });
+
+        // Notification listeners
+        socket.on("pending_notifications", (data) => {
+          console.log(`🔔 Received ${data.notifications.length} pending notifications`);
+          setNotifications(data.notifications);
+        });
+
+        socket.on("notification", (data) => {
+          console.log(`🔔 New notification:`, data.type);
+          setNotifications((prev) => [data, ...prev]);
         });
 
         socketRef.current = socket;
@@ -199,11 +216,55 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     return onlineUsers.some((u) => u.id === userId);
   }, [onlineUsers]);
 
+  const removeNotification = useCallback(async (notificationId: string) => {
+    // Optimistically remove from state
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    
+    // Call API to remove from Redis
+    try {
+      const token = await getToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/${notificationId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error("Failed to remove notification:", response.status);
+      }
+    } catch (error) {
+      console.error("Failed to remove notification:", error);
+    }
+  }, [getToken]);
+
+  const clearAllNotifications = useCallback(async () => {
+    // Optimistically clear state
+    setNotifications([]);
+    
+    // Call API to clear from Redis
+    try {
+      const token = await getToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error("Failed to clear notifications:", response.status);
+      }
+    } catch (error) {
+      console.error("Failed to clear notifications:", error);
+    }
+  }, [getToken]);
+
   return (
     <WebSocketContext.Provider
       value={{
         isConnected,
         onlineUsers,
+        notifications,
+        notificationCount: notifications.length,
         joinProject,
         leaveProject,
         onNewMessage,
@@ -211,6 +272,8 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         onNewReaction,
         onReactionRemoved,
         isUserOnline,
+        removeNotification,
+        clearAllNotifications,
       }}
     >
       {children}
