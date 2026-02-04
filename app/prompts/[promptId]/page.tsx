@@ -142,12 +142,12 @@ export default function PromptWorkspacePage() {
 
     const [mobileTab, setMobileTab] = useState<'editor' | 'history' | 'variables' | 'runs'>('editor');
 
-    // Template variables state - extracted from {{variable}} patterns in prompts
+    // Template variables state - extracted from {variable} patterns in prompts
     const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
 
-    // Function to extract {{variable}} patterns from text
+    // Function to extract {variable} patterns from text
     const extractTemplateVariables = useCallback((text: string): string[] => {
-        const regex = /\{\{(\w+)\}\}/g;
+        const regex = /\{(\w+)\}/g;
         const matches: string[] = [];
         let match;
         while ((match = regex.exec(text)) !== null) {
@@ -179,9 +179,9 @@ export default function PromptWorkspacePage() {
         });
     }, [detectedVariables]);
 
-    // Function to replace {{variable}} with actual values
+    // Function to replace {variable} with actual values
     const injectVariables = useCallback((text: string): string => {
-        return text.replace(/\{\{(\w+)\}\}/g, (match, varName) => {
+        return text.replace(/\{(\w+)\}/g, (match, varName) => {
             return templateVariables[varName] ?? match;
         });
     }, [templateVariables]);
@@ -194,7 +194,7 @@ export default function PromptWorkspacePage() {
             .join('\n');
     }, []);
 
-    // Render text with colored {{variable}} patterns and grey comment lines
+    // Render text with colored {variable} patterns and grey comment lines
     const renderColoredText = useCallback((text: string) => {
         // Split by lines first to handle comments
         const lines = text.split('\n');
@@ -211,12 +211,12 @@ export default function PromptWorkspacePage() {
                 );
             }
 
-            // For non-comment lines, handle {{variable}} patterns
-            const parts = line.split(/(\{\{\w+\}\})/g);
+            // For non-comment lines, handle {variable} patterns
+            const parts = line.split(/(\{\w+\})/g);
             return (
                 <span key={lineIndex}>
                     {parts.map((part, partIndex) => {
-                        if (/^\{\{\w+\}\}$/.test(part)) {
+                        if (/^\{\w+\}$/.test(part)) {
                             return <span key={partIndex} className="text-purple-600 dark:text-purple-400">{part}</span>;
                         }
                         return <span key={partIndex}>{part}</span>;
@@ -951,10 +951,10 @@ export default function PromptWorkspacePage() {
                         {detectedVariables().length > 0 ? (
                             detectedVariables().map((varName) => (
                                 <div key={varName} className="space-y-1.5">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                                        <span className="text-purple-500/70">{`{{`}</span>
-                                        {varName}
-                                        <span className="text-purple-500/70">{`}}`}</span>
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1">
+                                        <span className="text-purple-500/70">{`{`}</span>
+                                        <span>{varName}</span>
+                                        <span className="text-purple-500/70">{`}`}</span>
                                     </label>
                                     <input
                                         type="text"
@@ -975,7 +975,7 @@ export default function PromptWorkspacePage() {
                                 </div>
                                 <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-600 uppercase tracking-widest mb-1">No Variables</p>
                                 <p className="text-[10px] text-zinc-400 dark:text-zinc-700 max-w-[180px] leading-relaxed">
-                                    Use <span className="text-purple-500/70 font-mono">{`{{name}}`}</span> syntax in your prompts to create dynamic variables
+                                    Use <span className="text-purple-500/70 font-mono">{`{name}`}</span> syntax in your prompts to create dynamic variables
                                 </p>
                             </div>
                         )}
@@ -1010,7 +1010,7 @@ export default function PromptWorkspacePage() {
                                 <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">System Prompt</span>
                             </div>
                             <div className="flex-1 relative overflow-hidden">
-                                {/* Color overlay for {{variable}} patterns */}
+                                {/* Color overlay for {variable} patterns */}
                                 <div
                                     className="absolute inset-0 p-4 text-sm font-mono leading-[1.8] pointer-events-none whitespace-pre-wrap break-words overflow-auto text-zinc-700 dark:text-zinc-300"
                                     style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' }}
@@ -1035,7 +1035,7 @@ export default function PromptWorkspacePage() {
                                 <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">User Message</span>
                             </div>
                             <div className="flex-1 relative overflow-hidden">
-                                {/* Color overlay for {{variable}} patterns */}
+                                {/* Color overlay for {variable} patterns */}
                                 <div
                                     className="absolute inset-0 p-4 text-sm font-mono leading-[1.8] pointer-events-none whitespace-pre-wrap break-words overflow-auto text-zinc-700 dark:text-zinc-300"
                                     style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace' }}
