@@ -8,16 +8,19 @@ import {
   ClientToServerEvents,
   WebSocketChatMessage,
   ReactionData,
+  OnlineUser,
 } from "@/types/websocket";
 
 interface WebSocketContextType {
   isConnected: boolean;
+  onlineUsers: OnlineUser[];
   joinProject: (projectId: string) => void;
   leaveProject: (projectId: string) => void;
   onNewMessage: (callback: (data: { projectId: string; message: WebSocketChatMessage }) => void) => () => void;
   onNewReply: (callback: (data: { projectId: string; parentMessageId: string; reply: WebSocketChatMessage }) => void) => () => void;
   onNewReaction: (callback: (data: { projectId: string; messageId: string; reaction: ReactionData }) => void) => () => void;
   onReactionRemoved: (callback: (data: { projectId: string; messageId: string; reactionId: string; emoji: string; userId: string }) => void) => () => void;
+  isUserOnline: (userId: string) => boolean;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | null>(null);
@@ -37,6 +40,7 @@ interface WebSocketProviderProps {
 export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
   const joinedProjectsRef = useRef<Set<string>>(new Set());
 
@@ -94,6 +98,26 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         socket.on("left_project", (data) => {
           console.log(`📤 Left project: ${data.projectId}`);
           joinedProjectsRef.current.delete(data.projectId);
+        });
+
+        // Global online presence listeners
+        socket.on("global_online_users", (data) => {
+          console.log(`👥 Global online users:`, data.users.length);
+          setOnlineUsers(data.users);
+        });
+
+        socket.on("user_online", (data) => {
+          console.log(`🟢 User came online:`, data.user.name);
+          setOnlineUsers((prev) => {
+            // Avoid duplicates
+            if (prev.some((u) => u.id === data.user.id)) return prev;
+            return [...prev, data.user];
+          });
+        });
+
+        socket.on("user_offline", (data) => {
+          console.log(`🔴 User went offline:`, data.userId);
+          setOnlineUsers((prev) => prev.filter((u) => u.id !== data.userId));
         });
 
         socketRef.current = socket;
@@ -171,16 +195,22 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     []
   );
 
+  const isUserOnline = useCallback((userId: string) => {
+    return onlineUsers.some((u) => u.id === userId);
+  }, [onlineUsers]);
+
   return (
     <WebSocketContext.Provider
       value={{
         isConnected,
+        onlineUsers,
         joinProject,
         leaveProject,
         onNewMessage,
         onNewReply,
         onNewReaction,
         onReactionRemoved,
+        isUserOnline,
       }}
     >
       {children}

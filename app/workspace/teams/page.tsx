@@ -23,10 +23,11 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { ReactionsSummary } from '@/components/chat/ReactionsSummary';
 import { MentionDropdown, MentionUser } from '@/components/chat/MentionDropdown';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 const TeamsPage = () => {
     const api = useApi();
-    const { isConnected, joinProject, leaveProject, onNewMessage, onNewReply, onNewReaction, onReactionRemoved } = useWebSocket();
+    const { isConnected, onlineUsers, joinProject, leaveProject, onNewMessage, onNewReply, onNewReaction, onReactionRemoved } = useWebSocket();
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [isProjectListOpen, setIsProjectListOpen] = useState(true);
@@ -604,6 +605,37 @@ const TeamsPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Online Users Avatars */}
+                        {onlineUsers.length > 0 && (
+                            <div className="flex items-center gap-2">
+                                <div className="flex -space-x-2">
+                                    {onlineUsers.slice(0, 4).map((user) => (
+                                        <div key={user.id} className="relative">
+                                            {user.image_url ? (
+                                                <img
+                                                    src={user.image_url}
+                                                    alt={user.name || 'User'}
+                                                    className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] object-cover"
+                                                    title={user.name || 'Online user'}
+                                                />
+                                            ) : (
+                                                <div 
+                                                    className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold"
+                                                    title={user.name || 'Online user'}
+                                                >
+                                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                                </div>
+                                            )}
+                                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#181818]" />
+                                        </div>
+                                    ))}
+                                </div>
+                                {onlineUsers.length > 4 && (
+                                    <span className="text-xs text-zinc-500 font-medium">+{onlineUsers.length - 4}</span>
+                                )}
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium ml-1">online</span>
+                            </div>
+                        )}
                         {selectedProjectId && (
                             <Link
                                 href={`/workspace/projects/${selectedProjectId}`}
@@ -624,19 +656,6 @@ const TeamsPage = () => {
                     <h2 className="text-xs md:text-sm font-lg tracking-tight text-zinc-700 dark:text-zinc-300">Project Chat</h2>
                     <div className="flex items-center gap-4 text-[10px] md:text-xs text-zinc-500 font-lg tracking-tight">
                         <span>{messages.length} messages</span>
-                        <div className="flex items-center gap-1.5">
-                            {isConnected ? (
-                                <>
-                                    <Wifi className="h-3 w-3 text-green-500" />
-                                    <span className="text-green-600 dark:text-green-400 font-medium">Live</span>
-                                </>
-                            ) : (
-                                <>
-                                    <WifiOff className="h-3 w-3 text-zinc-400" />
-                                    <span className="text-zinc-500 font-medium">Offline</span>
-                                </>
-                            )}
-                        </div>
                     </div>
                 </div>
 
@@ -712,18 +731,15 @@ const TeamsPage = () => {
                                             return (
                                                 <div key={message.id} className="relative pl-10 md:pl-16 group mb-8">
                                                     {/* Avatar Marker */}
-                                                    <div className="absolute left-0 top-0 w-8 h-8 md:w-10 md:h-10">
-                                                        {message.user?.image_url ? (
-                                                            <img
-                                                                src={message.user.image_url}
-                                                                alt={message.user.name || 'User'}
-                                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[3px] md:border-4 border-zinc-50 dark:border-[#181818] bg-slate-100 object-cover relative z-10"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border-[3px] md:border-4 border-zinc-50 dark:border-[#181818] bg-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs md:text-sm relative z-10">
-                                                                {message.user?.name?.charAt(0).toUpperCase() || 'U'}
-                                                            </div>
-                                                        )}
+                                                    <div className="absolute left-0 top-0">
+                                                        <UserAvatar
+                                                            userId={message.user?.id || message.user_id || ''}
+                                                            name={message.user?.name}
+                                                            imageUrl={message.user?.image_url}
+                                                            size="md"
+                                                            showOnlineStatus={false}
+                                                            className="border-[3px] md:border-4 border-zinc-50 dark:border-[#181818]"
+                                                        />
                                                     </div>
 
                                                     {/* Content Container */}
@@ -789,17 +805,14 @@ const TeamsPage = () => {
                                                                 {replies.map((reply) => (
                                                                     <div key={reply.id} className="flex gap-3">
                                                                         {/* Reply avatar */}
-                                                                        {reply.user?.image_url ? (
-                                                                            <img
-                                                                                src={reply.user.image_url}
-                                                                                alt={reply.user.name || 'User'}
-                                                                                className="w-7 h-7 rounded-full bg-slate-100 object-cover shrink-0"
-                                                                            />
-                                                                        ) : (
-                                                                            <div className="w-7 h-7 rounded-full bg-slate-300 flex items-center justify-center text-slate-700 font-bold text-xs shrink-0">
-                                                                                {reply.user?.name?.charAt(0).toUpperCase() || 'U'}
-                                                                            </div>
-                                                                        )}
+                                                                        <UserAvatar
+                                                                            userId={reply.user?.id || reply.user_id || ''}
+                                                                            name={reply.user?.name}
+                                                                            imageUrl={reply.user?.image_url}
+                                                                            size="xs"
+                                                                            showOnlineStatus={false}
+                                                                            className="shrink-0"
+                                                                        />
                                                                         {/* Reply content */}
                                                                         <div className="flex-1 bg-zinc-100 dark:bg-[#252527] border border-zinc-200 dark:border-white/5 rounded-md p-3">
                                                                             <div className="flex items-center gap-2 mb-1">

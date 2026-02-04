@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn, formatRelativeTime } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 export default function ProjectDetailsPage() {
     const params = useParams();
@@ -512,20 +513,14 @@ export default function ProjectDetailsPage() {
                                 {members.map((member) => (
                                     <div key={member.user_id} className="flex items-center justify-between group p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-[#252527] transition-all">
                                         <div className="flex items-center gap-3">
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-full flex items-center justify-center text-xs font-lg tracking-tight shadow-sm transition-transform group-hover:scale-105 overflow-hidden",
-                                                member.role === 'admin' ? "bg-slate-200 text-slate-800 border border-slate-300" : "bg-slate-100 text-slate-600 border border-slate-200"
-                                            )}>
-                                                {member.users?.image_url || member.users?.avatar_url ? (
-                                                    <img
-                                                        src={member.users?.image_url || member.users?.avatar_url}
-                                                        alt={member.users?.name || member.users?.email || "User"}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    member.users?.name?.substring(0, 2).toUpperCase() || member.users?.email?.substring(0, 2).toUpperCase() || "UN"
-                                                )}
-                                            </div>
+                                            <UserAvatar
+                                                userId={member.user_id}
+                                                name={member.users?.name || member.users?.email}
+                                                imageUrl={member.users?.image_url || member.users?.avatar_url}
+                                                size="md"
+                                                showOnlineStatus={!member.isCurrentUser}
+                                                className="transition-transform group-hover:scale-105"
+                                            />
                                             <div>
                                                 <div className="text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
                                                     {member.users?.name || member.users?.email || "Unknown"}

@@ -4,29 +4,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChatMessage } from '@/types';
 import { useApi } from '@/hooks/useApi';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 import { formatDistanceToNow } from 'date-fns';
 import { Send, Loader2, Wifi, WifiOff } from 'lucide-react';
 
 interface CommentSectionProps {
     projectId?: string;
 }
-
-// Helper to generate avatar initials and color from name
-const getAvatarProps = (name?: string) => {
-    const displayName = name || 'Unknown';
-    const initial = displayName.charAt(0).toUpperCase();
-    const colors = [
-        'bg-green-100 text-green-700',
-        'bg-cyan-100 text-cyan-700',
-        'bg-amber-100 text-amber-700',
-        'bg-indigo-100 text-indigo-700',
-        'bg-pink-100 text-pink-700',
-        'bg-purple-100 text-purple-700',
-    ];
-    // Simple hash to pick a consistent color
-    const colorIndex = displayName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-    return { initial, color: colors[colorIndex] };
-};
 
 export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => {
     const { getProjectMessages, createMessage, getComments, postComment } = useApi();
@@ -209,20 +193,16 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
 
             <div className="space-y-6">
                 {messages.map((message) => {
-                    const { initial, color } = getAvatarProps(message.user?.name);
                     return (
                         <div key={message.id} className="flex gap-4">
-                            {message.user?.image_url ? (
-                                <img
-                                    src={message.user.image_url}
-                                    alt={message.user.name || 'User'}
-                                    className="shrink-0 w-8 h-8 rounded-full ring-2 ring-white shadow-sm object-cover"
-                                />
-                            ) : (
-                                <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${color} ring-2 ring-white shadow-sm`}>
-                                    {initial}
-                                </div>
-                            )}
+                            <UserAvatar
+                                userId={message.user?.id || message.user_id || ''}
+                                name={message.user?.name}
+                                imageUrl={message.user?.image_url}
+                                size="sm"
+                                showOnlineStatus={true}
+                                className="shrink-0"
+                            />
                             <div className="flex-1 space-y-1">
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm font-semibold text-slate-900">

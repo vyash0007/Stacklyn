@@ -4,6 +4,7 @@ import { MoreHorizontal, Folder, GitBranch, ArrowUpRight, Trash2, ChevronLeft, C
 import { useState } from "react";
 import Link from "next/link";
 import { Project } from "@/types";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface ProjectsTableProps {
     projects: Project[];
@@ -101,21 +102,17 @@ export function ProjectsTable({ projects, limit = 5, showFooter = true, onDelete
                                             <div className="flex -space-x-2">
                                                 {project.members.slice(0, 3).map((member, idx) => {
                                                     const imageUrl = member.users?.image_url || member.users?.avatar_url || member.users?.profile_image_url;
-                                                    const initials = member.users?.name?.substring(0, 2).toUpperCase() ||
-                                                        member.users?.email?.substring(0, 2).toUpperCase() || "??";
+                                                    const name = member.users?.name || member.users?.email || "Unknown";
                                                     return (
-                                                        <div
+                                                        <UserAvatar
                                                             key={member.user_id || idx}
-                                                            className="w-7 h-7 rounded-full border-2 border-white dark:border-[#0B0D13] overflow-hidden bg-zinc-200 dark:bg-zinc-800"
-                                                        >
-                                                            {imageUrl ? (
-                                                                <img src={imageUrl} alt="" className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
-                                                                    {initials}
-                                                                </div>
-                                                            )}
-                                                        </div>
+                                                            userId={member.user_id || ''}
+                                                            name={name}
+                                                            imageUrl={imageUrl}
+                                                            size="xs"
+                                                            showOnlineStatus={true}
+                                                            className="border-2 border-white dark:border-[#0B0D13]"
+                                                        />
                                                     );
                                                 })}
                                             </div>
