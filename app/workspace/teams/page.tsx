@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
     MoreHorizontal,
     MessageSquare,
@@ -10,7 +10,9 @@ import {
     ChevronUp,
     Reply,
     ExternalLink,
-    ListFilter
+    ListFilter,
+    Wifi,
+    WifiOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -20,9 +22,11 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { ReactionsSummary } from '@/components/chat/ReactionsSummary';
 import { MentionDropdown, MentionUser } from '@/components/chat/MentionDropdown';
+import { useWebSocket } from '@/components/providers/WebSocketProvider';
 
 const TeamsPage = () => {
     const api = useApi();
+    const { isConnected, joinProject, leaveProject, onNewMessage, onNewReply, onNewReaction, onReactionRemoved } = useWebSocket();
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [isProjectListOpen, setIsProjectListOpen] = useState(true);
@@ -44,6 +48,10 @@ const TeamsPage = () => {
     // Mention state
     const [projectMembers, setProjectMembers] = useState<MentionUser[]>([]);
     const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+
+    // Scroll ref for auto-scrolling to bottom
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messagesContainerRef = useRef<HTMLDivElement>(null);
     const [mentionSearchTerm, setMentionSearchTerm] = useState('');
     const [mentionInputType, setMentionInputType] = useState<'main' | string>('main'); // 'main' or messageId for replies
 
@@ -150,6 +158,126 @@ const TeamsPage = () => {
         loadMembers();
     }, [selectedProjectId, api]);
 
+    // WebSocket: Join/leave project room when selection changes
+    useEffect(() => {
+        if (selectedProjectId && isConnected) {
+            joinProject(selectedProjectId);
+        }
+        return () => {
+            if (selectedProjectId) {
+                leaveProject(selectedProjectId);
+            }
+        };
+    }, [selectedProjectId, isConnected, joinProject, leaveProject]);
+
+    // WebSocket: Handle new messages in real-time
+    const handleNewMessage = useCallback((data: { projectId: string; message: any }) => {
+        if (data.projectId === selectedProjectId) {
+            const transformedMessage: ChatMessage = {
+                id: data.message.id,
+                project_id: selectedProjectId,
+                user_id: data.message.user?.id || null,
+                content: data.message.content,
+                parent_message_id: data.message.parent_message_id,
+                created_at: data.message.created_at,
+                updated_at: data.message.updated_at,
+                user: data.message.user ? {
+                    id: data.message.user.id,
+                    name: data.message.user.name,
+                    image_url: data.message.user.image_url,
+                } : undefined,
+                replies_count: data.message.replies_count || 0,
+            };
+            setMessages(prev => {
+                // Avoid duplicates
+                if (prev.some(m => m.id === transformedMessage.id)) {
+                    return prev;
+                }
+                return [...prev, transformedMessage];
+            });
+        }
+    }, [selectedProjectId]);
+
+    // WebSocket: Handle new replies in real-time
+    const handleNewReply = useCallback((data: { projectId: string; parentMessageId: string; reply: any }) => {
+        if (data.projectId === selectedProjectId) {
+            const transformedReply: ChatMessage = {
+                id: data.reply.id,
+                project_id: selectedProjectId,
+                user_id: data.reply.user?.id || null,
+                content: data.reply.content,
+                parent_message_id: data.reply.parent_message_id,
+                created_at: data.reply.created_at,
+                updated_at: data.reply.updated_at,
+                user: data.reply.user ? {
+                    id: data.reply.user.id,
+                    name: data.reply.user.name,
+                    image_url: data.reply.user.image_url,
+                } : undefined,
+            };
+            // Add to thread replies if thread is expanded
+            setThreadReplies(prev => {
+                const existingReplies = prev[data.parentMessageId] || [];
+                if (existingReplies.some(r => r.id === transformedReply.id)) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    [data.parentMessageId]: [...existingReplies, transformedReply],
+                };
+            });
+            // Update reply count on parent message
+            setMessages(prev => prev.map(m => 
+                m.id === data.parentMessageId 
+                    ? { ...m, replies_count: (m.replies_count || 0) + 1 }
+                    : m
+            ));
+        }
+    }, [selectedProjectId]);
+
+    // WebSocket: Handle new reactions
+    const handleNewReactionWS = useCallback((data: { projectId: string; messageId: string; reaction: any }) => {
+        if (data.projectId === selectedProjectId) {
+            // Reload reactions for the message
+            api.getMessageReactions(selectedProjectId, data.messageId).then(reactions => {
+                setMessageReactions(prev => ({
+                    ...prev,
+                    [data.messageId]: reactions,
+                }));
+            }).catch(console.error);
+        }
+    }, [selectedProjectId, api]);
+
+    // WebSocket: Handle reaction removed
+    const handleReactionRemovedWS = useCallback((data: { projectId: string; messageId: string }) => {
+        if (data.projectId === selectedProjectId) {
+            // Reload reactions for the message
+            api.getMessageReactions(selectedProjectId, data.messageId).then(reactions => {
+                setMessageReactions(prev => ({
+                    ...prev,
+                    [data.messageId]: reactions,
+                }));
+            }).catch(console.error);
+        }
+    }, [selectedProjectId, api]);
+
+    // Subscribe to WebSocket events
+    useEffect(() => {
+        if (!selectedProjectId) return;
+
+        const unsubMessage = onNewMessage(handleNewMessage);
+        const unsubReply = onNewReply(handleNewReply);
+        const unsubReaction = onNewReaction(handleNewReactionWS);
+        const unsubReactionRemoved = onReactionRemoved(handleReactionRemovedWS);
+        
+        return () => {
+            unsubMessage();
+            unsubReply();
+            unsubReaction();
+            unsubReactionRemoved();
+        };
+    }, [selectedProjectId, onNewMessage, onNewReply, onNewReaction, onReactionRemoved, handleNewMessage, handleNewReply, handleNewReactionWS, handleReactionRemovedWS]);
+
     // Handle input change for main message (detect @mentions)
     const handleMessageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -215,8 +343,8 @@ const TeamsPage = () => {
 
         setIsSending(true);
         try {
-            const message = await api.createMessage(selectedProjectId, newMessage.trim());
-            setMessages(prev => [message, ...prev]);
+            // Just send to API - WebSocket will broadcast the message back
+            await api.createMessage(selectedProjectId, newMessage.trim());
             setNewMessage('');
         } catch (error) {
             console.error("Failed to send message:", error);
@@ -271,18 +399,8 @@ const TeamsPage = () => {
 
         setSendingReply(messageId);
         try {
-            const reply = await api.createReply(selectedProjectId, messageId, replyContent);
-            // Add reply to thread
-            setThreadReplies(prev => ({
-                ...prev,
-                [messageId]: [...(prev[messageId] || []), reply]
-            }));
-            // Update reply count on parent message
-            setMessages(prev => prev.map(msg =>
-                msg.id === messageId
-                    ? { ...msg, replies_count: (msg.replies_count || 0) + 1 }
-                    : msg
-            ));
+            // Just send to API - WebSocket will broadcast the reply back
+            await api.createReply(selectedProjectId, messageId, replyContent);
             // Clear input
             setReplyInputs(prev => ({ ...prev, [messageId]: '' }));
         } catch (error) {
@@ -353,8 +471,12 @@ const TeamsPage = () => {
         });
     };
 
-    // Group messages by date
-    const groupedMessages = messages.reduce((groups: { [key: string]: ChatMessage[] }, message) => {
+    // Group messages by date (sorted oldest to newest within each group)
+    const sortedMessages = [...messages].sort((a, b) => 
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
+    const groupedMessages = sortedMessages.reduce((groups: { [key: string]: ChatMessage[] }, message) => {
         const date = new Date(message.created_at);
         const today = new Date();
         const yesterday = new Date(today);
@@ -379,6 +501,28 @@ const TeamsPage = () => {
         groups[dateKey].push(message);
         return groups;
     }, {});
+
+    // Auto-scroll to bottom
+    const scrollToBottom = useCallback((smooth = true) => {
+        messagesEndRef.current?.scrollIntoView({ 
+            behavior: smooth ? 'smooth' : 'instant' 
+        });
+    }, []);
+
+    // Scroll to bottom when messages change
+    useEffect(() => {
+        if (messages.length > 0 && !isLoading) {
+            scrollToBottom();
+        }
+    }, [messages, isLoading, scrollToBottom]);
+
+    // Scroll to bottom on initial load
+    useEffect(() => {
+        if (!isLoading && messages.length > 0) {
+            // Use instant scroll on initial load
+            setTimeout(() => scrollToBottom(false), 100);
+        }
+    }, [isLoading, selectedProjectId]);
 
     const formatTime = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -478,13 +622,26 @@ const TeamsPage = () => {
                 {/* Feed Filters */}
                 <div className="px-4 md:px-8 py-3 md:py-4 flex items-center justify-between border-b border-zinc-200 dark:border-white/5 shrink-0">
                     <h2 className="text-xs md:text-sm font-lg tracking-tight text-zinc-700 dark:text-zinc-300">Project Chat</h2>
-                    <div className="flex items-center gap-6 text-[10px] md:text-xs text-zinc-500 font-lg tracking-tight">
+                    <div className="flex items-center gap-4 text-[10px] md:text-xs text-zinc-500 font-lg tracking-tight">
                         <span>{messages.length} messages</span>
+                        <div className="flex items-center gap-1.5">
+                            {isConnected ? (
+                                <>
+                                    <Wifi className="h-3 w-3 text-green-500" />
+                                    <span className="text-green-600 dark:text-green-400 font-medium">Live</span>
+                                </>
+                            ) : (
+                                <>
+                                    <WifiOff className="h-3 w-3 text-zinc-400" />
+                                    <span className="text-zinc-500 font-medium">Offline</span>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Timeline Feed - SCROLLABLE AREA */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
                     {isLoading ? (
                         <div className="max-w-4xl space-y-8">
                             {/* Skeleton Date Label */}
@@ -712,6 +869,8 @@ const TeamsPage = () => {
                                     </div>
                                 ))}
                             </div>
+                            {/* Scroll anchor */}
+                            <div ref={messagesEndRef} />
                         </div>
                     )}
                 </div>

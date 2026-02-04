@@ -179,3 +179,6 @@ export interface ModelInfo {
 export type ModelProvider = 'groq' | 'openai' | 'anthropic' | 'gemini';
 
 export type AvailableModels = Record<ModelProvider, ModelInfo[]>;
+
+// Re-export WebSocket types
+export * from './websocket';

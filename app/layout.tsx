@@ -4,6 +4,8 @@ import "./globals.css"; // Force recompile
 import { ClerkProvider } from "@clerk/nextjs";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { WebSocketProvider } from "@/components/providers/WebSocketProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,7 +35,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <AuthProvider>
+              <WebSocketProvider>
+                {children}
+              </WebSocketProvider>
+            </AuthProvider>
           </ThemeProvider>
         </body>
       </html>

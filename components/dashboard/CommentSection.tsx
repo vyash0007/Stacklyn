@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChatMessage } from '@/types';
 import { useApi } from '@/hooks/useApi';
+import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { formatDistanceToNow } from 'date-fns';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Wifi, WifiOff } from 'lucide-react';
 
 interface CommentSectionProps {
     projectId?: string;
@@ -29,10 +30,56 @@ const getAvatarProps = (name?: string) => {
 
 export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => {
     const { getProjectMessages, createMessage, getComments, postComment } = useApi();
+    const { isConnected, joinProject, leaveProject, onNewMessage, onNewReply } = useWebSocket();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isPosting, setIsPosting] = useState(false);
+
+    // Handle real-time message updates
+    const handleNewMessage = useCallback((data: { projectId: string; message: any }) => {
+        if (data.projectId === projectId) {
+            const transformedMessage: ChatMessage = {
+                id: data.message.id,
+                project_id: projectId || '',
+                user_id: data.message.user?.id || null,
+                content: data.message.content,
+                parent_message_id: data.message.parent_message_id,
+                created_at: data.message.created_at,
+                updated_at: data.message.updated_at,
+                user: data.message.user ? {
+                    id: data.message.user.id,
+                    name: data.message.user.name,
+                    image_url: data.message.user.image_url,
+                } : undefined,
+                replies_count: data.message.replies_count || 0,
+            };
+            setMessages(prev => [transformedMessage, ...prev]);
+        }
+    }, [projectId]);
+
+    // Join/leave project room for WebSocket
+    useEffect(() => {
+        if (projectId && isConnected) {
+            joinProject(projectId);
+        }
+        return () => {
+            if (projectId) {
+                leaveProject(projectId);
+            }
+        };
+    }, [projectId, isConnected, joinProject, leaveProject]);
+
+    // Subscribe to WebSocket events
+    useEffect(() => {
+        if (!projectId) return;
+
+        const unsubMessage = onNewMessage(handleNewMessage);
+        
+        return () => {
+            unsubMessage();
+        };
+    }, [projectId, onNewMessage, handleNewMessage]);
 
     useEffect(() => {
         const loadMessages = async () => {
@@ -78,9 +125,10 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
         setIsPosting(true);
         try {
             if (projectId) {
-                // Use real API
-                const message = await createMessage(projectId, newMessage.trim());
-                setMessages(prev => [message, ...prev]);
+                // Use real API - WebSocket will handle adding to messages
+                await createMessage(projectId, newMessage.trim());
+                // Note: We don't add to messages here since WebSocket will broadcast
+                // the new message back to us (including to ourselves)
             } else {
                 // Fallback to mock
                 // @ts-ignore
@@ -120,11 +168,26 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ projectId }) => 
     return (
         <div className="space-y-6">
             {projectId && (
-                <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 text-sm text-amber-800 flex items-center gap-2">
-                    <span className="font-bold bg-amber-200 text-amber-900 w-5 h-5 flex items-center justify-center rounded text-xs">
-                        {messages.length}
-                    </span>
-                    messages in this project
+                <div className="flex items-center justify-between">
+                    <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg p-3 text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                        <span className="font-bold bg-amber-200 dark:bg-amber-500/30 text-amber-900 dark:text-amber-100 w-5 h-5 flex items-center justify-center rounded text-xs">
+                            {messages.length}
+                        </span>
+                        messages in this project
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                        {isConnected ? (
+                            <>
+                                <Wifi className="h-3.5 w-3.5 text-green-500" />
+                                <span className="text-green-600 dark:text-green-400 font-medium">Live</span>
+                            </>
+                        ) : (
+                            <>
+                                <WifiOff className="h-3.5 w-3.5 text-zinc-400" />
+                                <span className="text-zinc-500 font-medium">Offline</span>
+                            </>
+                        )}
+                    </div>
                 </div>
             )}
 
