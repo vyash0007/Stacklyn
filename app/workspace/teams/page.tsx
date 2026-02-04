@@ -302,17 +302,19 @@ const TeamsPage = () => {
 
     // Handle mention selection
     const handleMentionSelect = (user: MentionUser) => {
+        // Replace spaces with underscores for proper mention parsing
+        const mentionName = (user.name || 'user').replace(/\s+/g, '_');
         if (mentionInputType === 'main') {
             const lastAtIndex = newMessage.lastIndexOf('@');
             const beforeMention = newMessage.slice(0, lastAtIndex);
-            const mention = `@${user.name || 'user'} `;
+            const mention = `@${mentionName} `;
             setNewMessage(beforeMention + mention);
         } else {
             // For reply inputs
             const currentReply = replyInputs[mentionInputType] || '';
             const lastAtIndex = currentReply.lastIndexOf('@');
             const beforeMention = currentReply.slice(0, lastAtIndex);
-            const mention = `@${user.name || 'user'} `;
+            const mention = `@${mentionName} `;
             setReplyInputs(prev => ({ ...prev, [mentionInputType]: beforeMention + mention }));
         }
         setShowMentionDropdown(false);
@@ -455,16 +457,18 @@ const TeamsPage = () => {
 
     // Render message content with highlighted @mentions
     const renderMessageContent = (content: string) => {
-        // Match @mentions (@ followed by non-space characters until space or end)
-        const mentionRegex = /@(\S+)/g;
+        // Match @mentions (@ followed by word characters including underscores)
+        const mentionRegex = /@([\w]+)/g;
         const parts = content.split(mentionRegex);
 
         return parts.map((part, index) => {
             // Odd indices are the captured groups (mention names)
             if (index % 2 === 1) {
+                // Replace underscores with spaces for display
+                const displayName = part.replace(/_/g, ' ');
                 return (
                     <span key={index} className="text-indigo-400 font-medium">
-                        @{part}
+                        @{displayName}
                     </span>
                 );
             }

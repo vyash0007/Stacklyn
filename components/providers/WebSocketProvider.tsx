@@ -129,7 +129,19 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
         // Notification listeners
         socket.on("pending_notifications", (data) => {
           console.log(`🔔 Received ${data.notifications.length} pending notifications`);
-          setNotifications(data.notifications);
+          // Merge with existing notifications to avoid losing any that arrived via real-time
+          setNotifications((prev) => {
+            const existingIds = new Set(prev.map((n) => n.id));
+            const newNotifications = data.notifications.filter(
+              (n: NotificationData) => !existingIds.has(n.id)
+            );
+            // Combine: new from Redis + existing (avoiding duplicates), sorted by createdAt
+            const merged = [...newNotifications, ...prev];
+            // Sort by createdAt descending (newest first)
+            return merged.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          });
         });
 
         socket.on("notification", (data) => {
