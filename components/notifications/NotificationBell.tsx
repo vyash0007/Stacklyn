@@ -67,14 +67,12 @@ export function NotificationBell() {
 
   const handleNotificationClick = (notification: NotificationData) => {
     // Navigate based on notification type
-    if (notification.projectId) {
-      if (notification.type === "mention" || notification.type === "reply") {
-        // Navigate to project chat
-        router.push(`/workspace/${notification.projectId}?tab=chat`);
-      } else {
-        // Navigate to project
-        router.push(`/workspace/${notification.projectId}`);
-      }
+    if (notification.type === "mention" || notification.type === "reply") {
+      // Navigate to teams chat
+      router.push(`/workspace/teams`);
+    } else if (notification.projectId) {
+      // Navigate to project
+      router.push(`/workspace/projects/${notification.projectId}`);
     }
 
     // Remove the notification
