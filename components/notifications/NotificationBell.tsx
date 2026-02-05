@@ -68,8 +68,12 @@ export function NotificationBell() {
   const handleNotificationClick = (notification: NotificationData) => {
     // Navigate based on notification type
     if (notification.type === "mention" || notification.type === "reply") {
-      // Navigate to teams chat
-      router.push(`/workspace/teams`);
+      // Navigate to teams chat with the specific project and message
+      const params = new URLSearchParams();
+      if (notification.projectId) params.set('project', notification.projectId);
+      if (notification.messageId) params.set('message', notification.messageId);
+      const queryString = params.toString();
+      router.push(`/workspace/teams${queryString ? `?${queryString}` : ''}`);
     } else if (notification.projectId) {
       // Navigate to project
       router.push(`/workspace/projects/${notification.projectId}`);

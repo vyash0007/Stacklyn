@@ -19,10 +19,22 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { SignOutButton } from "@clerk/nextjs";
 import ApiKeysPanel from "@/components/settings/ApiKeysPanel";
+import { useWebSocket } from "@/components/providers/WebSocketProvider";
 
 export function Sidebar() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
+    const { notifications } = useWebSocket();
+
+    // Count chat notifications (mentions + replies)
+    const chatNotificationsCount = notifications.filter(
+        n => n.type === 'mention' || n.type === 'reply'
+    ).length;
+
+    // Count project notifications (invites)
+    const projectNotificationsCount = notifications.filter(
+        n => n.type === 'invite'
+    ).length;
 
     // Close sidebar when navigating on mobile
     useEffect(() => {
@@ -138,7 +150,13 @@ export function Sidebar() {
                                     >
                                         <route.icon className={cn("h-4 w-4", route.active ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600")} />
                                         <span className="text-xs font-medium">{route.label}</span>
-                                        {route.active && (
+                                        {/* Show invite notification badge for Projects */}
+                                        {route.label === "Projects" && projectNotificationsCount > 0 && (
+                                            <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-semibold flex items-center justify-center">
+                                                {projectNotificationsCount}
+                                            </span>
+                                        )}
+                                        {route.active && route.label !== "Projects" && (
                                             <div className="ml-auto w-1 h-1 rounded-full bg-zinc-900 dark:bg-white shadow-[0_0_5px_rgba(0,0,0,0.3)] dark:shadow-[0_0_5px_rgba(255,255,255,0.5)]"></div>
                                         )}
                                     </Link>
@@ -190,7 +208,13 @@ export function Sidebar() {
                                     >
                                         <route.icon className={cn("h-4 w-4", route.active ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600")} />
                                         <span className="text-xs font-medium">{route.label}</span>
-                                        {route.active && (
+                                        {/* Show chat notification badge for Teams */}
+                                        {route.label === "Teams" && chatNotificationsCount > 0 && (
+                                            <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[10px] font-semibold flex items-center justify-center">
+                                                {chatNotificationsCount}
+                                            </span>
+                                        )}
+                                        {route.active && route.label !== "Teams" && (
                                             <div className="ml-auto w-1 h-1 rounded-full bg-zinc-900 dark:bg-white shadow-[0_0_5px_rgba(0,0,0,0.3)] dark:shadow-[0_0_5px_rgba(255,255,255,0.5)]"></div>
                                         )}
                                     </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
     MoreHorizontal,
     MessageSquare,
@@ -24,10 +25,16 @@ import { ReactionsSummary } from '@/components/chat/ReactionsSummary';
 import { MentionDropdown, MentionUser } from '@/components/chat/MentionDropdown';
 import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useUser } from '@clerk/nextjs';
 
 const TeamsPage = () => {
     const api = useApi();
-    const { isConnected, onlineUsers, joinProject, leaveProject, onNewMessage, onNewReply, onNewReaction, onReactionRemoved } = useWebSocket();
+    const { user } = useUser();
+    const currentUserEmail = user?.primaryEmailAddress?.emailAddress;
+    const searchParams = useSearchParams();
+    const projectFromUrl = searchParams.get('project');
+    const messageFromUrl = searchParams.get('message');
+    const { isConnected, onlineUsers, notifications, removeNotification, joinProject, leaveProject, onNewMessage, onNewReply, onNewReaction, onReactionRemoved } = useWebSocket();
     const [projects, setProjects] = useState<Project[]>([]);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [isProjectListOpen, setIsProjectListOpen] = useState(true);
@@ -49,6 +56,16 @@ const TeamsPage = () => {
     // Mention state
     const [projectMembers, setProjectMembers] = useState<MentionUser[]>([]);
     const [showMentionDropdown, setShowMentionDropdown] = useState(false);
+
+    // Compute unread chat notifications per project from existing notifications
+    const chatNotificationsPerProject = notifications
+        .filter(n => n.type === 'mention' || n.type === 'reply')
+        .reduce((acc, n) => {
+            if (n.projectId) {
+                acc[n.projectId] = (acc[n.projectId] || 0) + 1;
+            }
+            return acc;
+        }, {} as { [projectId: string]: number });
 
     // Scroll ref for auto-scrolling to bottom
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -82,14 +99,19 @@ const TeamsPage = () => {
 
                 setProjects(allProjects);
                 if (allProjects.length > 0) {
-                    setSelectedProjectId(allProjects[0].id);
+                    // If project ID is provided in URL and exists, select it; otherwise select first
+                    if (projectFromUrl && allProjects.find(p => p.id === projectFromUrl)) {
+                        setSelectedProjectId(projectFromUrl);
+                    } else {
+                        setSelectedProjectId(allProjects[0].id);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to load projects:", error);
             }
         };
         loadProjects();
-    }, [api]);
+    }, [api, projectFromUrl]);
 
     // Load messages when project changes
     useEffect(() => {
@@ -144,20 +166,37 @@ const TeamsPage = () => {
             }
             try {
                 const members = await api.getProjectMembers(selectedProjectId);
-                // Transform members to MentionUser format
-                const mentionUsers: MentionUser[] = (members || []).map((m: any) => ({
-                    id: m.users?.id || m.user_id,
-                    name: m.users?.name || null,
-                    image_url: m.users?.image_url || null,
-                    email: m.users?.email || null,
-                }));
+                // Transform members to MentionUser format and filter out current user
+                const mentionUsers: MentionUser[] = (members || [])
+                    .map((m: any) => ({
+                        id: m.users?.id || m.user_id,
+                        name: m.users?.name || null,
+                        image_url: m.users?.image_url || null,
+                        email: m.users?.email || null,
+                    }))
+                    .filter((m: MentionUser) => m.email?.toLowerCase() !== currentUserEmail?.toLowerCase()); // Don't allow self-mention
                 setProjectMembers(mentionUsers);
             } catch (error) {
                 console.error("Failed to load project members:", error);
             }
         };
         loadMembers();
-    }, [selectedProjectId, api]);
+    }, [selectedProjectId, api, currentUserEmail]);
+
+    // Clear chat notifications for the selected project (user has "read" the messages)
+    useEffect(() => {
+        if (!selectedProjectId) return;
+
+        // Find and remove all chat notifications for this project
+        const projectChatNotifications = notifications.filter(
+            n => (n.type === 'mention' || n.type === 'reply') && n.projectId === selectedProjectId
+        );
+
+        // Remove each notification (this will also delete from Redis)
+        projectChatNotifications.forEach(n => {
+            removeNotification(n.id);
+        });
+    }, [selectedProjectId]);
 
     // WebSocket: Join/leave project room when selection changes
     useEffect(() => {
@@ -170,6 +209,58 @@ const TeamsPage = () => {
             }
         };
     }, [selectedProjectId, isConnected, joinProject, leaveProject]);
+
+    // Auto-expand thread and scroll to message from URL
+    useEffect(() => {
+        if (!messageFromUrl || !selectedProjectId || messages.length === 0) return;
+
+        const findAndExpandMessage = async () => {
+            // Check if the message is a parent message
+            const parentMessage = messages.find(m => m.id === messageFromUrl);
+            if (parentMessage) {
+                // It's a parent message - expand its thread
+                setExpandedThreads(prev => new Set(prev).add(messageFromUrl));
+                // Load replies if not loaded
+                if (!threadReplies[messageFromUrl]) {
+                    try {
+                        const replies = await api.getMessageReplies(selectedProjectId, messageFromUrl);
+                        setThreadReplies(prev => ({ ...prev, [messageFromUrl]: replies || [] }));
+                    } catch (error) {
+                        console.error("Failed to load replies:", error);
+                    }
+                }
+                // Scroll to the message
+                setTimeout(() => {
+                    const element = document.getElementById(`message-${messageFromUrl}`);
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 500);
+            } else {
+                // It might be a reply - find the parent message that contains this reply
+                for (const msg of messages) {
+                    if (msg.replies_count && msg.replies_count > 0) {
+                        try {
+                            const replies = await api.getMessageReplies(selectedProjectId, msg.id);
+                            if (replies?.some((r: ChatMessage) => r.id === messageFromUrl)) {
+                                // Found the parent! Expand the thread
+                                setExpandedThreads(prev => new Set(prev).add(msg.id));
+                                setThreadReplies(prev => ({ ...prev, [msg.id]: replies || [] }));
+                                // Scroll to the reply after a short delay
+                                setTimeout(() => {
+                                    const element = document.getElementById(`reply-${messageFromUrl}`);
+                                    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }, 500);
+                                break; // Found it, stop searching
+                            }
+                        } catch (error) {
+                            console.error("Failed to load replies:", error);
+                        }
+                    }
+                }
+            }
+        };
+
+        findAndExpandMessage();
+    }, [messageFromUrl, selectedProjectId, messages.length]);
 
     // WebSocket: Handle new messages in real-time
     const handleNewMessage = useCallback((data: { projectId: string; message: any }) => {
@@ -575,6 +666,11 @@ const TeamsPage = () => {
                                 )}
                                 <span className="truncate">{project.name}</span>
                             </div>
+                            {chatNotificationsPerProject[project.id] > 0 && (
+                                <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-semibold flex items-center justify-center">
+                                    {chatNotificationsPerProject[project.id]}
+                                </span>
+                            )}
                         </button>
                     ))}
                     {projects.length === 0 && !isLoading && (
@@ -609,37 +705,41 @@ const TeamsPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        {/* Online Users Avatars */}
-                        {onlineUsers.length > 0 && (
-                            <div className="flex items-center gap-2">
-                                <div className="flex -space-x-2">
-                                    {onlineUsers.slice(0, 4).map((user) => (
-                                        <div key={user.id} className="relative">
-                                            {user.image_url ? (
-                                                <img
-                                                    src={user.image_url}
-                                                    alt={user.name || 'User'}
-                                                    className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] object-cover"
-                                                    title={user.name || 'Online user'}
-                                                />
-                                            ) : (
-                                                <div 
-                                                    className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold"
-                                                    title={user.name || 'Online user'}
-                                                >
-                                                    {user.name?.charAt(0).toUpperCase() || 'U'}
-                                                </div>
-                                            )}
-                                            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#181818]" />
-                                        </div>
-                                    ))}
+                        {/* Online Users Avatars - filtered by project members */}
+                        {(() => {
+                            const projectMemberIds = new Set(projectMembers.map(m => m.id));
+                            const projectOnlineUsers = onlineUsers.filter(u => projectMemberIds.has(u.id));
+                            return projectOnlineUsers.length > 0 && (
+                                <div className="flex items-center gap-2">
+                                    <div className="flex -space-x-2">
+                                        {projectOnlineUsers.slice(0, 4).map((user) => (
+                                            <div key={user.id} className="relative">
+                                                {user.image_url ? (
+                                                    <img
+                                                        src={user.image_url}
+                                                        alt={user.name || 'User'}
+                                                        className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] object-cover"
+                                                        title={user.name || 'Online user'}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className="w-8 h-8 rounded-full border-2 border-white dark:border-[#181818] bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold"
+                                                        title={user.name || 'Online user'}
+                                                    >
+                                                        {user.name?.charAt(0).toUpperCase() || 'U'}
+                                                    </div>
+                                                )}
+                                                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#181818]" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {projectOnlineUsers.length > 4 && (
+                                        <span className="text-xs text-zinc-500 font-medium">+{projectOnlineUsers.length - 4}</span>
+                                    )}
+                                    <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium ml-1">online</span>
                                 </div>
-                                {onlineUsers.length > 4 && (
-                                    <span className="text-xs text-zinc-500 font-medium">+{onlineUsers.length - 4}</span>
-                                )}
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium ml-1">online</span>
-                            </div>
-                        )}
+                            );
+                        })()}
                         {selectedProjectId && (
                             <Link
                                 href={`/workspace/projects/${selectedProjectId}`}
@@ -714,9 +814,9 @@ const TeamsPage = () => {
                             <p className="text-sm">No messages yet. Start the conversation!</p>
                         </div>
                     ) : (
-                        <div className="max-w-4xl">
-                            {/* Vertical Timeline Line */}
-                            <div className="absolute left-[30px] md:left-[54px] top-8 bottom-0 w-px bg-white/10" />
+                        <div className="max-w-4xl relative">
+                            {/* Vertical Timeline Line - centered with avatars (w-10 = 40px, center = 20px) */}
+                            <div className="absolute left-5 top-5 bottom-8 w-px bg-zinc-300 dark:bg-white/10" />
 
                             <div className="space-y-8">
                                 {Object.entries(groupedMessages).map(([dateGroup, groupMessages]) => (
@@ -733,7 +833,7 @@ const TeamsPage = () => {
                                             const replyCount = message.replies_count || 0;
 
                                             return (
-                                                <div key={message.id} className="relative pl-10 md:pl-16 group mb-8">
+                                                <div key={message.id} id={`message-${message.id}`} className="relative pl-10 md:pl-16 group mb-8">
                                                     {/* Avatar Marker */}
                                                     <div className="absolute left-0 top-0">
                                                         <UserAvatar
@@ -771,7 +871,7 @@ const TeamsPage = () => {
                                                                 {/* Thread toggle button */}
                                                                 <button
                                                                     onClick={() => toggleThread(message.id)}
-                                                                    className="flex items-center gap-1.5 hover:text-white transition-professional shrink-0"
+                                                                    className="flex items-center gap-1.5 hover:text-zinc-900 dark:hover:text-white transition-professional shrink-0"
                                                                 >
                                                                     {isExpanded ? (
                                                                         <ChevronUp className="h-3 w-3 md:h-4 md:w-4" />
@@ -807,7 +907,7 @@ const TeamsPage = () => {
 
                                                                 {/* Replies list */}
                                                                 {replies.map((reply) => (
-                                                                    <div key={reply.id} className="flex gap-3">
+                                                                    <div key={reply.id} id={`reply-${reply.id}`} className="flex gap-3">
                                                                         {/* Reply avatar */}
                                                                         <UserAvatar
                                                                             userId={reply.user?.id || reply.user_id || ''}

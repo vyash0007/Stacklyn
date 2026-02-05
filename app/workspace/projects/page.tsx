@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { formatRelativeTime } from "@/lib/utils";
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
+import { useWebSocket } from "@/components/providers/WebSocketProvider";
 
 export default function ProjectsPage() {
     const api = useApi();
+    const { notifications, removeNotification } = useWebSocket();
     const [projectType, setProjectType] = useState<'self' | 'team'>('self');
     const [projects, setProjects] = useState<Project[]>([]);
     const [newProjectName, setNewProjectName] = useState("");
@@ -109,10 +111,21 @@ export default function ProjectsPage() {
                             Personal
                         </button>
                         <button
-                            onClick={() => setProjectType('team')}
-                            className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${projectType === 'team' ? 'bg-zinc-900 dark:bg-white text-white dark:text-black shadow-lg shadow-zinc-900/20 dark:shadow-white/10' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
+                            onClick={() => {
+                                setProjectType('team');
+                                // Clear invite notifications when viewing team projects
+                                notifications.filter(n => n.type === 'invite').forEach(n => {
+                                    removeNotification(n.id);
+                                });
+                            }}
+                            className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all flex items-center gap-2 ${projectType === 'team' ? 'bg-zinc-900 dark:bg-white text-white dark:text-black shadow-lg shadow-zinc-900/20 dark:shadow-white/10' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'}`}
                         >
                             Team
+                            {notifications.filter(n => n.type === 'invite').length > 0 && (
+                                <span className={`min-w-[16px] h-[16px] px-1 rounded-full text-[9px] font-semibold flex items-center justify-center ${projectType === 'team' ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white' : 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'}`}>
+                                    {notifications.filter(n => n.type === 'invite').length}
+                                </span>
+                            )}
                         </button>
                     </div>
 
