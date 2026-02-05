@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, X, Users, AtSign, Reply } from "lucide-react";
+import { Bell, X, Users, AtSign, Reply, Inbox } from "lucide-react";
 import { useWebSocket } from "@/components/providers/WebSocketProvider";
 import { NotificationData, NotificationType } from "@/types/websocket";
 import { Button } from "@/components/ui/button";
@@ -9,23 +9,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
 const notificationIcons: Record<NotificationType, React.ReactNode> = {
-  invite: <Users className="h-4 w-4 text-blue-500" />,
-  removed: <Users className="h-4 w-4 text-red-500" />,
-  mention: <AtSign className="h-4 w-4 text-purple-500" />,
-  reply: <Reply className="h-4 w-4 text-green-500" />,
-};
-
-const notificationColors: Record<NotificationType, string> = {
-  invite: "bg-blue-500/10 border-blue-500/20",
-  removed: "bg-red-500/10 border-red-500/20",
-  mention: "bg-purple-500/10 border-purple-500/20",
-  reply: "bg-green-500/10 border-green-500/20",
+  invite: <Users className="h-3 w-3" />,
+  removed: <Users className="h-3 w-3" />,
+  mention: <AtSign className="h-3 w-3" />,
+  reply: <Reply className="h-3 w-3" />,
 };
 
 function NotificationItem({
@@ -41,28 +33,29 @@ function NotificationItem({
 
   return (
     <div
-      className={`relative p-3 rounded-lg border cursor-pointer hover:bg-accent/50 transition-colors ${notificationColors[notification.type]}`}
+      className="group relative flex items-center gap-2.5 px-3 py-2 rounded-md border-l-2 border-l-primary/50 bg-card hover:bg-accent/50 cursor-pointer transition-all duration-200"
       onClick={onClick}
     >
+      <div className="shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-muted text-muted-foreground">
+        {notificationIcons[notification.type]}
+      </div>
+      <div className="flex-1 min-w-0 pr-5">
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-medium text-foreground leading-tight truncate">{notification.title}</p>
+          <span className="text-[10px] text-muted-foreground/60 shrink-0">{timeAgo}</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground truncate mt-0.5">{notification.message}</p>
+      </div>
       <button
         onClick={(e) => {
           e.stopPropagation();
           onDismiss();
         }}
-        className="absolute top-2 right-2 p-1 hover:bg-background/50 rounded-full transition-colors"
+        className="absolute top-2 right-2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-muted transition-all duration-200"
+        aria-label="Dismiss notification"
       >
-        <X className="h-3 w-3 text-muted-foreground" />
+        <X className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
-      <div className="flex items-start gap-3 pr-6">
-        <div className="mt-0.5">
-          {notificationIcons[notification.type]}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">{notification.title}</p>
-          <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
-          <p className="text-xs text-muted-foreground mt-1">{timeAgo}</p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -83,7 +76,7 @@ export function NotificationBell() {
         router.push(`/workspace/${notification.projectId}`);
       }
     }
-    
+
     // Remove the notification
     removeNotification(notification.id);
     setOpen(false);
@@ -92,37 +85,48 @@ export function NotificationBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
+        <Button variant="ghost" size="icon" className="relative h-9 w-9">
+          <Bell className="h-[18px] w-[18px]" />
           {notificationCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-medium">
-              {notificationCount > 9 ? "9+" : notificationCount}
+            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center shadow-sm">
+              {notificationCount > 99 ? "99+" : notificationCount}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h4 className="font-semibold">Notifications</h4>
+      <DropdownMenuContent className="w-[360px] p-0 shadow-lg border-border/50" align="end" sideOffset={8}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-foreground">Notifications</h4>
+            {notificationCount > 0 && (
+              <span className="text-[10px] font-medium bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
+                {notificationCount}
+              </span>
+            )}
+          </div>
           {notificationCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground hover:text-foreground h-auto py-1 px-2"
+            <button
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors duration-200"
               onClick={clearAllNotifications}
             >
               Mark all as read
-            </Button>
+            </button>
           )}
         </div>
-        <div className="max-h-[400px] overflow-y-auto">
+
+        {/* Content */}
+        <div className="max-h-[420px] overflow-y-auto custom-scrollbar">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">
-              <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No notifications</p>
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-3">
+                <Inbox className="h-6 w-6 text-muted-foreground/50" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">No notifications</p>
+              <p className="text-xs text-muted-foreground/70 mt-0.5">You're all caught up!</p>
             </div>
           ) : (
-            <div className="p-2 space-y-2">
+            <div className="p-2 space-y-1">
               {notifications.map((notification) => (
                 <NotificationItem
                   key={notification.id}
