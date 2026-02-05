@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
     MoreHorizontal,
@@ -27,7 +27,7 @@ import { useWebSocket } from '@/components/providers/WebSocketProvider';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useUser } from '@clerk/nextjs';
 
-const TeamsPage = () => {
+const TeamsContent = () => {
     const api = useApi();
     const { user } = useUser();
     const currentUserEmail = user?.primaryEmailAddress?.emailAddress;
@@ -319,8 +319,8 @@ const TeamsPage = () => {
                 };
             });
             // Update reply count on parent message
-            setMessages(prev => prev.map(m => 
-                m.id === data.parentMessageId 
+            setMessages(prev => prev.map(m =>
+                m.id === data.parentMessageId
                     ? { ...m, replies_count: (m.replies_count || 0) + 1 }
                     : m
             ));
@@ -361,7 +361,7 @@ const TeamsPage = () => {
         const unsubReply = onNewReply(handleNewReply);
         const unsubReaction = onNewReaction(handleNewReactionWS);
         const unsubReactionRemoved = onReactionRemoved(handleReactionRemovedWS);
-        
+
         return () => {
             unsubMessage();
             unsubReply();
@@ -568,7 +568,7 @@ const TeamsPage = () => {
     };
 
     // Group messages by date (sorted oldest to newest within each group)
-    const sortedMessages = [...messages].sort((a, b) => 
+    const sortedMessages = [...messages].sort((a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
@@ -600,8 +600,8 @@ const TeamsPage = () => {
 
     // Auto-scroll to bottom
     const scrollToBottom = useCallback((smooth = true) => {
-        messagesEndRef.current?.scrollIntoView({ 
-            behavior: smooth ? 'smooth' : 'instant' 
+        messagesEndRef.current?.scrollIntoView({
+            behavior: smooth ? 'smooth' : 'instant'
         });
     }, []);
 
@@ -1028,6 +1028,18 @@ const TeamsPage = () => {
 
             </div>
         </div>
+    );
+};
+
+const TeamsPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center h-screen bg-zinc-50 dark:bg-[#181818]">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+            </div>
+        }>
+            <TeamsContent />
+        </Suspense>
     );
 };
 
